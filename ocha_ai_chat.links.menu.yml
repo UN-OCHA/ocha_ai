@@ -1,0 +1,19 @@
+ocha_ai_chat.admin_config:
+  title: OCHA AI Chat
+  route_name: ocha_ai_chat.admin_config
+  parent: system.admin_config
+ocha_ai_chat.config_form:
+  title: OCHA AI Chat module configuration
+  description: 'Configure the OCHA AI Chat module'
+  route_name: ocha_ai_chat.config_form
+  parent: ocha_ai_chat.admin_config
+ocha_ai_chat.default_settings_form:
+  title: OCHA AI Chat form default settings
+  description: 'Configure the default settings for the AI chat form'
+  route_name: ocha_ai_chat.default_settings_form
+  parent: ocha_ai_chat.admin_config
+ocha_ai_chat.logs_form:
+  title: OCHA AI Chat logs
+  description: 'View the OCHA AI Chat logs'
+  route_name: ocha_ai_chat.logs_form
+  parent: ocha_ai_chat.admin_config

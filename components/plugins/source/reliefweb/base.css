@@ -1,0 +1,12 @@
+:root {
+  --cd-reliefweb-brand-blue: #0988bb;
+  --cd-reliefweb-brand-red: #f65c51;
+  --cd-reliefweb-brand-blue--dark: #055372;
+  --cd-reliefweb-brand-red--dark: #eb1405;
+  --cd-reliefweb-brand-grey--light: #e6ecef;
+  --cd-reliefweb-brand-grey--dark: #2e3436;
+}
+
+.oaic-rw-wrapper {
+  margin-top: 12px;
+}

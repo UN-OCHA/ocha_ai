@@ -1,0 +1,23 @@
+/**
+ * River results.
+ */
+.oaic-rw__river__results {
+  width: 100%;
+  padding: 4px 0 12px 0;
+  text-align: center;
+}
+.oaic-rw__river__results--with-advanced-search {
+  padding: 0;
+}
+.oaic-rw__river__results span {
+  font-weight: bold;
+}
+
+@media all and (min-width: 768px) {
+  .oaic-rw__river__results {
+    padding: 4px 0 12px 0;
+    text-align: left;
+    border-bottom: 1px solid var(--cd-reliefweb-brand-grey--light);
+  }
+}
+

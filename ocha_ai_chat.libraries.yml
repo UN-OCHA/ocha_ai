@@ -1,0 +1,48 @@
+chat.form:
+  css:
+    theme:
+      components/chat-form/chat-form.css: {}
+  js:
+    components/chat-form/chat-form.js: {}
+  dependencies:
+    - ocha_ai_chat/rw-icons
+
+chat.popup:
+  css:
+    theme:
+      components/chat-popup/chat-popup.css: {}
+  js:
+    components/chat-popup/chat-popup.js: {}
+  dependencies:
+    - ocha_ai_chat/rw-icons
+
+logs.form:
+  css:
+    theme:
+      components/logs-form/logs-form.css: {}
+
+plugin.source.reliefweb:
+  css:
+    theme:
+      components/plugins/source/reliefweb/base.css: {}
+      components/plugins/source/reliefweb/filter.css: {}
+      components/plugins/source/reliefweb/filter-autocomplete.css: {}
+      components/plugins/source/reliefweb/filter-datepicker.css: {}
+      components/plugins/source/reliefweb/filter-selection.css: {}
+      components/plugins/source/reliefweb/river.css: {}
+      components/plugins/source/reliefweb/river-results.css: {}
+      components/plugins/source/reliefweb/river-article.css: {}
+      components/plugins/source/reliefweb/river-article-country-slug.css: {}
+      components/plugins/source/reliefweb/river-article-meta.css: {}
+      components/plugins/source/reliefweb/search.css: {}
+  js:
+    /libraries/simple-autocomplete/simpleautocomplete.js: {}
+    /libraries/simple-datepicker/simpledatepicker.js: {}
+    components/plugins/source/reliefweb/plugin.js: {}
+  dependencies:
+    - ocha_ai_chat/rw-icons
+
+rw-icons:
+  css:
+    theme:
+      components/rw-icons/rw-icons.css: {}

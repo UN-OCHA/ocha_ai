@@ -1,0 +1,27 @@
+.ocha-ai-chat-logs-form tr td {
+  vertical-align: top;
+}
+.ocha-ai-chat-logs-form td details {
+  margin: 0;
+}
+.ocha-ai-chat-logs-form td details[open] {
+  position: fixed;
+  z-index: 100;
+  top: 63px;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  box-sizing: border-box;
+  border: 5px solid black;
+}
+.ocha-ai-chat-logs-form td details[open] summary:not(:hover) {
+  background-color: #fdf5f5;
+}
+.ocha-ai-chat-logs-form td details[open] .details-wrapper {
+  overflow-y: scroll;
+  width: 100%;
+  max-width: 800px;
+  max-height: calc(100% - 48px - 24px);
+  margin-right: auto;
+  margin-left: auto;
+}

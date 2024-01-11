@@ -1,0 +1,114 @@
+{
+  "version": "./VERSION",
+  "style": "",
+  "path": "/modules/custom/ocha_ai_chat/components/rw-icons",
+  "colors": {
+    "dark-blue": "#055372",
+    "dark-red": "#eb1405",
+    "dark-grey": "#2e3436",
+    "white": "white"
+  },
+  "icons": {
+    "common": {
+      "source": "img/icons/common",
+      "include": [
+        "add",
+        "arrow-left",
+        "arrow-right",
+        "close",
+        "double-arrow-left",
+        "double-arrow-right",
+        "help",
+        "next",
+        "selected"
+      ],
+      "sizes": {
+        "12": [
+          "dark-blue",
+          "dark-red",
+          "dark-grey",
+          "white"
+        ],
+        "18": [
+          "dark-blue",
+          "dark-red",
+          "white"
+        ]
+      }
+    },
+    "search": {
+      "source": "img/icons/common",
+      "include": [
+        "search"
+      ],
+      "sizes": {
+        "18": [
+          "dark-blue",
+          "dark-red"
+        ],
+        "26": [
+          "white"
+        ]
+      }
+    },
+    "toggle": {
+      "source": "img/icons/common",
+      "include": [
+        "up",
+        "down"
+      ],
+      "sizes": {
+        "9": [
+          "dark-blue",
+          "dark-red",
+          "dark-grey",
+          "white"
+        ],
+        "12": [
+          "dark-blue"
+        ],
+        "18": [
+          "white"
+        ]
+      }
+    },
+    "content": {
+      "source": "img/icons/common",
+      "include": [
+        "report",
+        "map",
+        "infographic",
+        "interactive"
+      ],
+      "sizes": {
+        "16": [
+          "dark-grey"
+        ]
+      }
+    },
+    "datepicker": {
+      "source": "img/icons/datepicker",
+      "include": [
+        "datepicker"
+      ],
+      "sizes": {
+        "32": [
+          "dark-blue",
+          "dark-red"
+        ]
+      }
+    },
+    "chat": {
+      "source": "img/icons/chat",
+      "include": [
+        "chat"
+      ],
+      "sizes": {
+        "64": [
+          "dark-blue",
+          "dark-red"
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,22 @@
+{#
+
+/**
+ * @file
+ * Template for the chat popup.
+ *
+ * Available variables:
+ * - attributes: section attributes
+ * - title: section title
+ * - title_attributes: attributes for the title
+ * - level: heading level for the title
+ * - link: link to the chat form page.
+ */
+
+#}
+{% if link is not empty %}
+{{ attach_library('ocha_ai_chat/chat.popup') }}
+<section{{ attributes.addClass('ocha-ai-chat-chat-popup').setAttribute('data-ocha-ai-chat-chat-popup', '').setAttribute('hidden', '') }}>
+  <h{{ level }}{{ title_attributes.addClass('visually-hidden', 'ocha-ai-chat-chat-popup__title') }}>{{ title }}</h{{ level }}>
+  <a{{ create_attribute().setAttribute('href', link.getUrl().toString()).addClass('ocha-ai-chat-chat-popup__url') }}>{{ link.getText() }}</a>
+</section>
+{% endif %}

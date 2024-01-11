@@ -1,0 +1,147 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 438 162" width="438" height="162">
+  <style>
+    .dark-blue { fill: #055372; }
+    .dark-red { fill: #eb1405; }
+    .dark-grey { fill: #2e3436; }
+    .white { fill: white; }
+  </style>
+  <symbol id="common--add" viewBox="0 0 48 48">
+    <path d="M44 19.996h-.001L27.995 20l-.003-16a4 4 0 0 0-4-3.999 4 4 0 0 0-4 4.001l.003 16-15.996.003a4 4 0 0 0 .001 8h.001L19.997 28 20 44A4 4 0 0 0 24 48h.001A4 4 0 0 0 28 43.999l-.003-16L44 27.996a4 4 0 0 0-.001-8z"/>
+  </symbol>
+  <symbol id="common--arrow-left" viewBox="0 0 28 48">
+    <path d="M24 48a3.989 3.989 0 01-2.828-1.172l-20-20a4 4 0 010-5.657l20-20a4 4 0 015.657 5.657L9.657 24 26.829 41.17A4 4 0 0124 48z"/>
+  </symbol>
+  <symbol id="common--arrow-right" viewBox="0 0 28 48">
+    <path d="M4 48a4 4 0 01-2.828-6.829L18.343 24 1.172 6.828a4 4 0 015.657-5.657l20 20a4 4 0 010 5.657l-20 20A3.989 3.989 0 014 48z"/>
+  </symbol>
+  <symbol id="common--close" viewBox="0 0 46 46">
+    <path d="M28.657 23L44.83 6.828a4 4 0 0 0-5.657-5.657L23 17.343 6.83 1.17a4 4 0 0 0-5.657 5.657L17.342 23 1.173 39.17a4 4 0 0 0 5.657 5.657L23 28.657l16.172 16.171a4 4 0 0 0 5.657-5.657z"/>
+  </symbol>
+  <symbol id="common--double-arrow-left" viewBox="0 0 48 48">
+    <path d="M23.992 47.996a3.99 3.99 0 01-2.828-1.171l-20-20c-1.552-1.552-1.552-4.106 0-5.657l20-20A3.998 3.998 0 0123.988 0c2.195 0 4 1.806 4 4 0 1.059-.42 2.075-1.167 2.825L9.649 23.996l17.172 17.172a4 4 0 011.172 2.828c0 2.194-1.806 4-4 4h-.001zm20.008 0a3.99 3.99 0 01-2.829-1.171l-20-20c-1.552-1.552-1.552-4.106 0-5.657l20-20A4 4 0 0143.995 0c2.195 0 4.001 1.806 4.001 4a4 4 0 01-1.168 2.825L29.656 23.996l17.172 17.172A4 4 0 0148 43.996c0 2.194-1.806 4-4 4z"/>
+  </symbol>
+  <symbol id="common--double-arrow-right" viewBox="0 0 48 48">
+    <path d="M4 47.996c-2.194 0-4-1.806-4-4a4 4 0 011.172-2.828l17.172-17.172L1.172 6.825A4 4 0 01.004 4c0-2.194 1.806-4 4.001-4a4 4 0 012.824 1.168l20 20c1.552 1.551 1.552 4.105 0 5.657l-20 20A3.99 3.99 0 014 47.996zm20.008 0h-.001c-2.194 0-4-1.806-4-4a4 4 0 011.172-2.828l17.172-17.172L21.179 6.825A4.004 4.004 0 0120.012 4c0-2.194 1.805-4 4-4 1.058 0 2.075.42 2.824 1.168l20 20c1.552 1.551 1.552 4.105 0 5.657l-20 20a3.99 3.99 0 01-2.828 1.171z"/>
+  </symbol>
+  <symbol id="common--help" viewBox="0 0 28 48">
+    <circle cx="14" cy="44" r="4"/>
+    <path d="M28 14a14 14 0 0 0-28 0 4 4 0 0 0 8 0 6 6 0 1 1 6 6 4 4 0 0 0-4 4v9a4 4 0 0 0 8 0v-5.59A14.02 14.02 0 0 0 28 14z"/>
+  </symbol>
+  <symbol id="common--next" viewBox="0 0 48 36">
+    <path d="M46.829 15.172l-14-14a4 4 0 0 0-5.658 5.656L34.343 14H4a4 4 0 0 0 0 8h30.343l-7.172 7.172a4 4 0 1 0 5.658 5.656l14-14a4 4 0 0 0 0-5.656z"/>
+  </symbol>
+  <symbol id="common--selected" viewBox="0 0 48 37">
+    <path d="M19 37a3.999 3.999 0 0 1-3-1.354l-15-17a4 4 0 0 1 6-5.293l11.965 13.56L40.97 1.389a4 4 0 0 1 6.06 5.223l-25 29A4 4 0 0 1 19.023 37z"/>
+  </symbol>
+  <symbol id="group-common" viewBox="0 0 48 432">
+    <use xlink:href="#common--add" width="48" height="48"/>
+    <use xlink:href="#common--arrow-left" width="48" height="48" y="48"/>
+    <use xlink:href="#common--arrow-right" width="48" height="48" y="96"/>
+    <use xlink:href="#common--close" width="48" height="48" y="144"/>
+    <use xlink:href="#common--double-arrow-left" width="48" height="48" y="192"/>
+    <use xlink:href="#common--double-arrow-right" width="48" height="48" y="240"/>
+    <use xlink:href="#common--help" width="48" height="48" y="288"/>
+    <use xlink:href="#common--next" width="48" height="48" y="336"/>
+    <use xlink:href="#common--selected" width="48" height="48" y="384"/>
+  </symbol>
+  <symbol id="group-common--12" viewBox="0 0 48 108">
+    <use xlink:href="#group-common" width="12" height="108" class="dark-blue"/>
+    <use xlink:href="#group-common" width="12" height="108" x="12" class="dark-red"/>
+    <use xlink:href="#group-common" width="12" height="108" x="24" class="dark-grey"/>
+    <use xlink:href="#group-common" width="12" height="108" x="36" class="white"/>
+  </symbol>
+  <symbol id="group-common--18" viewBox="0 0 54 162">
+    <use xlink:href="#group-common" width="18" height="162" class="dark-blue"/>
+    <use xlink:href="#group-common" width="18" height="162" x="18" class="dark-red"/>
+    <use xlink:href="#group-common" width="18" height="162" x="36" class="white"/>
+  </symbol>
+  <symbol id="search--search" viewBox="0 0 48 48">
+    <path d="M46.829 41.172L38.4 32.744a21.018 21.018 0 1 0-5.657 5.657l8.427 8.427a4 4 0 0 0 5.658-5.656zM8 21a13 13 0 1 1 22.325 9.046c-.05.045-.106.078-.154.126s-.08.104-.125.154A12.992 12.992 0 0 1 8 21z"/>
+  </symbol>
+  <symbol id="group-search" viewBox="0 0 48 48">
+    <use xlink:href="#search--search" width="48" height="48"/>
+  </symbol>
+  <symbol id="group-search--18" viewBox="0 0 36 18">
+    <use xlink:href="#group-search" width="18" height="18" class="dark-blue"/>
+    <use xlink:href="#group-search" width="18" height="18" x="18" class="dark-red"/>
+  </symbol>
+  <symbol id="group-search--26" viewBox="0 0 26 26">
+    <use xlink:href="#group-search" width="26" height="26" class="white"/>
+  </symbol>
+  <symbol id="toggle--down" viewBox="0 0 48 28">
+    <path d="M48 4a3.989 3.989 0 0 1-1.172 2.829l-20 20a4 4 0 0 1-5.657 0l-20-20a4 4 0 0 1 5.657-5.657L24 18.343 41.17 1.172A4 4 0 0 1 48 4z"/>
+  </symbol>
+  <symbol id="toggle--up" viewBox="0 0 48 28">
+    <path d="M0 24a3.989 3.989 0 0 1 1.171-2.828l20-20a4 4 0 0 1 5.658 0l20 20a4 4 0 1 1-5.658 5.657L24 9.657 6.829 26.829A4 4 0 0 1 0 24z"/>
+  </symbol>
+  <symbol id="group-toggle" viewBox="0 0 48 96">
+    <use xlink:href="#toggle--down" width="48" height="48"/>
+    <use xlink:href="#toggle--up" width="48" height="48" y="48"/>
+  </symbol>
+  <symbol id="group-toggle--9" viewBox="0 0 36 18">
+    <use xlink:href="#group-toggle" width="9" height="18" class="dark-blue"/>
+    <use xlink:href="#group-toggle" width="9" height="18" x="9" class="dark-red"/>
+    <use xlink:href="#group-toggle" width="9" height="18" x="18" class="dark-grey"/>
+    <use xlink:href="#group-toggle" width="9" height="18" x="27" class="white"/>
+  </symbol>
+  <symbol id="group-toggle--12" viewBox="0 0 12 24">
+    <use xlink:href="#group-toggle" width="12" height="24" class="dark-blue"/>
+  </symbol>
+  <symbol id="group-toggle--18" viewBox="0 0 18 36">
+    <use xlink:href="#group-toggle" width="18" height="36" class="white"/>
+  </symbol>
+  <symbol id="content--infographic" viewBox="0 0 48 48">
+    <path d="M10 24H2c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V26c0-1.1-.9-2-2-2zM28 13h-7.9c-1.1 0-2 .9-2 2v29c0 1.1.9 2 2 2H28c1.1 0 2-.9 2-2V15c0-1.1-.9-2-2-2zM46 2h-8c-1.1 0-2 .9-2 2v40c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/>
+  </symbol>
+  <symbol id="content--interactive" viewBox="0 0 48 44.064">
+    <path d="M2 8.017h4.317a6.007 6.007 0 0011.334 0H46a2 2 0 000-4H17.651a6.006 6.006 0 00-11.334 0H2a2 2 0 000 4zM11.984 4a2.016 2.016 0 11-2.016 2.017A2.018 2.018 0 0111.984 4zM46 36.049H25.683a6.006 6.006 0 00-11.334 0H2a2 2 0 000 4h12.349a6.007 6.007 0 0011.334 0H46a2 2 0 000-4zm-25.984 4.015a2.016 2.016 0 112.016-2.015 2.018 2.018 0 01-2.016 2.015zM46 20.032h-4.317a6.007 6.007 0 00-11.334 0H2a2 2 0 000 4h28.349a6.006 6.006 0 0011.334 0H46a2 2 0 000-4zm-9.984 4.017a2.016 2.016 0 112.016-2.017 2.018 2.018 0 01-2.016 2.017z"/>
+  </symbol>
+  <symbol id="content--map" viewBox="0 0 48 48">
+    <path d="M24 0C15.2 0 8 7.6 8 17c0 8 11.8 25.6 15.2 30.4.4.6 1.3.6 1.7 0C28.2 42.6 40 25 40 17c0-9.4-7.2-17-16-17zm0 23.9c-4.4 0-8-3.6-8-8s3.6-8 8-8 8 3.6 8 8-3.6 8-8 8z"/>
+  </symbol>
+  <symbol id="content--report" viewBox="0 0 32 44">
+    <path d="M30 0H2a2.006 2.006 0 0 0-2 2v40a2.006 2.006 0 0 0 2 2h19v-7a3.999 3.999 0 0 1 4-4h7V2a2.006 2.006 0 0 0-2-2zm-4.5 28h-19a1.5 1.5 0 0 1 0-3h19a1.5 1.5 0 0 1 0 3zm0-8h-19a1.5 1.5 0 0 1 0-3h19a1.5 1.5 0 0 1 0 3zm0-8h-19a1.5 1.5 0 0 1 0-3h19a1.5 1.5 0 0 1 0 3z"/>
+    <path d="M23 37v7l9-9h-7a2.006 2.006 0 0 0-2 2z"/>
+  </symbol>
+  <symbol id="group-content" viewBox="0 0 48 192">
+    <use xlink:href="#content--infographic" width="48" height="48"/>
+    <use xlink:href="#content--interactive" width="48" height="48" y="48"/>
+    <use xlink:href="#content--map" width="48" height="48" y="96"/>
+    <use xlink:href="#content--report" width="48" height="48" y="144"/>
+  </symbol>
+  <symbol id="group-content--16" viewBox="0 0 16 64">
+    <use xlink:href="#group-content" width="16" height="64" class="dark-grey"/>
+  </symbol>
+  <symbol id="datepicker--datepicker" viewBox="0 0 42 48">
+    <path d="M40 6h-5v2.5c0 1.92-1.58 3.5-3.5 3.5S28 10.42 28 8.5V6H15v2.5c0 1.92-1.58 3.5-3.5 3.5S8 10.42 8 8.5V6H1.993C.9 6 0 6.9 0 7.993V46.007C0 47.1.9 48 1.993 48H40.007C41.1 48 42 47.1 42 46.007V7.993C42 6.9 41.1 6 40.007 6H40Zm-2 38H4V18h34v26Z"/>
+    <path d="M11.498 10h.004C12.324 10 13 9.324 13 8.502V1.5c0-.823-.677-1.5-1.5-1.5S10 .677 10 1.5v7.002c0 .822.676 1.498 1.498 1.498Zm20 0h.004C32.324 10 33 9.324 33 8.502V1.5c0-.823-.677-1.5-1.5-1.5S30 .677 30 1.5v7.002c0 .822.676 1.498 1.498 1.498Z"/>
+    <path d="M6 20h6v6H6zM14 20h6v6h-6zM22 20h6v6h-6zM30 20h6v6h-6zM6 28h6v6H6zM14 28h6v6h-6zM22 28h6v6h-6zM30 28h6v6h-6zM6 36h6v6H6zM14 36h6v6h-6zM22 36h6v6h-6zM30 36h6v6h-6z"/>
+  </symbol>
+  <symbol id="group-datepicker" viewBox="0 0 48 48">
+    <use xlink:href="#datepicker--datepicker" width="48" height="48"/>
+  </symbol>
+  <symbol id="group-datepicker--32" viewBox="0 0 64 32">
+    <use xlink:href="#group-datepicker" width="32" height="32" class="dark-blue"/>
+    <use xlink:href="#group-datepicker" width="32" height="32" x="32" class="dark-red"/>
+  </symbol>
+  <symbol id="chat--chat" viewBox="0 0 42 44">
+    <path d="M34 0H8a8 8 0 0 0-8 8v19a8 8 0 0 0 8 8h14l8.805 8.805A.7.7 0 0 0 32 43.31V35h2a8 8 0 0 0 8-8V8a8 8 0 0 0-8-8Zm-1.5 27h-23a1.5 1.5 0 0 1 0-3h23a1.5 1.5 0 0 1 0 3Zm0-8h-23a1.5 1.5 0 0 1 0-3h23a1.5 1.5 0 0 1 0 3Zm0-8h-23a1.5 1.5 0 0 1 0-3h23a1.5 1.5 0 0 1 0 3Z"/>
+  </symbol>
+  <symbol id="group-chat" viewBox="0 0 48 48">
+    <use xlink:href="#chat--chat" width="48" height="48"/>
+  </symbol>
+  <symbol id="group-chat--64" viewBox="0 0 128 64">
+    <use xlink:href="#group-chat" width="64" height="64" class="dark-blue"/>
+    <use xlink:href="#group-chat" width="64" height="64" x="64" class="dark-red"/>
+  </symbol>
+  <use xlink:href="#group-common--12" width="48" height="108"/>
+  <use xlink:href="#group-common--18" width="54" height="162" x="48"/>
+  <use xlink:href="#group-search--18" width="36" height="18" x="102"/>
+  <use xlink:href="#group-search--26" width="26" height="26" x="138"/>
+  <use xlink:href="#group-toggle--9" width="36" height="18" x="164"/>
+  <use xlink:href="#group-toggle--12" width="12" height="24" x="200"/>
+  <use xlink:href="#group-toggle--18" width="18" height="36" x="212"/>
+  <use xlink:href="#group-content--16" width="16" height="64" x="230"/>
+  <use xlink:href="#group-datepicker--32" width="64" height="32" x="246"/>
+  <use xlink:href="#group-chat--64" width="128" height="64" x="310"/>
+</svg>

@@ -1,0 +1,46 @@
+plugins:
+  completion:
+    aws_bedrock:
+      prompt_template: |-
+        {{ context }}
+
+        Based solely on the information above, please answer the following question. Please do not make things up and say you don't know if you cannot answer.
+
+        {{ question }}
+    azure_openai:
+      prompt_template: |-
+        Based solely on the information below, please answer the user's question. Please do not make things up and say you don't know if you cannot answer.
+
+        {{ context }}
+  source:
+    reliefweb:
+      api_url: https://api.reliefweb.int/v1
+      converter_url: https://reliefweb.int/search/converter/json
+      appname: ocha-ai-chat
+      cache_enabled: TRUE
+      cache_lifetime: 600
+  text_extractor:
+    mupdf:
+      mutool: /usr/bin/mutool
+  text_splitter:
+    sentence:
+      length: 4
+      overlap: 2
+    token:
+      length: 384
+      overlap: 96
+defaults:
+  plugins:
+    completion:
+      plugin_id: aws_bedrock
+    embedding:
+      plugin_id: aws_bedrock
+    source:
+      plugin_id: reliefweb
+    text_extractor:
+      'application/pdf':
+        plugin_id: 'mupdf'
+    text_splitter:
+      plugin_id: token
+    vector_store:
+      plugin_id: elasticsearch

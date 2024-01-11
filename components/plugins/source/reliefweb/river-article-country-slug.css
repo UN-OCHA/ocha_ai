@@ -1,0 +1,40 @@
+/**
+ * Article country information.
+ *
+ * Country prefix above article title.
+ */
+.oaic-rw__river__article__country-slug {
+  display: inline-block;
+  overflow: hidden;
+  max-width: 100%;
+  margin: 4px 8px 0 0;
+  padding: 0 12px;
+  vertical-align: top;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--cd-reliefweb-brand-grey--dark);
+  background: var(--cd-reliefweb-brand-grey--light);
+  font-size: 18px;
+  font-weight: bold;
+  line-height: 30px;
+}
+.oaic-rw__river__article__country-slug--above {
+  margin: 0 0 16px 0;
+  padding: 3px 8px;
+  font-size: 15px;
+  line-height: 1.6;
+}
+.oaic-rw__river__article__country-slug a {
+  text-decoration: none;
+  color: inherit;
+  font-weight: inherit;
+}
+.oaic-rw__river__article__country-slug span {
+  color: inherit;
+  font-weight: normal;
+}
+.oaic-rw__river__article__country-slug a:hover,
+.oaic-rw__river__article__country-slug a:focus,
+.oaic-rw__river__article__country-slug a:active {
+  text-decoration: underline;
+}

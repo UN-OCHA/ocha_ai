@@ -1,0 +1,199 @@
+<?php
+
+/**
+ * @file
+ * Defines schema for the OCHA AI chat module tables.
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function ocha_ai_chat_schema() {
+  $schema['ocha_ai_chat_logs'] = [
+    'fields' => [
+      'id' => [
+        'description' => 'Unique ID.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'size' => 'normal',
+        'not null' => TRUE,
+      ],
+      'completion_plugin_id' => [
+        'description' => 'Completion plugin ID',
+        'type' => 'varchar_ascii',
+        'length' => 128,
+        'not null' => TRUE,
+        'default' => '',
+      ],
+      'embedding_plugin_id' => [
+        'description' => 'Embedding plugin ID',
+        'type' => 'varchar_ascii',
+        'length' => 128,
+        'not null' => TRUE,
+        'default' => '',
+      ],
+      'source_plugin_id' => [
+        'description' => 'Source plugin ID',
+        'type' => 'varchar_ascii',
+        'length' => 128,
+        'not null' => TRUE,
+        'default' => '',
+      ],
+      'source_data' => [
+        'description' => 'Source data.',
+        'type' => 'text',
+        'size' => 'medium',
+        'not null' => TRUE,
+        'default' => '',
+      ],
+      'source_limit' => [
+        'description' => 'Source limit.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'size' => 'normal',
+        'not null' => TRUE,
+        'default' => 0,
+      ],
+      'source_document_ids' => [
+        'description' => 'Source document IDs.',
+        'type' => 'text',
+        'size' => 'normal',
+        'not null' => TRUE,
+        'default' => '',
+      ],
+      'question' => [
+        'description' => 'Question.',
+        'type' => 'text',
+        'size' => 'normal',
+        'not null' => TRUE,
+        'default' => '',
+      ],
+      'answer' => [
+        'description' => 'Answer.',
+        'type' => 'text',
+        'size' => 'normal',
+        'not null' => TRUE,
+        'default' => '',
+      ],
+      'passages' => [
+        'description' => 'Text passages relevant to the question.',
+        'type' => 'text',
+        'size' => 'medium',
+        'not null' => TRUE,
+        'default' => '',
+      ],
+      'timestamp' => [
+        'description' => 'Timestamp.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'size' => 'normal',
+        'not null' => FALSE,
+        'default' => 0,
+      ],
+      'duration' => [
+        'description' => 'Duration from question to answer in seconds.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'size' => 'normal',
+        'not null' => FALSE,
+        'default' => 0,
+      ],
+      'status' => [
+        'description' => 'Status of the request',
+        'type' => 'varchar_ascii',
+        'length' => 128,
+        'not null' => TRUE,
+        'default' => '',
+      ],
+      'uid' => [
+        'description' => 'The ID of the user who asked the question.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'size' => 'normal',
+        'not null' => TRUE,
+        'default' => 0,
+      ],
+      'stats' => [
+        'description' => 'Stats (durations and plugin IDs for the different steps).',
+        'type' => 'text',
+        'size' => 'normal',
+        'not null' => TRUE,
+        'default' => '',
+      ],
+      'satisfaction' => [
+        'description' => 'Satisfaction score from 0 to 5.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'size' => 'tiny',
+        'not null' => FALSE,
+      ],
+      'feedback' => [
+        'description' => 'Feedback on the quality of the answer.',
+        'type' => 'text',
+        'size' => 'medium',
+        'not null' => FALSE,
+      ],
+    ],
+    'primary key' => ['id'],
+  ];
+
+  $schema['ocha_ai_chat_preferences'] = [
+    'fields' => [
+      'uid' => [
+        'description' => 'User ID.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'size' => 'normal',
+        'not null' => TRUE,
+        'default' => 0,
+      ],
+      'hide_instructions' => [
+        'description' => '1 to hide the instructions on the chat form',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'size' => 'tiny',
+        'not null' => FALSE,
+      ],
+    ],
+    'primary key' => ['uid'],
+  ];
+
+  return $schema;
+}
+
+/**
+ * Implements hook_update_N().
+ *
+ * Add the OCHA AI chat logs table.
+ */
+function ocha_ai_chat_update_10001(array &$sandbox) {
+  $schema = \Drupal::database()->schema();
+  if (!$schema->tableExists('ocha_ai_chat_logs')) {
+    $schema->createTable('ocha_ai_chat_logs', ocha_ai_chat_schema()['ocha_ai_chat_logs']);
+  }
+}
+
+/**
+ * Implements hook_update_N().
+ *
+ * Replace the OCHA AI chat logs table.
+ */
+function ocha_ai_chat_update_10002(array &$sandbox) {
+  $schema = \Drupal::database()->schema();
+  if ($schema->tableExists('ocha_ai_chat_logs')) {
+    $schema->dropTable('ocha_ai_chat_logs');
+  }
+  $schema->createTable('ocha_ai_chat_logs', ocha_ai_chat_schema()['ocha_ai_chat_logs']);
+}
+
+/**
+ * Implements hook_update_N().
+ *
+ * Add the OCHA AI chat preferences table.
+ */
+function ocha_ai_chat_update_10003(array &$sandbox) {
+  $schema = \Drupal::database()->schema();
+  if (!$schema->tableExists('ocha_ai_chat_preferences')) {
+    $schema->createTable('ocha_ai_chat_preferences', ocha_ai_chat_schema()['ocha_ai_chat_preferences']);
+  }
+}

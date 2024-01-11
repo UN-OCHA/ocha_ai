@@ -1,0 +1,188 @@
+/**
+ * Datepicker widget.
+ *
+ * Style for the datepicker widgets. They consist of a calendar type widget and
+ * are currently generated via the simpledatepicker.js library.
+ *
+ * Structure:
+ *
+ * <div class="rw-datepicker-container">
+ *   <div class="rw-datepicker-calendar">
+ *     <div class="rw-datepicker-title">
+ *       <button class="rw-datepicker-control rw-datepicker-title-previous rw-datepicker-title-year">Previous Year</button>
+ *       <button class="rw-datepicker-control rw-datepicker-title-previous rw-datepicker-title-month">Previous Month</button>
+ *       <span class="rw-datepicker-title-date">January, 2020</span>
+ *       <button class="rw-datepicker-control rw-datepicker-title-previous rw-datepicker-title-month">Next Month</button>
+ *       <button class="rw-datepicker-control rw-datepicker-title-previous rw-datepicker-title-year">Next Year</button>
+ *     </div>
+ *     <div class="rw-datepicker-header">
+ *       <span>Su</span>
+ *       <span>Mo</span>
+ *       ...
+ *     </div>
+ *     <div class="rw-datepicker-days">
+ *        <button class="rw-datepicker-day-out">31</button>
+ *        <button class="rw-datepicker-day-in">02</button>
+ *        ...
+ *     </div>
+ *   </div>
+ */
+.oaic-rw__datepicker-container {
+  position: relative;
+  z-index: 10;
+}
+.oaic-rw__datepicker-container[data-hidden="true"] {
+  display: none;
+}
+.oaic-rw__datepicker-calendar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: inline-block;
+  width: 272px;
+  padding: 8px;
+  border: 1px solid var(--cd-reliefweb-brand-grey--dark);
+  background: white;
+  box-shadow: 0 1px 4px 1px rgba(var(--cd-rgb-reliefweb-brand-grey--dark), 0.3);
+}
+.oaic-rw__datepicker-calendar button {
+  margin: 0;
+  padding: 0;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  color: var(--cd-reliefweb-brand-blue--dark);
+  border: none;
+  background: none;
+  font-size: 16px;
+  line-height: 16px;
+  /* Disable text selection of the buttons in the calendar to avoid interfering
+   * with the expected behavior (buttons). */
+  -webkit-touch-callout: none;
+}
+.oaic-rw__datepicker-calendar button:hover,
+.oaic-rw__datepicker-calendar button:focus,
+.oaic-rw__datepicker-calendar button:active {
+  color: var(--cd-reliefweb-brand-blue--dark);
+  background: var(--cd-reliefweb-brand-grey--light);
+}
+.oaic-rw__datepicker-title {
+  margin-bottom: 8px;
+  padding-bottom: 8px;
+  text-align: center;
+  border-bottom: 1px solid var(--cd-reliefweb-brand-grey--light);
+  line-height: 24px;
+}
+/* Previous/next year/month buttons. */
+.oaic-rw__datepicker-container button.oaic-rw__datepicker-control {
+  position: relative;
+  display: inline-block;
+  overflow: hidden;
+  width: 24px;
+  height: 24px;
+  padding-left: 24px;
+  vertical-align: top;
+}
+/* Arrow icons for the previous/next year/month. */
+.oaic-rw__datepicker-container button.oaic-rw__datepicker-control:before {
+  position: absolute;
+  top: 50%;
+  right: 50%;
+  overflow: hidden;
+  width: 12px;
+  height: 12px;
+  margin-top: -6px;
+  margin-right: -6px;
+  content: "";
+  background: var(--rw-icons--common--arrow-right--12--dark-blue);
+}
+.oaic-rw__datepicker-container button.oaic-rw__datepicker-control.oaic-rw__datepicker-title-previous.oaic-rw__datepicker-title-month:before {
+  background: var(--rw-icons--common--arrow-left--12--dark-blue);
+}
+.oaic-rw__datepicker-container button.oaic-rw__datepicker-control.oaic-rw__datepicker-title-next.oaic-rw__datepicker-title-year:before {
+  background: var(--rw-icons--common--double-arrow-right--12--dark-blue);
+}
+.oaic-rw__datepicker-container button.oaic-rw__datepicker-control.oaic-rw__datepicker-title-previous.oaic-rw__datepicker-title-year:before {
+  background: var(--rw-icons--common--double-arrow-left--12--dark-blue);
+}
+/* Selected month and year. */
+.oaic-rw__datepicker-title-date {
+  display: inline-block;
+  width: 150px;
+  padding: 0 4px;
+  font-size: 16px;
+  line-height: 16px;
+}
+/* Weekdays. */
+.oaic-rw__datepicker-header span {
+  display: inline-block;
+  width: 32px;
+  height: 32px;
+  margin: 2px;
+  padding: 8px;
+  text-align: right;
+  font-size: 16px;
+  line-height: 16px;
+}
+/* Days of the month. */
+.oaic-rw__datepicker-days button {
+  width: 32px;
+  height: 32px;
+  margin: 2px;
+  padding: 8px;
+  text-align: right;
+  border: 2px solid transparent;
+  background: none;
+}
+/* Days outside of the selected month are disabled. */
+.oaic-rw__datepicker-days button[disabled],
+.oaic-rw__datepicker-days button[disabled]:hover,
+.oaic-rw__datepicker-days button[disabled]:focus,
+.oaic-rw__datepicker-days button[disabled]:active {
+  cursor: default;
+  color: var(--cd-reliefweb-brand-grey--light);
+  background: none;
+}
+/* Highlight the current day. */
+.oaic-rw__datepicker-days button.oaic-rw__datepicker-today {
+  color: var(--cd-reliefweb-brand-red--dark);
+}
+/* Highlight the currently selected day(s). */
+.oaic-rw__datepicker-days button.oaic-rw__datepicker-selected-day {
+  border: 2px dashed var(--cd-reliefweb-brand-blue--dark);
+}
+/* Highlight the currently selected day(s). */
+.oaic-rw__datepicker-days button.oaic-rw__datepicker-day-in[tabindex="0"] {
+  color: white;
+  background: var(--cd-reliefweb-brand-blue--dark);
+}
+.oaic-rw__datepicker-calendar .oaic-rw__widget__button {
+  font-size: 15px;
+}
+
+
+/**
+ * Advanced search datepicker widget.
+ */
+.oaic-rw .oaic-rw__datepicker-input {
+  display: inline-block;
+  width: calc(100% - 36px);
+  margin-right: 4px;
+}
+.oaic-rw .oaic-rw__datepicker-toggle {
+  display: inline-block;
+  width: 32px;
+  height: 32px;
+  margin: 0;
+  padding: 0;
+  vertical-align: middle;
+  border: none;
+  background: var(--rw-icons--datepicker--datepicker--32--dark-blue);
+}
+.oaic-rw .oaic-rw__datepicker-toggle:hover,
+.oaic-rw .oaic-rw__datepicker-toggle:active,
+.oaic-rw .oaic-rw__datepicker-toggle:focus {
+  background: var(--rw-icons--datepicker--datepicker--32--dark-red);
+}

@@ -1,0 +1,35 @@
+{
+    "name": "unocha/ocha_ai_chat",
+    "description": "OCHA AI Chat module",
+    "type": "drupal-module",
+    "license": "GPL-2.0-or-later",
+    "authors": [
+        {
+            "name": "UNOCHA",
+            "role": ""
+        }
+    ],
+    "require": {
+        "php": ">=8.2",
+        "drupal/core": "^10",
+        "reliefweb/simple-autocomplete": "^v1.3",
+        "reliefweb/simple-datepicker": "^v1.3"
+    },
+    "require-dev": {
+        "drupal/coder": "^8.3",
+        "phpcompatibility/php-compatibility": "^9.3"
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        }
+    },
+    "scripts": {
+        "phpcs": "vendor/bin/phpcs -p .",
+        "phpcbf": "vendor/bin/phpcbf -p .",
+        "test": [
+            "@phpcs"
+        ]
+    }
+}
