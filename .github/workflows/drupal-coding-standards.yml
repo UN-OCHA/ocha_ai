@@ -9,12 +9,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Install PHP CodeSniffer
-        run: |
-          cd ci
-          composer require --dev
+      - name: Install dev dependencies
+        run: composer require --dev
 
       - name: Check coding standards
-        run: |
-          cd ci
-          vendor/bin/phpcs
+        run: vendor/bin/phpcs
