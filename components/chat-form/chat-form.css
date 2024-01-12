@@ -68,13 +68,13 @@
   background-color: white;
 }
 .ocha-ai-chat-popup *:has( ~ main) {
-    display: none;
+  display: none;
 }
 .ocha-ai-chat-popup main ~ * {
-    display: none;
+  display: none;
 }
 .ocha-ai-chat-popup body > *:not(:has(main)) {
-    display: none;
+  display: none;
 }
 .ocha-ai-chat-popup main {
   padding: 24px;

@@ -4,8 +4,17 @@ on: [pull_request]
 
 jobs:
   phpcs-drupal:
-      name: Drupal coding standards
-      runs-on: ubuntu-latest
-      steps:
-        - uses: actions/checkout@v3
-        - uses: guix77/phpcs-drupal-action@v1.0.1
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Install PHP CodeSniffer
+        run: |
+          cd ci
+          composer require --dev
+
+      - name: Check coding standards
+        run: |
+          cd ci
+          vendor/bin/phpcs
