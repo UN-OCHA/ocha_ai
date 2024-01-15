@@ -5,6 +5,7 @@ namespace Drupal\ocha_ai_chat\Plugin\Block;
 use Drupal\Core\Block\BlockBase;
 use Drupal\Core\Link;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
+use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\Url;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -71,7 +72,10 @@ class ChatPopup extends BlockBase implements ContainerFactoryPluginInterface {
    */
   protected function blockAccess(AccountInterface $account) {
     $access_result = parent::blockAccess($account);
-    return $access_result->forbiddenIf(!$account->hasPermission('access ocha ai chat'));
+    if (!$account->hasPermission('access ocha ai chat')) {
+      return $access_result::forbidden();
+    }
+    return $access_result;
   }
 
   /**
