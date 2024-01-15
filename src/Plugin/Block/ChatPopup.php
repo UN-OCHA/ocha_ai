@@ -69,6 +69,14 @@ class ChatPopup extends BlockBase implements ContainerFactoryPluginInterface {
   /**
    * {@inheritdoc}
    */
+  protected function blockAccess(AccountInterface $account) {
+    $access_result = parent::blockAccess($account);
+    return $access_result->forbiddenIf(!$account->hasPermission('access ocha ai chat'));
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function build(): array {
     $current_request = $this->requestStack->getCurrentRequest();
     $current_url = str_replace($current_request->getHttpHost(), 'reliefweb.int', $current_request->getUri());
