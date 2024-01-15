@@ -407,8 +407,8 @@ class OchaAiChat {
     $documents = $documents[$resource] ?? [];
 
     if (empty($documents)) {
-      $this->logger->notice(strtr('No documents found for the ReliefWeb river URL: @url', [
-        '@url' => $url,
+      $this->logger->notice(strtr('No documents found for the source: @source', [
+        '@source' => print_r($source, TRUE),
       ]));
     }
 

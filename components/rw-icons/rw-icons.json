@@ -1,7 +1,7 @@
 {
   "version": "./VERSION",
   "style": "",
-  "path": "/modules/custom/ocha_ai_chat/components/rw-icons",
+  "path": "/modules/contrib/ocha_ai_chat/components/rw-icons",
   "colors": {
     "dark-blue": "#055372",
     "dark-red": "#eb1405",

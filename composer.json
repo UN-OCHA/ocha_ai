@@ -11,9 +11,13 @@
     ],
     "require": {
         "php": ">=8.2",
+        "aws/aws-sdk-php": "^3.283",
         "drupal/core": "^10",
+        "openai-php/client": "^0.7",
+        "pear/text_languagedetect": "^1.0",
         "reliefweb/simple-autocomplete": "^v1.3",
-        "reliefweb/simple-datepicker": "^v1.3"
+        "reliefweb/simple-datepicker": "^v1.3",
+        "symfony/uid": "^6.3"
     },
     "require-dev": {
         "dealerdirect/phpcodesniffer-composer-installer": "^1.0",
