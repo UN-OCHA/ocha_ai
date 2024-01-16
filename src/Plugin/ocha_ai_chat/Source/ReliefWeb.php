@@ -555,6 +555,185 @@ class ReliefWeb extends SourcePluginBase {
   }
 
   /**
+   * {@inheritdoc}
+   */
+  public function describeDocuments(array $documents): array {
+    $descriptions = [];
+    foreach ($documents as $document) {
+      $raw = $document['raw'];
+
+      $description = '"' . $raw['title'] . '"';
+
+      // Description in the form:
+      //
+      // "Type in Language on Country about Tags; published on Date by Sources"
+      //
+      // Note: for countries we don't use 'reliefweb_meta_description_term_list'
+      // to ensure the primary country is the first in the list.
+      //
+      // Content format.
+      $description .= $this->getDescriptionTermList($raw, [
+        'format' => 1,
+      ], "; a ", lowercase: TRUE);
+      // Language.
+      $description .= $this->getDescriptionTermList($raw, [
+        'language' => -1,
+      ], ' in ');
+      // Countries.
+      $description .= $this->getDescriptionTermList($raw, [
+        'country' => 3,
+      ], ' on ', '', '1 other country', '@count other countries');
+      // Tags.
+      $description .= $this->getDescriptionTermList($raw, [
+        'theme' => 2,
+        'disaster_type' => 2,
+      ], ' about ', '', 'more', lowercase: TRUE);
+      // Date.
+      $description .= $this->getDescriptionDate($raw, 'original', '; published on ');
+      // Sources.
+      $description .= $this->getDescriptionTermList($raw, [
+        'source' => 2,
+      ], ' by ', '', '1 other organization', '@count other organizations');
+
+      $descriptions[] = [
+        'text' => $description,
+        'source' => $document,
+      ];
+    }
+    return $descriptions;
+  }
+
+  /**
+   * Get the description component for the given term fields.
+   *
+   * Return a formatted list of terms like "about term1, term2, term3 and more".
+   *
+   * @param array $document
+   *   Document data.
+   * @param array $fields
+   *   Array with term field as key and number of terms to use as value.
+   * @param string $prefix
+   *   Prefix to the formatted list of terms.
+   * @param string $suffix
+   *   Suffix to the formatted list of terms.
+   * @param string $singular
+   *   More text in case of a single extra term.
+   * @param string $plural
+   *   More text in case of multiple extra terms.
+   * @param bool $lowercase
+   *   Convert the terms to lower case.
+   *
+   * @return string
+   *   Formatted list of terms.
+   */
+  protected function getDescriptionTermList(array $document, array $fields, string $prefix = ' ', string $suffix = '', string $singular = '', string $plural = '', bool $lowercase = FALSE): string {
+    $list = [];
+    $more = 0;
+
+    // Retrieve and sort the terms for each field.
+    foreach ($fields as $field => $count) {
+      if (empty($document[$field])) {
+        continue;
+      }
+      $data = $document[$field];
+
+      // Retrieve and sort the terms.
+      $names = [];
+      $items = array_is_list($data) ? $data : [$data];
+      foreach ($items as $item) {
+        if (isset($item['id'], $item['name'])) {
+          // We use the shortname to keep the description short.
+          $name = $item['shortname'] ?? $item['name'];
+          if ($lowercase) {
+            $name = mb_strtolower($name);
+          }
+          // Ensure the primary term is first.
+          $key = !empty($item['primary']) ? '_' . $name : $name;
+          $names[$key] = $name;
+        }
+      }
+      if (empty($names)) {
+        continue;
+      }
+      elseif (count($names) > 1) {
+        LocalizationHelper::collatedKsort($names);
+
+        // Extract the subset of terms to use in the list.
+        if ($count > 0) {
+          foreach (array_slice($names, 0, $count) as $name) {
+            $list[] = $name;
+          }
+        }
+        else {
+          $list = array_values($names);
+        }
+        // Keep track of the number of items non used in the list.
+        $more += count($names) > 2 ? count($names) - 1 : 0;
+      }
+      else {
+        $list[] = reset($names);
+      }
+    }
+
+    if (!empty($list)) {
+      if ($more > 0 && !empty($singular)) {
+        if (!empty($plural) && $more > 1) {
+          $list[] = str_replace('@count', $more, $plural);
+        }
+        else {
+          $list[] = str_replace('@count', $more, $singular);
+        }
+      }
+
+      // Format the list of terms in the form "term1, term2, term3 and more".
+      $last = array_pop($list);
+      $text = !empty($list) ? implode(', ', $list) . ' and ' . $last : $last;
+
+      return $prefix . $text . $suffix;
+    }
+    return '';
+  }
+
+  /**
+   * Get the description component for the given date field.
+   *
+   * @param array $document
+   *   Document data.
+   * @param string $field
+   *   Date field.
+   * @param string $prefix
+   *   Prefix to prepend to the date.
+   * @param string $suffix
+   *   Suffix to append to the date.
+   *
+   * @return string
+   *   Formatted date (with prefix if provided).
+   */
+  protected function getDescriptionDate(array $document, string $field, string $prefix = '', string $suffix = ''): string {
+    if (!isset($document['date'][$field])) {
+      return '';
+    }
+    $date = date_create($document['date'][$field])->format('j F Y');
+    return !empty($date) ? $prefix . $date . $suffix : '';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function generateInlineReference(array $document): string {
+    // Sources.
+    $reference[] = implode(', ', array_filter(array_map(function ($source) {
+      return $source['shortname'] ?? $source['name'] ?? '';
+    }, $document['source'])));
+    // Title.
+    $reference[] = '"' . $document['title'] . '"';
+    // Publication date.
+    $reference[] = date_create($document['date']['original'])->format('j F Y');
+
+    return implode(', ', $reference);
+  }
+
+  /**
    * Validate a ReliefWeb river URL.
    *
    * @param string $url
@@ -625,11 +804,16 @@ class ReliefWeb extends SourcePluginBase {
       'url',
       'url_alias',
       'title',
+      'language',
       'body',
+      'format',
+      'country',
+      'theme',
+      'disaster',
+      'disaster_type',
       'file.url',
       'file.mimetype',
-      'source.name',
-      'source.shortname',
+      'source',
       'date',
     ];
 
@@ -778,6 +962,7 @@ class ReliefWeb extends SourcePluginBase {
         'source' => $fields['source'],
         'date' => $fields['date'],
         'contents' => [],
+        'raw' => $fields,
       ];
 
       $title = trim($fields['title']);

@@ -10,6 +10,7 @@ use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Session\AccountProxyInterface;
 use Drupal\Core\State\StateInterface;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\Core\Url;
 use Drupal\ocha_ai_chat\Services\OchaAiChat;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -81,6 +82,23 @@ class OchaAiChatChatForm extends FormBase {
       $container->get('state'),
       $container->get('ocha_ai_chat.chat')
     );
+  }
+
+  /**
+   * Get the title.
+   *
+   * @param bool|null $popup
+   *   Whether the page is displayed in a popup or not.
+   *
+   * @return \Drupal\Core\StringTranslation\TranslatableMarkup
+   *   The page title.
+   */
+  public function getPageTitle(?bool $popup = NULL): TranslatableMarkup {
+    $limit = $this->getRequest()?->query?->get('limit');
+    if (isset($limit) && $limit == 1) {
+      return $this->t('Ask the document');
+    }
+    return $this->t('Ask the documents');
   }
 
   /**

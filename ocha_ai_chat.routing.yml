@@ -11,6 +11,7 @@ ocha_ai_chat.chat_form.popup:
   defaults:
     _form: '\Drupal\ocha_ai_chat\Form\OchaAiChatChatForm'
     _title: 'Ask the documents'
+    _title_callback: '\Drupal\ocha_ai_chat\Form\OchaAiChatChatForm::getPageTitle'
     popup: true
   requirements:
     _user_is_logged_in: 'TRUE'

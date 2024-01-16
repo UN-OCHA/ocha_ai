@@ -240,7 +240,7 @@ class OchaAiChat {
 
     // If there are no documents to query, then no need to ask the AI.
     if (empty($documents)) {
-      $data['answer'] = 'Sorry, no source documents were found from the source URL.';
+      $data['answer'] = 'Sorry, no source documents were found.';
       return $this->logAnswerData($data);
     }
 
@@ -271,42 +271,34 @@ class OchaAiChat {
     $passages = $vector_store_plugin->getRelevantPassages($index, array_keys($documents), $question, $embedding);
     $data['stats']['Get relevant passages'] = 0 - $time + ($time = microtime(TRUE));
 
-    // Abort if we could not find relevant passages to avoid generating an
-    // answer without context.
+    // If there are no passages matching the question, we inject metadata from
+    // the documents. It helps for questions such as "What are those documents
+    // about?".
     if (empty($passages)) {
-      $data['answer'] = 'Sorry, no documents were found containing the answer to your question.';
-      return $this->logAnswerData($data);
+      $passages = $source_plugin->describeDocuments($documents);
     }
     else {
-      $data['passages'] = $passages;
+      // Generate inline references for the passages.
+      foreach ($passages as $key => $passage) {
+        $source_document = $documents[$passage['source']['id']];
+        $passages[$key]['reference'] = $source_plugin->generateInlineReference($source_document);
+      }
     }
 
-    // Generate inline references for the passages.
-    foreach ($passages as $key => $passage) {
-      $reference = [];
-      // Sources.
-      $reference[] = implode(', ', array_filter(array_map(function ($source) {
-        return $source['shortname'] ?? $source['name'] ?? '';
-      }, $passage['source']['source'])));
-      // Title.
-      $reference[] = '"' . $passage['source']['title'] . '"';
-      // Publication date.
-      $reference[] = date_create($passage['source']['date']['original'])->format('j F Y');
-      // Keep track of the reference so it can be used to generate the context.
-      $passages[$key]['reference'] = implode(', ', $reference);
-    }
+    $data['passages'] = $passages;
 
     // Generate the context to answer the question based on the relevant
     // passages.
     $context = $completion_plugin->generateContext($question, $passages);
 
-    // @todo parse the answer and enrich it with the sources.
+    // @todo parse the answer and try to detect "failure" to propose
+    // alternatives or instructions to clarify the question.
     $answer = $completion_plugin->answer($question, $context);
     $data['stats']['Get answer'] = 0 - $time + ($time = microtime(TRUE));
 
     // The answer is empty for example if there was an error during the request.
     if (empty($answer)) {
-      $data['answer'] = 'Sorry, I was unable to answer to your question.';
+      $data['answer'] = 'Sorry, I was unable to answer your question. Please try again in a short moment.';
       return $this->logAnswerData($data);
     }
     else {
