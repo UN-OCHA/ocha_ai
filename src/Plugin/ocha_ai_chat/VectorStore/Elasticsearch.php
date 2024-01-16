@@ -266,6 +266,8 @@ class Elasticsearch extends VectorStorePluginBase {
     foreach (array_chunk($documents, $this->getPluginSetting('indexing_batch_size', 1), TRUE) as $chunks) {
       $payload = [];
       foreach ($chunks as $id => $document) {
+        // Do not store raw data.
+        unset($document['raw']);
         $payload[] = json_encode(['index' => ['_id' => $id]]);
         $payload[] = json_encode($document);
         // Try to free up some memory.
@@ -435,6 +437,9 @@ class Elasticsearch extends VectorStorePluginBase {
     $query = [
       '_source' => [
         'id',
+        // @todo that may not be needed if the entire document is already
+        // available to the caller.
+        // @see OchaAiChat::answer()
         'url',
         'title',
         'source',

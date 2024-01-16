@@ -66,4 +66,26 @@ interface SourcePluginInterface {
    */
   public function getDocuments(array $data, int $limit = 10): array;
 
+  /**
+   * Generate a brief description of a documents from their title and metadata.
+   *
+   * @param array $documents
+   *   Documents as returned by ::getDocuments().
+   *
+   * @return array
+   *   List of short descriptions of the documents.
+   */
+  public function describeDocuments(array $documents): array;
+
+  /**
+   * Generate an inline reference for a document.
+   *
+   * @param array $document
+   *   A document are returned by ::getDocuments().
+   *
+   * @return string
+   *   Inline reference.
+   */
+  public function generateInlineReference(array $document): string;
+
 }

@@ -5,6 +5,7 @@ namespace Drupal\ocha_ai_chat\Plugin\Block;
 use Drupal\Core\Block\BlockBase;
 use Drupal\Core\Link;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
+use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\Url;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -69,25 +70,37 @@ class ChatPopup extends BlockBase implements ContainerFactoryPluginInterface {
   /**
    * {@inheritdoc}
    */
+  protected function blockAccess(AccountInterface $account) {
+    $access_result = parent::blockAccess($account);
+    if (!$account->hasPermission('access ocha ai chat')) {
+      return $access_result::forbidden();
+    }
+    return $access_result;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function build(): array {
     $current_request = $this->requestStack->getCurrentRequest();
     $current_url = str_replace($current_request->getHttpHost(), 'reliefweb.int', $current_request->getUri());
+
+    $query = [];
     if ($this->checkReportUrl($current_url)) {
-      $river_url = 'https://reliefweb.int/updates?' . http_build_query([
+      $query['url'] = 'https://reliefweb.int/updates?' . http_build_query([
         'search' => 'url_alias:"' . $current_url . '"',
       ]);
+      $query['limit'] = 1;
     }
     elseif (!$this->checkRiverUrl($current_url)) {
-      $river_url = $current_url;
+      $query['url'] = $current_url;
     }
     else {
       return [];
     }
 
     $url = Url::fromRoute('ocha_ai_chat.chat_form.popup', [], [
-      'query' => [
-        'url' => $river_url,
-      ],
+      'query' => $query,
     ]);
 
     return [
