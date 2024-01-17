@@ -421,6 +421,7 @@ class OchaAiChat {
     // name with all the plugin IDs or the info about the plugins in the index
     // so that we can regenerate the embeddings when the plugins change.
     $index = implode('__', [
+      $this->getVectorStorePlugin()->getBaseIndexName(),
       $this->getEmbeddingPlugin()->getPluginId(),
       $this->getEmbeddingPlugin()->getModelName(),
       $this->getEmbeddingPlugin()->getDimensions(),

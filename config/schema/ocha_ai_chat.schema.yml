@@ -266,6 +266,9 @@ ocha_ai_chat.plugin.vector_store.elasticsearch:
     url:
       type: string
       label: 'Elasticsearch cluster URL.'
+    base_index_name:
+      type: string
+      label: 'The prefix used for the indices.'
     indexing_batch_size:
       type: integer
       label: 'Number of documents to index at conce'

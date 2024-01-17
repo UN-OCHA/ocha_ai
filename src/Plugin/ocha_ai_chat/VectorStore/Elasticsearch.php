@@ -103,6 +103,13 @@ class Elasticsearch extends VectorStorePluginBase {
   /**
    * {@inheritdoc}
    */
+  public function getBaseIndexName(): string {
+    return $this->getPluginSetting('base_index_name', 'ocha_ai_chat');
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function createIndex(string $index, int $dimensions): bool {
     if ($this->indexExists($index)) {
       return TRUE;
@@ -294,6 +301,9 @@ class Elasticsearch extends VectorStorePluginBase {
     if (empty($document)) {
       return TRUE;
     }
+
+    // Do not store raw data.
+    unset($document['raw']);
 
     // Ensure the index exist.
     if (!$this->createIndex($index, $dimensions)) {
