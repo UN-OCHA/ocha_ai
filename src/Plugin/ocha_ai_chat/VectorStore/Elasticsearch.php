@@ -302,6 +302,9 @@ class Elasticsearch extends VectorStorePluginBase {
       return TRUE;
     }
 
+    // Do not store raw data.
+    unset($document['raw']);
+
     // Ensure the index exist.
     if (!$this->createIndex($index, $dimensions)) {
       return FALSE;
