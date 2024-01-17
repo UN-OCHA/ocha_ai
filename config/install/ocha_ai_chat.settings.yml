@@ -29,6 +29,9 @@ plugins:
     token:
       length: 384
       overlap: 96
+  vector_store:
+    elasticsearch:
+      base_index_name: ocha_ai_chat
 defaults:
   plugins:
     completion:

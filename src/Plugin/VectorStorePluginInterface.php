@@ -11,6 +11,14 @@ namespace Drupal\ocha_ai_chat\Plugin;
 interface VectorStorePluginInterface {
 
   /**
+   * Get the base index name.
+   *
+   * @return string
+   *   Index name.
+   */
+  public function getBaseIndexName(): string;
+
+  /**
    * Create an index if doen't already exists.
    *
    * @param string $index
