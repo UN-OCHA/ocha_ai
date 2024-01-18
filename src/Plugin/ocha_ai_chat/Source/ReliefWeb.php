@@ -54,6 +54,13 @@ class ReliefWeb extends SourcePluginBase {
   protected string $converterUrl;
 
   /**
+   * ReliefWeb site URL.
+   *
+   * @var string
+   */
+  protected string $siteUrl;
+
+  /**
    * Constructs a \Drupal\Component\Plugin\PluginBase object.
    *
    * @param array $configuration
@@ -203,7 +210,7 @@ class ReliefWeb extends SourcePluginBase {
     $source_url = $form_state->getValue(['source', 'url'], $plugin_defaults['url']) ?: $query?->get('url') ?? '';
     $source_limit = $form_state->getValue(['source', 'limit'], $plugin_defaults['limit']) ?: $query?->get('limit') ?? 1;
 
-    $site_url = $this->getPluginSetting('site_url', 'https://reliefweb.int');
+    $site_url = $this->getSiteUrl();
 
     // Default to the main update river.
     if (empty($source_url)) {
@@ -775,7 +782,7 @@ class ReliefWeb extends SourcePluginBase {
 
     // Ensure the river URL is for reports.
     // @todo Handle other rivers at some point?
-    $site_url = preg_quote($this->getPluginSetting('site_url', 'https://reliefweb.int'));
+    $site_url = preg_quote($this->getSiteUrl());
     if (preg_match('@^' . $site_url . '/updates([?#]|$)@', $url) !== 1) {
       $this->getLogger()->error('URL not a ReliefWeb updates river.');
       return FALSE;
@@ -1022,7 +1029,10 @@ class ReliefWeb extends SourcePluginBase {
    */
   protected function getApiUrl(): string {
     if (!isset($this->apiUrl)) {
-      $api_url = $this->getPluginSetting('api_url');
+      // This is to simplify testing on local/dev environments when
+      // the module is integrated into a ReliefWeb site instance.
+      $api_url = $this->configFactory->get('reliefweb_api.settings')?->get('api_url');
+      $api_url = $api_url ?? $this->getPluginSetting('api_url');
       if (empty($api_url) && !is_string($api_url)) {
         throw new \Exception('Missing or invalid ReliefWeb API URL');
       }
@@ -1056,6 +1066,26 @@ class ReliefWeb extends SourcePluginBase {
       $this->converterUrl = rtrim($converter_url, '/');
     }
     return $this->converterUrl;
+  }
+
+  /**
+   * Get the ReliefWeb Site URL.
+   *
+   * @return string
+   *   The ReliefWeb site URL.
+   */
+  protected function getSiteUrl(): string {
+    if (!isset($this->siteUrl)) {
+      // This is to simplify testing on local/dev environments when
+      // the module is integrated into a ReliefWeb site instance.
+      $site_url = $this->configFactory->get('reliefweb_api.settings')?->get('website');
+      $site_url = $site_url ?? $this->getPluginSetting('site_url', 'https://reliefweb.int');
+      if (empty($site_url) && !is_string($site_url)) {
+        throw new \Exception('Missing or invalid ReliefWeb site URL');
+      }
+      $this->siteUrl = rtrim($site_url, '/');
+    }
+    return $this->siteUrl;
   }
 
   /**
