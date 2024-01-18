@@ -220,8 +220,11 @@ class ReliefWeb extends SourcePluginBase {
       $source_url = str_replace('https://reliefweb.int', $site_url, $source_url);
       // If the URL is not a river URL, assume it's a report URL and generate a
       // river URL to find the report with that URL alias.
-      if (!$this->checkRiverUrl($source_url, FALSE)) {
+      if ($this->checkReportUrl($source_url)) {
         $source_url = $site_url . '/updates?search=url_alias:"' . $source_url . '"';
+      }
+      elseif (!$this->checkRiverUrl($source_url, FALSE)) {
+        $source_url = $site_url . '/updates?view=reports';
       }
     }
 
@@ -792,6 +795,20 @@ class ReliefWeb extends SourcePluginBase {
   }
 
   /**
+   * Validate a ReliefWeb report URL.
+   *
+   * @param string $url
+   *   Report URL.
+   *
+   * @return bool
+   *   TRUE if the URL is valid.
+   */
+  protected function checkReportUrl(string $url): bool {
+    $site_url = preg_quote($this->getSiteUrl());
+    return !empty($url) && preg_match('@^' . $site_url . '/report/[^/]+/[^/]+$@', $url) === 1;
+  }
+
+  /**
    * Prepare the River URL to pass to the converter.
    *
    * @param string $url
@@ -1019,6 +1036,56 @@ class ReliefWeb extends SourcePluginBase {
       $documents[$resource][$id] = $document;
     }
     return $documents;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function downloadFile(string $uri): mixed {
+    // Create a temporary file to download to.
+    $file = tmpfile();
+    if ($file === FALSE) {
+      $this->getLogger()->error('Unable to create temporary file.');
+      return NULL;
+    }
+
+    try {
+      // Try the original URI or the one from the production site.
+      // This is to work with local/dev environments without the files.
+      $uris = array_unique([
+        $uri,
+        preg_replace('@^https://[^/]+/@', 'https://reliefweb.int/', $uri),
+      ]);
+      foreach ($uris as $uri) {
+        $source = @fopen($uri, 'r');
+        if ($source !== FALSE) {
+          break;
+        }
+      }
+      if ($source === FALSE) {
+        throw new \Exception(strtr('Unable to open the file @uri.', [
+          'uri' => $uri,
+        ]));
+      }
+
+      $copy = stream_copy_to_stream($source, $file);
+
+      if ($copy === FALSE) {
+        throw new \Exception(strtr('Unable to download the file @uri.', [
+          'uri' => $uri,
+        ]));
+      }
+      else {
+        return $file;
+      }
+    }
+    catch (\Exception $exception) {
+      if ($file !== FALSE) {
+        fclose($file);
+      }
+      throw $exception;
+    }
+    return NULL;
   }
 
   /**

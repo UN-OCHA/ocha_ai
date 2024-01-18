@@ -88,4 +88,15 @@ interface SourcePluginInterface {
    */
   public function generateInlineReference(array $document): string;
 
+  /**
+   * Download a file from the source.
+   *
+   * @param string $uri
+   *   File URI.
+   *
+   * @return resource|null
+   *   A handle to the downloaded file.
+   */
+  public function downloadFile(string $uri): mixed;
+
 }
