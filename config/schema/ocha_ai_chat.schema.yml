@@ -239,6 +239,9 @@ ocha_ai_chat.plugin.source.reliefweb:
     converter_url:
       type: string
       label: 'Search converter URL.'
+    site_url:
+      type: string
+      label: 'ReliefWeb site URL.'
     appname:
       type: string
       label: 'API appname.'

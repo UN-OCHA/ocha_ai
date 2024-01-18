@@ -137,9 +137,17 @@ class ReliefWeb extends SourcePluginBase {
 
     $form['plugins'][$plugin_type][$plugin_id]['converter_url'] = [
       '#type' => 'textfield',
-      '#title' => $this->t('converter_url'),
+      '#title' => $this->t('API converter URL'),
       '#description' => $this->t('ReliefWeb search converter.'),
       '#default_value' => $config['converter_url'] ?? NULL,
+      '#required' => TRUE,
+    ];
+
+    $form['plugins'][$plugin_type][$plugin_id]['site_url'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('ReliefWeb site URL'),
+      '#description' => $this->t('ReliefWeb site URL.'),
+      '#default_value' => $config['site_url'] ?? NULL,
       '#required' => TRUE,
     ];
 
@@ -195,8 +203,19 @@ class ReliefWeb extends SourcePluginBase {
     $source_url = $form_state->getValue(['source', 'url'], $plugin_defaults['url']) ?: $query?->get('url') ?? '';
     $source_limit = $form_state->getValue(['source', 'limit'], $plugin_defaults['limit']) ?: $query?->get('limit') ?? 1;
 
-    if (!$this->checkRiverUrl($source_url, FALSE)) {
-      $source_url = 'https://reliefweb.int/updates?view=reports';
+    $site_url = $this->getPluginSetting('site_url', 'https://reliefweb.int');
+
+    // Default to the main update river.
+    if (empty($source_url)) {
+      $source_url = $site_url . '/updates?view=reports';
+    }
+    else {
+      $source_url = str_replace('https://reliefweb.int', $site_url, $source_url);
+      // If the URL is not a river URL, assume it's a report URL and generate a
+      // river URL to find the report with that URL alias.
+      if (!$this->checkRiverUrl($source_url, FALSE)) {
+        $source_url = $site_url . '/updates?search=url_alias:"' . $source_url . '"';
+      }
     }
 
     // Source of documents.
@@ -212,7 +231,9 @@ class ReliefWeb extends SourcePluginBase {
       $form['source']['url'] = [
         '#type' => 'textfield',
         '#title' => $this->t('ReliefWeb river URL'),
-        '#description' => $this->t('Filtered list of ReliefWeb content from <a href="https://reliefweb.int/updates?view=reports" target="_blank" rel="noreferrer noopener">https://reliefweb.int/updates</a> to chat against.'),
+        '#description' => $this->t('Filtered list of ReliefWeb content from <a href="@site/updates?view=reports" target="_blank" rel="noreferrer noopener">@site/updates</a> to chat against.', [
+          '@site' => $site_url,
+        ]),
         '#default_value' => $source_url,
         '#required' => TRUE,
         '#maxlength' => 2048,
@@ -282,8 +303,8 @@ class ReliefWeb extends SourcePluginBase {
         // @todo ensure it is unique.
         'baseId' => 'oaic-rw',
         'baseClass' => 'oaic-rw',
-        'baseUrl' => 'https://reliefweb.int',
-        'riverUrl' => $source_url ?: 'https://reliefweb.int/updates?view=reports',
+        'baseUrl' => $site_url,
+        'riverUrl' => $source_url ?: $site_url . '/updates?view=reports',
         'apiUrl' => $this->buildApiUrl('reports', [], FALSE),
         // Base payload.
         'apiPayload' => [
@@ -754,7 +775,8 @@ class ReliefWeb extends SourcePluginBase {
 
     // Ensure the river URL is for reports.
     // @todo Handle other rivers at some point?
-    if (preg_match('@^https?://reliefweb\.int/updates([?#]|$)@', $url) !== 1) {
+    $site_url = preg_quote($this->getPluginSetting('site_url', 'https://reliefweb.int'));
+    if (preg_match('@^' . $site_url . '/updates([?#]|$)@', $url) !== 1) {
       $this->getLogger()->error('URL not a ReliefWeb updates river.');
       return FALSE;
     }
