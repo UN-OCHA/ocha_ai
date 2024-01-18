@@ -608,46 +608,31 @@ class OchaAiChat {
 
     $time = microtime(TRUE);
 
-    // Create a temporary file to download to.
-    $file = tmpfile();
-    if ($file === FALSE) {
-      $this->logger->error('Unable to create temporary file.');
-      return [];
-    }
-
     try {
-      // Download the file.
-      $copy = stream_copy_to_stream(fopen($uri, 'r'), $file);
+      $file = $this->getSourcePlugin()->downloadFile($uri);
       $stats['download'] = 0 - $time + ($time = microtime(TRUE));
-      if ($copy === FALSE) {
-        $this->logger->error(strtr('Unable to download the file @uri.', [
-          'uri' => $uri,
-        ]));
-      }
-      else {
-        // Extract the content of each page.
-        $path = realpath(stream_get_meta_data($file)['uri']);
-        $page_texts = $this->getTextExtractorPlugin($mimetype)->getPageTexts($path);
-        $stats['extraction'] = 0 - $time + ($time = microtime(TRUE));
 
-        // Process each page.
-        if (!empty($page_texts)) {
-          $pages = [];
-          foreach ($page_texts as $page_number => $page_text) {
-            $pages[] = $this->processPage($page_text, $page_number);
-          }
-          $stats['processing'] = 0 - $time + ($time = microtime(TRUE));
+      // Extract the content of each page.
+      $path = realpath(stream_get_meta_data($file)['uri']);
+      $page_texts = $this->getTextExtractorPlugin($mimetype)->getPageTexts($path);
+      $stats['extraction'] = 0 - $time + ($time = microtime(TRUE));
 
-          return $pages;
+      // Process each page.
+      if (!empty($page_texts)) {
+        $pages = [];
+        foreach ($page_texts as $page_number => $page_text) {
+          $pages[] = $this->processPage($page_text, $page_number);
         }
+        $stats['processing'] = 0 - $time + ($time = microtime(TRUE));
+
+        return $pages;
       }
-    }
-    catch (\Exception $exception) {
-      throw $exception;
     }
     finally {
       // Ensure we close the temporary file so it can be deleted.
-      fclose($file);
+      if (!empty($file) && is_resource($file)) {
+        fclose($file);
+      }
 
       // @todo better logging.
       $this->logger->info(print_r($stats, TRUE));
