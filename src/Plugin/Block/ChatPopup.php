@@ -87,9 +87,7 @@ class ChatPopup extends BlockBase implements ContainerFactoryPluginInterface {
 
     $query = [];
     if ($this->checkReportUrl($current_url)) {
-      $query['url'] = 'https://reliefweb.int/updates?' . http_build_query([
-        'search' => 'url_alias:"' . $current_url . '"',
-      ]);
+      $query['url'] = $current_url;
       $query['limit'] = 1;
     }
     elseif (!$this->checkRiverUrl($current_url)) {
@@ -105,7 +103,7 @@ class ChatPopup extends BlockBase implements ContainerFactoryPluginInterface {
 
     return [
       '#theme' => 'ocha_ai_chat_chat_popup',
-      '#title' => $this->t('Chat with documents'),
+      '#title' => $this->t('Ask the documents'),
       '#link' => Link::fromTextAndUrl($this->t('Go to chat page'), $url),
       '#cache' => [
         'max-age' => 0,
