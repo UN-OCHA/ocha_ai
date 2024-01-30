@@ -96,9 +96,9 @@ class OchaAiChatChatForm extends FormBase {
   public function getPageTitle(?bool $popup = NULL): TranslatableMarkup {
     $limit = $this->getRequest()?->query?->get('limit');
     if (isset($limit) && $limit == 1) {
-      return $this->t('Ask the document');
+      return $this->t('Ask ReliefWeb');
     }
-    return $this->t('Ask the documents');
+    return $this->t('Ask ReliefWeb');
   }
 
   /**
@@ -180,7 +180,7 @@ class OchaAiChatChatForm extends FormBase {
     $form['advanced']['completion_plugin_id'] = [
       '#type' => 'select',
       '#title' => $this->t('AI service'),
-      '#description' => $this->t('Select the AI service to use to generate the answer.'),
+      '#description' => $this->t('Select which AI service will generate the answer.'),
       '#options' => $completion_options,
       '#default_value' => $completion_default,
       '#required' => TRUE,
