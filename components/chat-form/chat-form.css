@@ -1,5 +1,72 @@
+:root {
+  --oaic-padding: 24px;
+  --oaic-outline: 2px; /* CD dependency */
+}
+
+/**
+ * Page layout reset.
+ *
+ * Hide everything except the chat form content. These rules exist in the module
+ * so that individual sub-theme implementations don't have to override the page
+ * template and manually zero-out the CD Header/Footer.
+ */
+.ocha-ai-chat-popup {
+  background-color: white;
+}
+
+.ocha-ai-chat-popup *:has( ~ main) {
+  display: none;
+}
+
+.ocha-ai-chat-popup main ~ * {
+  display: none;
+}
+
+.ocha-ai-chat-popup body > *:not(:has(main)) {
+  display: none;
+}
+
+.ocha-ai-chat-popup main h1 {
+  font-size: 1.5rem;
+}
+
+/**
+ * Page layout
+ */
+.ocha-ai-chat,
+.ocha-ai-chat main,
+.ocha-ai-chat .region,
+.ocha-ai-chat__content {
+  height: 100%;
+}
+
+.ocha-ai-chat #main-content {
+  padding-block: 0;
+  padding-inline: var(--oaic-padding);
+}
+
 .ocha-ai-chat-chat-form-wrapper {
   margin-block-start: 2rem;
+}
+
+/**
+ * Title / Heading area
+ */
+.ocha-ai-chat .rw-page-title {
+  margin-block: 0;
+  margin-inline: calc(-1 * var(--oaic-padding));
+  padding: 12px;
+  background: var(--brand-primary);
+  color: var(--cd-white);
+  border-bottom: 0;
+}
+
+
+/**
+ * Chat form
+ */
+.ocha-ai-chat-chat-form {
+  position: relative;
 }
 
 .ocha-ai-chat-chat-form details {
@@ -118,29 +185,4 @@
 
 .ocha-ai-chat-chat-form input[type="text"] {
   max-width: 100%;
-}
-
-/* Hide everything except the chat form content. */
-.ocha-ai-chat-popup {
-  background-color: white;
-}
-
-.ocha-ai-chat-popup *:has( ~ main) {
-  display: none;
-}
-
-.ocha-ai-chat-popup main ~ * {
-  display: none;
-}
-
-.ocha-ai-chat-popup body > *:not(:has(main)) {
-  display: none;
-}
-
-.ocha-ai-chat-popup main {
-  padding: 24px;
-}
-
-.ocha-ai-chat-popup main h1 {
-  font-size: 1.5rem;
 }

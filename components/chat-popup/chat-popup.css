@@ -6,7 +6,7 @@
   width: 30vw;
   height: calc(100vh - 48px);
   border: 2px solid black;
-  border-radius: 6px;
+  border-radius: 9px;
   background: white;
   box-shadow: 0 0 4px 4px rgba(0, 0, 0, 0.2);
 }
