@@ -191,7 +191,8 @@ class OchaAiChatChatForm extends FormBase {
     $form['chat'] = [
       '#type' => 'fieldset',
       '#title' => $this->t('History'),
-      '#access' => !empty($history),
+      '#title_display' => 'invisible',
+      '#access' => TRUE,
       '#tree' => TRUE,
     ];
     $form['history'] = [
@@ -264,6 +265,7 @@ class OchaAiChatChatForm extends FormBase {
     $form['question'] = [
       '#type' => 'textarea',
       '#title' => $this->t('Question'),
+      '#title_display' => 'invisible',
       '#default_value' => $form_state->getValue('question') ?? NULL,
       '#description' => $this->t('Ex: How many people are in need of humanitarian assistance in <em>location</em> due to the <em>event</em> that started on <em>date</em>?'),
       '#rows' => 2,

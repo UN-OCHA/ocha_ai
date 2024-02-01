@@ -1,5 +1,4 @@
 :root {
-  --oaic-padding: 24px;
   --oaic-outline: 2px; /* CD dependency */
 }
 
@@ -41,20 +40,19 @@
 }
 
 .ocha-ai-chat #main-content {
-  padding-block: 0;
-  padding-inline: var(--oaic-padding);
+  padding: 0;
 }
 
 .ocha-ai-chat-chat-form-wrapper {
-  margin-block-start: 2rem;
+  /* height has to take the title into account. */
+  height: calc(100% - 1.5rem - 24px - 7px); /* TODO: 7px is a magic number */
 }
 
 /**
  * Title / Heading area
  */
 .ocha-ai-chat .rw-page-title {
-  margin-block: 0;
-  margin-inline: calc(-1 * var(--oaic-padding));
+  margin: 0;
   padding: 12px;
   background: var(--brand-primary);
   color: var(--cd-white);
@@ -63,19 +61,54 @@
 
 
 /**
- * Chat form
+ * Chat form layout
  */
-.ocha-ai-chat-chat-form {
+/* duplicate class to override CD defaults */
+.ocha-ai-chat-chat-form.ocha-ai-chat-chat-form {
+  --cd-flow-space: 0;
+
+  height: 100%;
   position: relative;
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: space-between;
 }
 
+.ocha-ai-chat-chat-form [data-drupal-selector="edit-advanced"] {
+  flex: 0 0 auto;
+  display: none;
+}
+
+.ocha-ai-chat-chat-form [data-drupal-selector="edit-chat"] {
+  flex: 1 1 100%;
+  padding: 0 16px 12px;
+  overflow-y: scroll;
+  overflow-x: visible;
+}
+
+.ocha-ai-chat-chat-form .form-item-question {
+  flex: 0 0 auto;
+}
+
+.ocha-ai-chat-chat-form [data-drupal-selector="edit-actions"] {
+  position: absolute;
+  bottom: 0;
+  z-index: 100;
+  text-align: end;
+}
+
+
+/**
+ * Chat form styles
+ */
 .ocha-ai-chat-chat-form details {
   display: block;
+  margin: 0 12px;
   padding: 12px;
   border: 1px solid #ddd;
   border-radius: 3px;
   background-color: #fff;
-  box-shadow: rgba(0, 0, 0, 0.1) 0 2px 4px 0;
+  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.1);
 }
 
 .ocha-ai-chat-chat-form details > summary {
@@ -95,6 +128,19 @@
   margin-block-start: 1rem;
 }
 
+.ocha-ai-chat-chat-form input[type="number"] {
+  max-width: 10ch;
+}
+
+.ocha-ai-chat-chat-form input[type="text"] {
+  max-width: 100%;
+}
+
+/**
+ * Q/A history
+ *
+ * Each Q/A results in a chat-like set of bubbles. Think of SMS or WhatsApp.
+ */
 .ocha-ai-chat-chat-form .ocha-ai-chat-result dl {
   display: flex;
   flex-flow: column nowrap;
@@ -179,10 +225,6 @@
   content: ", ";
 }
 
-.ocha-ai-chat-chat-form input[type="number"] {
-  max-width: 10ch;
-}
-
-.ocha-ai-chat-chat-form input[type="text"] {
-  max-width: 100%;
-}
+/**
+ * User input area
+ */
