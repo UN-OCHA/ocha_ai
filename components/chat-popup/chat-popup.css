@@ -10,6 +10,7 @@
   background: white;
   box-shadow: 0 0 4px 4px rgba(0, 0, 0, 0.2);
 }
+
 .ocha-ai-chat-chat-popup__iframe {
   width: 100%;
   height: 100%;
@@ -38,7 +39,7 @@
   bottom: auto;
   width: 18px;
   height: 18px;
-  background: var(--rw-icons--common--close--18--dark-blue);
+  background: var(--rw-icons--common--close--18--white);
 }
 .data-ocha-ai-chat-chat-popup__button--close:active,
 .data-ocha-ai-chat-chat-popup__button--close:focus,
