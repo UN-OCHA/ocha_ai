@@ -72,11 +72,11 @@
   display: flex;
   flex-flow: column nowrap;
   justify-content: space-between;
+  padding-block-start: 1rem;
 }
 
 .ocha-ai-chat-chat-form [data-drupal-selector="edit-advanced"] {
   flex: 0 0 auto;
-  display: none;
 }
 
 .ocha-ai-chat-chat-form [data-drupal-selector="edit-chat"] {
