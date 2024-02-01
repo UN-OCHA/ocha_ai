@@ -101,6 +101,10 @@
 /**
  * Chat form styles
  */
+.ocha-ai-chat-chat-form__instructions {
+  padding-block-start: 1rem;
+}
+
 .ocha-ai-chat-chat-form details {
   display: block;
   margin: 0 12px;
