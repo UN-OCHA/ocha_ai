@@ -50,7 +50,7 @@
     // Mark the popup as processed so the following code runs only once.
     popup.setAttribute('data-ocha-ai-chat-chat-popup-processed', '');
     popup.setAttribute('aria-modal', true);
-    popup.setAttribute('aria-label', Drupal.t('Ask the documents'));
+    popup.setAttribute('aria-label', Drupal.t('Ask ReliefWeb'));
     popup.setAttribute('role', 'dialog');
     popup.setAttribute('hidden', '');
 
@@ -99,7 +99,7 @@
    */
   Drupal.behaviors.ochaAiChat = {
     attach: function (context, settings) {
-      // Get the "Ask the documents" popup.
+      // Get the "Ask ReliefWeb" popup.
       const popup = context.querySelector('[data-ocha-ai-chat-chat-popup]');
 
       // Convert to a popup dialog.
