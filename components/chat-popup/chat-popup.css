@@ -34,8 +34,8 @@
 }
 .data-ocha-ai-chat-chat-popup__button--close {
   z-index: 10001;
-  top: 36px;
-  right: 36px;
+  top: 17px;
+  right: 16px;
   bottom: auto;
   width: 18px;
   height: 18px;
@@ -91,4 +91,11 @@
   border: 3px solid #999;
   border-top-color: #333;
   border-radius: 50%;
+}
+
+/**
+ * Modifier to lock scrolling of main page while popup is opened.
+ */
+.is--scroll-locked {
+  overflow: hidden;
 }

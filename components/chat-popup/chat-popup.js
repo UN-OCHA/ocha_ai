@@ -77,7 +77,7 @@
       'class': 'data-ocha-ai-chat-chat-popup__button'
     }, createElement('span', {
       'class': 'data-ocha-ai-chat-chat-popup__button__label'
-    }, Drupal.t('Open chat')));
+    }, Drupal.t('Toggle chat')));
 
     popup.before(button);
 
@@ -87,8 +87,10 @@
         popup.classList.add('ocha-ai-chat-chat-popup-loading');
         iframe.src = iframe.getAttribute('data-src');
       }
+
       popup.toggleAttribute('hidden');
       button.classList.toggle('data-ocha-ai-chat-chat-popup__button--close');
+      document.documentElement.classList.toggle('is--scroll-locked');
     });
   }
 
