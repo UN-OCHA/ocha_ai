@@ -145,7 +145,7 @@
  *
  * Each Q/A results in a chat-like set of bubbles. Think of SMS or WhatsApp.
  */
-.ocha-ai-chat-chat-form .ocha-ai-chat-result dl {
+.ocha-ai-chat-chat-form .ocha-ai-chat-result .chat {
   display: flex;
   flex-flow: column nowrap;
   margin-top: 1rem;
@@ -155,15 +155,15 @@
   margin: 0;
 }
 
-.ocha-ai-chat-chat-form .ocha-ai-chat-result .chat_q,
-.ocha-ai-chat-chat-form .ocha-ai-chat-result .chat_a,
-.ocha-ai-chat-chat-form .ocha-ai-chat-result .chat_refs {
+.ocha-ai-chat-chat-form .ocha-ai-chat-result .chat__q,
+.ocha-ai-chat-chat-form .ocha-ai-chat-result .chat__a,
+.ocha-ai-chat-chat-form .ocha-ai-chat-result .chat__refs {
   padding: 6px 12px;
   border-radius: 5px;
   position: relative;
 }
 
-.ocha-ai-chat-chat-form .ocha-ai-chat-result .chat_q {
+.ocha-ai-chat-chat-form .ocha-ai-chat-result .chat__q {
   margin-inline-start: 2rem;
   text-align: end;
   color: white;
@@ -184,8 +184,8 @@
   }
 }
 
-.ocha-ai-chat-chat-form .ocha-ai-chat-result .chat_a,
-.ocha-ai-chat-chat-form .ocha-ai-chat-result .chat_refs {
+.ocha-ai-chat-chat-form .ocha-ai-chat-result .chat__a,
+.ocha-ai-chat-chat-form .ocha-ai-chat-result .chat__refs {
   margin-block-start: 0.5rem;
   margin-inline-end: 2rem;
   text-align: start;
@@ -207,7 +207,7 @@
   }
 }
 
-.ocha-ai-chat-chat-form .ocha-ai-chat-result .chat_refs dt {
+.ocha-ai-chat-chat-form .ocha-ai-chat-result .chat__refs dt {
   font-weight: 700;
 }
 

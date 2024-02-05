@@ -213,7 +213,7 @@ class OchaAiChatChatForm extends FormBase {
       ];
       $form['chat'][$index]['result'] = [
         '#type' => 'inline_template',
-        '#template' => '<dl><div class="chat_q"><dt class="visually-hidden">Question</dt><dd>{{ question }}</dd></div><div class="chat_a"><dt class="visually-hidden">Answer</dt><dd>{{ answer }}</dd></div>{% if references %}<div class="chat_refs"><dt>References</dt><dd>{{ references }}</dd></div>{% endif %}</dl>',
+        '#template' => '<dl class="chat"><div class="chat__q"><dt class="visually-hidden">Question</dt><dd>{{ question }}</dd></div><div class="chat__a"><dt class="visually-hidden">Answer</dt><dd>{{ answer }}</dd></div>{% if references %}<div class="chat__refs"><dt>References</dt><dd>{{ references }}</dd></div>{% endif %}</dl>',
         '#context' => [
           'question' => $record['question'],
           'answer' => $record['answer'],
