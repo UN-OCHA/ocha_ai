@@ -71,27 +71,43 @@
     // Replace the link with the iframe.
     link.replaceWith(iframe);
 
-    // Replace the link with a button.
-    const button = createElement('button', {
+    // Replace the link with a button to open the chat window.
+    const openButton = createElement('button', {
       'type': 'button',
-      'class': 'data-ocha-ai-chat-chat-popup__button'
+      'class': 'data-ocha-ai-chat-chat-popup__button-open'
     }, createElement('span', {
-      'class': 'data-ocha-ai-chat-chat-popup__button__label'
-    }, Drupal.t('Toggle chat')));
+      'class': 'data-ocha-ai-chat-chat-popup__button-open__label visually-hidden'
+    }, Drupal.t('Open chat')));
 
-    popup.before(button);
+    popup.before(openButton);
 
-    // Show the chat popup.
-    button.addEventListener('click', event => {
+    // Clicking/tapping will show the chat popup.
+    openButton.addEventListener('click', event => {
       if (!iframe.src) {
         popup.classList.add('ocha-ai-chat-chat-popup-loading');
         iframe.src = iframe.getAttribute('data-src');
       }
 
-      popup.toggleAttribute('hidden');
-      button.classList.toggle('data-ocha-ai-chat-chat-popup__button--close');
-      document.documentElement.classList.toggle('is--scroll-locked');
+      popup.removeAttribute('hidden');
+      document.documentElement.classList.add('is--mobile-scroll-locked');
     });
+
+    // Create a separate close button that sits inside the <section> and can
+    // be more easily positioned in all viewport sizes.
+    const closeButton = createElement('button', {
+      'type': 'button',
+      'class': 'data-ocha-ai-chat-chat-popup__button-close'
+    }, createElement('span', {
+      'class': 'data-ocha-ai-chat-chat-popup__button-close__label visually-hidden'
+    }, Drupal.t('Close chat')));
+
+    // Clicking/tapping will hide the chat popup.
+    closeButton.addEventListener('click', event => {
+      popup.setAttribute('hidden', '');
+      document.documentElement.classList.remove('is--mobile-scroll-locked');
+    });
+
+    popup.prepend(closeButton);
   }
 
   /**

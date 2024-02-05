@@ -6,6 +6,16 @@
   width: 100vw;
   height: 100vh;
   background: white;
+  box-shadow: 0 4px 6px 4px rgba(0, 0, 0, 0.2);
+
+  @media screen and (min-width: 610px) {
+    right: 24px;
+    width: 480px;
+    height: 80vh;
+    max-height: 680px;
+    border: 2px solid black;
+    border-bottom: none;
+  }
 }
 
 .ocha-ai-chat-chat-popup__iframe {
@@ -14,8 +24,10 @@
   border: none;
 }
 
-.data-ocha-ai-chat-chat-popup__button {
+/* Open button */
+.data-ocha-ai-chat-chat-popup__button-open {
   position: fixed;
+  z-index: 9999;
   right: 24px;
   bottom: 24px;
   width: 64px;
@@ -23,32 +35,29 @@
   border: none;
   background: var(--rw-icons--chat--chat--64--dark-blue);
 }
-.data-ocha-ai-chat-chat-popup__button:active,
-.data-ocha-ai-chat-chat-popup__button:focus,
-.data-ocha-ai-chat-chat-popup__button:hover {
+
+.data-ocha-ai-chat-chat-popup__button-open:active,
+.data-ocha-ai-chat-chat-popup__button-open:focus,
+.data-ocha-ai-chat-chat-popup__button-open:hover {
   background: var(--rw-icons--chat--chat--64--dark-red);
 }
-.data-ocha-ai-chat-chat-popup__button--close {
+
+/* Close button */
+.data-ocha-ai-chat-chat-popup__button-close {
+  position: absolute;
   z-index: 10001;
   top: 17px;
   right: 16px;
-  bottom: auto;
   width: 18px;
   height: 18px;
+  border: none;
   background: var(--rw-icons--common--close--18--white);
 }
-.data-ocha-ai-chat-chat-popup__button--close:active,
-.data-ocha-ai-chat-chat-popup__button--close:focus,
-.data-ocha-ai-chat-chat-popup__button--close:hover {
+
+.data-ocha-ai-chat-chat-popup__button-close:active,
+.data-ocha-ai-chat-chat-popup__button-close:focus,
+.data-ocha-ai-chat-chat-popup__button-close:hover {
   background: var(--rw-icons--common--close--18--dark-red);
-}
-.data-ocha-ai-chat-chat-popup__button__label {
-  position: absolute !important;
-  overflow: hidden;
-  clip: rect(1px, 1px, 1px, 1px);
-  width: 1px;
-  height: 1px;
-  word-wrap: normal;
 }
 
 /**
@@ -62,6 +71,7 @@
     transform: rotate(360deg);
   }
 }
+
 .ocha-ai-chat-chat-popup-loading:before {
   position: absolute;
   z-index: 10000;
@@ -72,6 +82,7 @@
   content: "";
   background-color: rgba(0, 0, 0, 0.2);
 }
+
 .ocha-ai-chat-chat-popup-loading:after {
   position: absolute;
   z-index: 10001;
@@ -92,6 +103,10 @@
 /**
  * Modifier to lock scrolling of main page while popup is opened.
  */
-.is--scroll-locked {
+.is--mobile-scroll-locked {
   overflow: hidden;
+
+  @media screen and (min-width: 610px) {
+    overflow: initial;
+  }
 }
