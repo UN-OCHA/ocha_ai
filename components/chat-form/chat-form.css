@@ -79,17 +79,42 @@
   flex: 0 0 auto;
 }
 
+/* This element provides the top-level layout for the chat content. */
 .ocha-ai-chat-chat-form [data-drupal-selector="edit-chat"] {
   flex: 1 1 100%;
-  padding: 0 16px 12px;
-  overflow-y: scroll;
-  overflow-x: visible;
+  padding-block-start: 1rem;
+  overflow-y: hidden;
 }
 
+/* Actual chat container. This is the direct parent of the chat content. */
+.ocha-ai-chat-chat-form [data-drupal-selector="edit-chat"] .fieldset-wrapper {
+  height: 100%;
+  display: flex;
+  flex-flow: column nowrap;
+  padding: 0 16px 12px;
+  overflow-x: hidden;
+
+  /* In a perfect world, we'd set the following to bottom-align the chat content
+  as it appears in the DOM. However, the CSS Spec essentially forbids overflow
+  scrolling once we set this property. Go ahead, try it for yourself. */
+  /* justify-content: flex-end; */
+}
+
+/* The instructions margins provide crucial styles to bottom-align content so
+they are included in this section instead of general styling. Auto-margin only
+has the intended effect if the parent is flex with flex-direction:column */
+.ocha-ai-chat-chat-form__instructions {
+  margin-block-start: auto;
+  padding-block-start: 1rem;
+}
+
+/* lock size of input section so it hugs the bottom of the frame */
 .ocha-ai-chat-chat-form .form-item-question {
   flex: 0 0 auto;
 }
 
+/* Button is overlaid on top of text input. The input has passing to ensure this
+button doesn't overlay any text */
 .ocha-ai-chat-chat-form [data-drupal-selector="edit-actions"] {
   position: absolute;
   bottom: 0;
@@ -101,10 +126,6 @@
 /**
  * Chat form styles
  */
-.ocha-ai-chat-chat-form__instructions {
-  padding-block-start: 1rem;
-}
-
 .ocha-ai-chat-chat-form details {
   display: block;
   margin: 0 12px;
@@ -148,7 +169,8 @@
 .ocha-ai-chat-chat-form .ocha-ai-chat-result .chat {
   display: flex;
   flex-flow: column nowrap;
-  margin-top: 1rem;
+  margin-block-start: 1rem;
+  margin-block-end: 0;
 }
 
 .ocha-ai-chat-chat-form .ocha-ai-chat-result dd {
@@ -232,3 +254,7 @@
 /**
  * User input area
  */
+[data-drupal-selector="edit-question"] {
+  /* The 'Ask' button takes up this space, so we pad the textarea. */
+  padding-inline-end: 4rem;
+}
