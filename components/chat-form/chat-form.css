@@ -1,5 +1,6 @@
 :root {
   --oaic-outline: 2px; /* CD dependency */
+  --oaic-textarea-height: 76px;
 }
 
 /**
@@ -110,16 +111,24 @@ has the intended effect if the parent is flex with flex-direction:column */
 
 /* lock size of input section so it hugs the bottom of the frame */
 .ocha-ai-chat-chat-form .form-item-question {
-  flex: 0 0 auto;
+  flex: 0 0 var(--oaic-textarea-height);
 }
 
-/* Button is overlaid on top of text input. The input has passing to ensure this
+/* Button is overlaid on top of text input. The input has padding to ensure this
 button doesn't overlay any text */
 .ocha-ai-chat-chat-form [data-drupal-selector="edit-actions"] {
   position: absolute;
   bottom: 0;
+  right: 0;
   z-index: 100;
-  text-align: end;
+  min-width: initial;
+  width: min-content;
+  height: calc(var(--oaic-textarea-height) - 2px);
+
+  [dir="rtl"] & {
+    right: unset;
+    left: 0;
+  }
 }
 
 
@@ -254,7 +263,30 @@ button doesn't overlay any text */
 /**
  * User input area
  */
-[data-drupal-selector="edit-question"] {
+/* Textarea */
+.ocha-ai-chat-chat-form [data-drupal-selector="edit-question"] {
   /* The 'Ask' button takes up this space, so we pad the textarea. */
   padding-inline-end: 4rem;
+  resize: none;
+  height: var(--oaic-textarea-height);
+}
+
+/* Submit button */
+.ocha-ai-chat-chat-form .cd-button[data-drupal-selector="edit-submit"] {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  height: calc(100% + 2px);
+  margin-inline-end: 0;
+  border-radius: 0;
+  background: var(--brand-primary);
+}
+
+/* Ajax throbber */
+.ocha-ai-chat-chat-form .ajax-progress {
+  position: absolute;
+  top: -2.5rem;
+  right: 0;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 3px;
 }
