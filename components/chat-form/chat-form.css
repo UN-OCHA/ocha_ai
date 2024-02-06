@@ -215,6 +215,10 @@ button doesn't overlay any text */
   }
 }
 
+.ocha-ai-chat-chat-form .ocha-ai-chat-result .chat__q--loading {
+  margin-block-end: 2rem;
+}
+
 .ocha-ai-chat-chat-form .ocha-ai-chat-result .chat__a,
 .ocha-ai-chat-chat-form .ocha-ai-chat-result .chat__refs {
   margin-block-start: 0.5rem;
@@ -286,7 +290,12 @@ button doesn't overlay any text */
 .ocha-ai-chat-chat-form .ajax-progress {
   position: absolute;
   top: -2.5rem;
-  right: 0;
+  right: 21px;
   background: rgba(255, 255, 255, 0.5);
   border-radius: 3px;
+
+  [dir="rtl"] & {
+    right: initial;
+    left: 21px;
+  }
 }

@@ -1,50 +1,5 @@
 (function () {
-
   'use strict';
-
-  /**
-   * Create a DOM element with the given attributes and content.
-   *
-   * @param {String} tag
-   *   The element tag.
-   * @param {Object} attributes
-   *   Map of attribute names and values.
-   * @param {String|Element|Array} content
-   *   Either a text, an DOM element or an array of DOM elements.
-   *
-   * @return Element
-   *   The created DOM element.
-   */
-  function createElement(tag, attributes, content) {
-    const element = document.createElement(tag);
-    if (typeof attributes === 'object') {
-      for (const attribute in attributes) {
-        if (attributes.hasOwnProperty(attribute)) {
-          let value = attributes[attribute];
-          element.setAttribute(attribute, Array.isArray(value) ? value.join(' ') : value);
-        }
-      }
-    }
-    switch (typeof content) {
-      case 'string':
-        element.appendChild(document.createTextNode(content));
-        break;
-
-      case 'object':
-        // Assume it's is DOM element.
-        if (content.nodeType) {
-          element.appendChild(content);
-        }
-        // Assume it's a list of DOM elements.
-        else if (typeof content.length !== 'undefined') {
-          for (var i = 0, l = content.length; i < l; i++) {
-            element.appendChild(content[i]);
-          }
-        }
-        break;
-    }
-    return element;
-  }
 
   function processPopup(popup) {
     // Mark the popup as processed so the following code runs only once.
@@ -56,7 +11,7 @@
 
     const link = popup.querySelector('a');
 
-    const iframe = createElement('iframe', {
+    const iframe = Drupal.behaviors.ochaAiChatUtils.createElement('iframe', {
       'class': 'ocha-ai-chat-chat-popup__iframe',
       'data-src': link.href
     });
@@ -72,10 +27,10 @@
     link.replaceWith(iframe);
 
     // Replace the link with a button to open the chat window.
-    const openButton = createElement('button', {
+    const openButton = Drupal.behaviors.ochaAiChatUtils.createElement('button', {
       'type': 'button',
       'class': 'data-ocha-ai-chat-chat-popup__button-open'
-    }, createElement('span', {
+    }, Drupal.behaviors.ochaAiChatUtils.createElement('span', {
       'class': 'data-ocha-ai-chat-chat-popup__button-open__label visually-hidden'
     }, Drupal.t('Open chat')));
 
@@ -94,10 +49,10 @@
 
     // Create a separate close button that sits inside the <section> and can
     // be more easily positioned in all viewport sizes.
-    const closeButton = createElement('button', {
+    const closeButton = Drupal.behaviors.ochaAiChatUtils.createElement('button', {
       'type': 'button',
       'class': 'data-ocha-ai-chat-chat-popup__button-close'
-    }, createElement('span', {
+    }, Drupal.behaviors.ochaAiChatUtils.createElement('span', {
       'class': 'data-ocha-ai-chat-chat-popup__button-close__label visually-hidden'
     }, Drupal.t('Close chat')));
 
@@ -113,7 +68,7 @@
   /**
    * Drupal behavior for the chat popup.
    */
-  Drupal.behaviors.ochaAiChat = {
+  Drupal.behaviors.ochaAiChatPopup = {
     attach: function (context, settings) {
       // Get the "Ask ReliefWeb" popup.
       const popup = context.querySelector('[data-ocha-ai-chat-chat-popup]');
