@@ -234,7 +234,7 @@ class OchaAiChatChatForm extends FormBase {
       '#title' => $this->t('Enter your question'),
       '#title_display' => 'invisible',
       '#default_value' => $form_state->getValue('question') ?? NULL,
-      '#description' => $this->t('Ex: How many people are in need of humanitarian assistance in <em>location</em> due to the <em>event</em> that started on <em>date</em>?'),
+      '#placeholder' => $this->t('Ex: How many people are in need of nutritional assistance?'),
       '#rows' => 2,
     ];
 
