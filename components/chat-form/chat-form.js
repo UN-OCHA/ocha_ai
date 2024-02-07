@@ -1,8 +1,8 @@
 (function () {
   'use strict';
 
-  // These variables need to survive in between executions of Drupal's `attach`
-  // method so we instantiate them outside the Behavior itself.
+  // Some data needs to survive between executions of Drupal's `attach` method
+  // so we instantiate it outside the Behavior itself.
   var oldScrollHeight;
 
   // Initialize. We do this outside Drupal.behaviors because it doesn't need to
@@ -14,9 +14,13 @@
       var chatContainer = document.querySelector('[data-drupal-selector="edit-chat"] .fieldset-wrapper');
       var submitButton = document.querySelector('[data-drupal-selector="edit-submit"]');
 
+      // Add padding equal to chat window so we can always scroll. We take 16px
+      // away to avoid overages due to padding-bottom.
+      var chatHeight = chatContainer.getBoundingClientRect().height - 16;
+      chatContainer.style.paddingBlockStart = chatHeight + 'px';
+
       // Do some calculations to decide where to start our smooth scroll.
       if (oldScrollHeight) {
-        var chatHeight = chatContainer.getBoundingClientRect().height;
         var smoothScrollStart = oldScrollHeight - chatHeight;
 
         // Jump to where the bottom of the previous container was before the DOM
