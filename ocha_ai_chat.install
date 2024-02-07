@@ -44,7 +44,6 @@ function ocha_ai_chat_schema() {
         'type' => 'text',
         'size' => 'medium',
         'not null' => TRUE,
-        'default' => '',
       ],
       'source_limit' => [
         'description' => 'Source limit.',
@@ -59,28 +58,24 @@ function ocha_ai_chat_schema() {
         'type' => 'text',
         'size' => 'normal',
         'not null' => TRUE,
-        'default' => '',
       ],
       'question' => [
         'description' => 'Question.',
         'type' => 'text',
         'size' => 'normal',
         'not null' => TRUE,
-        'default' => '',
       ],
       'answer' => [
         'description' => 'Answer.',
         'type' => 'text',
         'size' => 'normal',
         'not null' => TRUE,
-        'default' => '',
       ],
       'passages' => [
         'description' => 'Text passages relevant to the question.',
         'type' => 'text',
         'size' => 'medium',
         'not null' => TRUE,
-        'default' => '',
       ],
       'timestamp' => [
         'description' => 'Timestamp.',
@@ -118,7 +113,6 @@ function ocha_ai_chat_schema() {
         'type' => 'text',
         'size' => 'normal',
         'not null' => TRUE,
-        'default' => '',
       ],
       'satisfaction' => [
         'description' => 'Satisfaction score from 0 to 5.',

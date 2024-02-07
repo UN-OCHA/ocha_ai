@@ -162,18 +162,6 @@ ocha_ai_chat.plugin.embedding:
       type: integer
       label: 'Max tokens.'
 
-# Source plugin base settings.
-ocha_ai_chat.plugin.source:
-  type: mapping
-  label: 'Source plugin base settings.'
-  mapping:
-
-# Text extractor plugin base settings.
-ocha_ai_chat.plugin.text_splitter:
-  type: mapping
-  label: 'Text extractor plugin base settings.'
-  mapping:
-
 # Text splitter plugin base settings.
 ocha_ai_chat.plugin.text_splitter:
   type: mapping
@@ -185,12 +173,6 @@ ocha_ai_chat.plugin.text_splitter:
     overlap:
       type: integer
       label: 'Number of previous characters, sentences etc. to include to preserve context.'
-
-# Vector store plugin base settings.
-ocha_ai_chat.plugin.vector_store:
-  type: mapping
-  label: 'Vector store plugin base settings.'
-  mapping:
 
 ### Plugin settings. ###
 

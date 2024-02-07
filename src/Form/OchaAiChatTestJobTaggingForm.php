@@ -34,7 +34,7 @@ class OchaAiChatTestJobTaggingForm extends FormBase {
   /**
    * The OCHA AI chat service.
    *
-   * @var Drupal\ocha_ai_chat\Services\OchaAiChat
+   * @var \Drupal\ocha_ai_chat\Services\OchaAiChat
    */
   protected OchaAiChat $ochaAiChat;
 
@@ -186,12 +186,11 @@ class OchaAiChatTestJobTaggingForm extends FormBase {
     $container = [
       '#type' => 'details',
       '#title' => $title,
-      '#open' => FALSE,
+      '#open' => TRUE,
     ];
 
     foreach ($results as $vocabulary => $terms) {
       $items = [];
-
       foreach ($terms as $term => $score) {
         $items[] = [
           '#type' => 'inline_template',
@@ -237,16 +236,6 @@ class OchaAiChatTestJobTaggingForm extends FormBase {
    *   similarity score as values.
    */
   protected function getSimilarTerms(array $embeddings, bool $average_embeddings = FALSE, array $types = ['max']): array {
-    if ($average_embeddings) {
-      $embeddings = [
-        [
-          'embedding' => VectorHelper::mean(array_map(function ($item) {
-            return $item['embedding'];
-          }, $embeddings)),
-        ],
-      ];
-    };
-
     $vocabularies = [];
     foreach ($this->getTermEmbeddings() as $vocabulary => $term_embeddings) {
 
@@ -255,7 +244,7 @@ class OchaAiChatTestJobTaggingForm extends FormBase {
         $similarities = [];
 
         foreach ($embeddings as $item) {
-          $similarities[] = VectorHelper::cosineSimilarity($term_embedding, $item['embedding']);
+          $similarities[] = VectorHelper::cosineSimilarity($term_embedding, reset($item));
         }
 
         foreach ($types as $type) {
@@ -357,11 +346,12 @@ class OchaAiChatTestJobTaggingForm extends FormBase {
       ];
       $embeddings = [];
       foreach ($vocabularies as $vocabulary => $terms) {
-        $data = $this->getEmbeddings($terms, FALSE);
+        $data = reset($this->getEmbeddings($terms, FALSE));
         foreach (array_keys($terms) as $index => $term) {
-          $embeddings[$vocabulary][$term] = $data[$index]['embedding'];
+          $embeddings[$vocabulary][$term] = $data[$index];
         }
       }
+      dpm($embeddings, 'embeddings');
       $this->state->get('ocha_ai_chat_term_embeddings', $embeddings);
     }
     return $embeddings;
@@ -1443,16 +1433,7 @@ class OchaAiChatTestJobTaggingForm extends FormBase {
     $embeddings = [];
     foreach ($groups as $group) {
       foreach (array_chunk($group, 96) as $chunk) {
-        $data = $this->requestEmbeddings($chunk, $query);
-        if (!empty($data['embeddings'])) {
-          foreach ($data['texts'] as $index => $text) {
-            $embeddings[] = [
-              // @todo the texts are not really needed.
-              'text' => $text,
-              'embedding' => $data['embeddings'][$index],
-            ];
-          }
-        }
+        $embeddings[] = $this->requestEmbeddings($chunk, $query);
       }
     }
     return $embeddings;
@@ -1477,35 +1458,7 @@ class OchaAiChatTestJobTaggingForm extends FormBase {
       return [];
     }
 
-    $payload = [
-      'accept' => 'application/json',
-      'body' => json_encode([
-        'texts' => array_values($texts),
-        'input_type' => $query ? 'search_query' : 'search_document',
-        'truncate' => 'NONE',
-      ]),
-      'contentType' => 'application/json',
-      'modelId' => 'cohere.embed-multilingual-v3',
-    ];
-
-    try {
-      /** @var \Aws\Result $response */
-      $response = $this->getApiClient()->invokeModel($payload);
-    }
-    catch (\Exception $exception) {
-      $this->getLogger($this->getFormId())->error(strtr('Embedding request failed with error: @error.', [
-        '@error' => $exception->getMessage(),
-      ]));
-      throw $exception;
-    }
-
-    try {
-      $data = json_decode($response->get('body')->getContents(), TRUE);
-    }
-    catch (\Exception $exception) {
-      $this->getLogger($this->getFormId())->error('Unable to decode embedding response.');
-      throw $exception;
-    }
+    $data = $this->ochaAiChat->getEmbeddingPlugin()->generateEmbeddings($texts, $query);
 
     return $data;
   }
