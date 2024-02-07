@@ -94,6 +94,7 @@
   flex-flow: column nowrap;
   padding: 0 16px 12px;
   overflow-x: hidden;
+  overflow-y: scroll;
 
   /* In a perfect world, we'd set the following to bottom-align the chat content
   as it appears in the DOM. However, the CSS Spec essentially forbids overflow
