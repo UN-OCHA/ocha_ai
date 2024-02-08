@@ -162,6 +162,18 @@ ocha_ai_chat.plugin.embedding:
       type: integer
       label: 'Max tokens.'
 
+# Source plugin base settings.
+ocha_ai_chat.plugin.source:
+  type: mapping
+  label: 'Source plugin base settings.'
+  mapping:
+
+# Text extractor plugin base settings.
+ocha_ai_chat.plugin.text_extractor:
+  type: mapping
+  label: 'Text extractor plugin base settings.'
+  mapping:
+
 # Text splitter plugin base settings.
 ocha_ai_chat.plugin.text_splitter:
   type: mapping
@@ -173,6 +185,12 @@ ocha_ai_chat.plugin.text_splitter:
     overlap:
       type: integer
       label: 'Number of previous characters, sentences etc. to include to preserve context.'
+
+# Vector store plugin base settings.
+ocha_ai_chat.plugin.vector_store:
+  type: mapping
+  label: 'Vector store plugin base settings.'
+  mapping:
 
 ### Plugin settings. ###
 
@@ -266,3 +284,11 @@ ocha_ai_chat.plugin.vector_store.elasticsearch:
     cutoff_coefficient:
       type: float
       label: 'Coefficient for the standard deviation to determine the similarity cut-off for relevancy'
+
+ocha_ai_chat.plugin.text_splitter.sentence:
+  type: ocha_ai_chat.plugin.text_splitter
+  label: 'Split a text in groups of sentences'
+
+ocha_ai_chat.plugin.text_splitter.token:
+  type: ocha_ai_chat.plugin.text_splitter
+  label: 'Split a text into passges based on their estimated token count'
