@@ -236,6 +236,13 @@ class OchaAiChatTestJobTaggingForm extends FormBase {
    *   similarity score as values.
    */
   protected function getSimilarTerms(array $embeddings, bool $average_embeddings = FALSE, array $types = ['max']): array {
+    $embeddings = reset($embeddings);
+    if ($average_embeddings) {
+      $embeddings = [
+        VectorHelper::mean($embeddings),
+      ];
+    };
+
     $vocabularies = [];
     foreach ($this->getTermEmbeddings() as $vocabulary => $term_embeddings) {
 
@@ -244,7 +251,7 @@ class OchaAiChatTestJobTaggingForm extends FormBase {
         $similarities = [];
 
         foreach ($embeddings as $item) {
-          $similarities[] = VectorHelper::cosineSimilarity($term_embedding, reset($item));
+          $similarities[] = VectorHelper::cosineSimilarity($term_embedding, $item);
         }
 
         foreach ($types as $type) {
@@ -351,7 +358,7 @@ class OchaAiChatTestJobTaggingForm extends FormBase {
           $embeddings[$vocabulary][$term] = $data[$index];
         }
       }
-      dpm($embeddings, 'embeddings');
+
       $this->state->get('ocha_ai_chat_term_embeddings', $embeddings);
     }
     return $embeddings;
