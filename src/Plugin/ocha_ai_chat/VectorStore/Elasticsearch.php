@@ -731,7 +731,7 @@ class Elasticsearch extends VectorStorePluginBase {
    * @return array|null
    *   The decoded response content.
    */
-  protected function getResponseContent(?ResponseInterface $response = NULL, $method = 'GET', $endpoint = ''): ?array {
+  protected function getResponseContent(?ResponseInterface $response = NULL, string $method = 'GET', string $endpoint = ''): ?array {
     if (is_null($response)) {
       return NULL;
     }
