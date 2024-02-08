@@ -512,7 +512,7 @@ class Elasticsearch extends VectorStorePluginBase {
 
     $response = $this->request('POST', $index . '/_search', $query);
 
-    $data = $this->getResponseContent($response);
+    $data = $this->getResponseContent($response, 'POST', $index . '/_search');
     if (!is_null($data)) {
       $pages = [];
 
@@ -635,7 +635,7 @@ class Elasticsearch extends VectorStorePluginBase {
 
     $response = $this->request('POST', $index . '/_search', $query);
 
-    $data = $this->getResponseContent($response);
+    $data = $this->getResponseContent($response, 'POST', $index . '/_search');
     if (!is_null($data)) {
 
       // Get the list of contents and their similarity score.
@@ -727,7 +727,7 @@ class Elasticsearch extends VectorStorePluginBase {
    * @return array|null
    *   The decoded response content.
    */
-  protected function getResponseContent(?ResponseInterface $response = NULL): ?array {
+  protected function getResponseContent(?ResponseInterface $response = NULL, $method = 'GET', $endpoint = ''): ?array {
     if (is_null($response)) {
       return NULL;
     }
