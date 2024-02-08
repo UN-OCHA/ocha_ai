@@ -723,6 +723,10 @@ class Elasticsearch extends VectorStorePluginBase {
    *
    * @param \Psr\Http\Message\ResponseInterface|null $response
    *   The response.
+   * @param string $method
+   *   HTTP method.
+   * @param string $endpoint
+   *   Endpoint being called.
    *
    * @return array|null
    *   The decoded response content.
