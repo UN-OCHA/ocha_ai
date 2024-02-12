@@ -35,7 +35,17 @@
       // Upate UI when submit is pressed. Each time ajax finishes, the
       // whole chat history will be re-inserted into the DOM. That means we can
       // temporarily inject whatever we like and it will get cleaned up for us.
-      function chatSend (event) {
+      function chatSend (ev) {
+        // First check the question textarea for a value. We don't want to act
+        // unless we have a value to send.
+        var questionValue = document.querySelector('[data-drupal-selector="edit-question"]').value;
+
+        // If we couldn't find a question, exit early.
+        if (!questionValue) {
+          ev.preventDefault();
+          return;
+        }
+
         var chatContainer = document.querySelector('[data-drupal-selector="edit-chat"] .fieldset-wrapper');
         var chatResult = Drupal.behaviors.ochaAiChatUtils.createElement('div', {
           'class': 'ocha-ai-chat-result',
@@ -49,7 +59,6 @@
         var questionDt = Drupal.behaviors.ochaAiChatUtils.createElement('dt', {
           'class': 'visually-hidden',
         }, 'Question');
-        var questionValue = document.querySelector('[data-drupal-selector="edit-question"]').value;
         var questionDd = Drupal.behaviors.ochaAiChatUtils.createElement('dd', {}, questionValue);
 
         // Prep all the DOM nodes for insertion.
