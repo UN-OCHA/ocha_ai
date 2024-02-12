@@ -9,6 +9,8 @@ chat.form:
   js:
     components/chat-form/chat-form.js: {}
   dependencies:
+    - core/drupal
+    - core/drupal.debounce
     - ocha_ai_chat/rw-icons
     - ocha_ai_chat/chat.utils
 

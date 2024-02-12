@@ -1,6 +1,7 @@
 :root {
   --oaic-outline: 2px; /* CD dependency */
   --oaic-textarea-height: 76px;
+  --oaic-padding-block-start: 0px;
 }
 
 /**
@@ -91,6 +92,7 @@
   height: 100%;
   display: flex;
   flex-flow: column nowrap;
+  padding-block-start: var(--oaic-padding-block-start);
   padding-inline: 16px;
   padding-block-end: 16px;
   overflow-x: hidden;

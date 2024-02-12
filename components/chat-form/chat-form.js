@@ -13,11 +13,7 @@
     attach: function (context, settings) {
       var chatContainer = document.querySelector('[data-drupal-selector="edit-chat"] .fieldset-wrapper');
       var submitButton = document.querySelector('[data-drupal-selector="edit-submit"]');
-
-      // Add padding equal to chat window so we can always scroll. We take 16px
-      // away to avoid overages due to padding-bottom.
-      var chatHeight = chatContainer.getBoundingClientRect().height - 16;
-      chatContainer.style.paddingBlockStart = chatHeight + 'px';
+      var chatHeight = this.padChatWindow();
 
       // Do some calculations to decide where to start our smooth scroll.
       if (oldScrollHeight) {
@@ -103,6 +99,24 @@
           chatSend(ev);
         }
       });
+
+      // Listen for window resizes and recalculate the amount of padding needed
+      // within the chat history.
+      window.addEventListener('resize', Drupal.debounce(this.padChatWindow, 33));
+    },
+
+    // Calculates the size of the chat window and adds padding to ensure there
+    // is always a scrollable area. This allows the smooth-scroll code to create
+    // the illusion of a chat UI like SMS or WhatsApp.
+    padChatWindow: function (ev) {
+      var chatContainerOuter = document.querySelector('[data-drupal-selector="edit-chat"]');
+      var chatContainer = document.querySelector('[data-drupal-selector="edit-chat"] .fieldset-wrapper');
+
+      // There's some bottom padding we have to subtract away.
+      var chatHeight = chatContainerOuter.getBoundingClientRect().height - 16;
+      chatContainer.style.setProperty('--oaic-padding-block-start', chatHeight + 'px');
+
+      return chatHeight;
     },
   };
 
