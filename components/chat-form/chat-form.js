@@ -74,9 +74,14 @@
       };
 
       // All the input modes!
-      submitButton.addEventListener('mousedown', chatSend);
-      submitButton.addEventListener('keydown', chatSend);
       submitButton.addEventListener('touchend', chatSend);
+      submitButton.addEventListener('mousedown', chatSend);
+      submitButton.addEventListener('keydown', function(ev) {
+        // First check that the [Enter] key is being pressed.
+        if (ev.keyCode === 13) {
+          chatSend(ev);
+        }
+      });
     },
   };
 
