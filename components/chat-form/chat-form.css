@@ -1,18 +1,153 @@
-.ocha-ai-chat-chat-form-wrapper {
-  margin-top: 2rem;
+:root {
+  --oaic-outline: 2px; /* CD dependency */
+  --oaic-textarea-height: 76px;
+  --oaic-padding-block-start: 0px;
 }
+
+/**
+ * Page layout reset.
+ *
+ * Hide everything except the chat form content. These rules exist in the module
+ * so that individual sub-theme implementations don't have to override the page
+ * template and manually zero-out the CD Header/Footer.
+ */
+.ocha-ai-chat-popup {
+  background-color: white;
+}
+
+.ocha-ai-chat-popup *:has( ~ main) {
+  display: none;
+}
+
+.ocha-ai-chat-popup main ~ * {
+  display: none;
+}
+
+.ocha-ai-chat-popup body > *:not(:has(main)) {
+  display: none;
+}
+
+.ocha-ai-chat-popup main h1 {
+  font-size: 1.5rem;
+}
+
+/**
+ * Page layout
+ */
+.ocha-ai-chat,
+.ocha-ai-chat main,
+.ocha-ai-chat .region,
+.ocha-ai-chat__content {
+  height: 100%;
+}
+
+.ocha-ai-chat #main-content {
+  padding: 0;
+}
+
+.ocha-ai-chat-chat-form-wrapper {
+  /* height has to take the title into account. */
+  height: calc(100% - 1.5rem - 24px - 7px); /* TODO: 7px is a magic number */
+}
+
+/**
+ * Title / Heading area
+ */
+.ocha-ai-chat .rw-page-title {
+  margin: 0;
+  padding: 12px;
+  background: var(--brand-primary);
+  color: var(--cd-white);
+  border-bottom: 0;
+}
+
+
+/**
+ * Chat form layout
+ */
+/* duplicate class to override CD defaults */
+.ocha-ai-chat-chat-form.ocha-ai-chat-chat-form {
+  --cd-flow-space: 0;
+
+  height: 100%;
+  position: relative;
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: space-between;
+  padding-block-start: 1rem;
+}
+
+.ocha-ai-chat-chat-form [data-drupal-selector="edit-advanced"] {
+  flex: 0 0 auto;
+}
+
+/* This element provides the top-level layout for the chat content. */
+.ocha-ai-chat-chat-form [data-drupal-selector="edit-chat"] {
+  flex: 1 1 100%;
+  overflow-y: hidden;
+}
+
+/* Actual chat container. This is the direct parent of the chat content. */
+.ocha-ai-chat-chat-form [data-drupal-selector="edit-chat"] .fieldset-wrapper {
+  height: 100%;
+  display: flex;
+  flex-flow: column nowrap;
+  padding-block-start: var(--oaic-padding-block-start);
+  padding-inline: 16px;
+  padding-block-end: 16px;
+  overflow-x: hidden;
+  overflow-y: scroll;
+}
+
+/* The instructions margins provide crucial styles to bottom-align content so
+they are included in this section instead of general styling. Auto-margin only
+has the intended effect if the parent is flex with flex-direction:column */
+.ocha-ai-chat-chat-form__instructions {
+  margin-block-start: auto;
+  padding-block: 1rem;
+}
+
+/* lock size of input section so it hugs the bottom of the frame */
+.ocha-ai-chat-chat-form .form-item-question {
+  flex: 0 0 var(--oaic-textarea-height);
+}
+
+/* Button is overlaid on top of text input. The input has padding to ensure this
+button doesn't overlay any text */
+.ocha-ai-chat-chat-form [data-drupal-selector="edit-actions"] {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  z-index: 100;
+  min-width: initial;
+  width: min-content;
+  height: calc(var(--oaic-textarea-height) - 2px);
+
+  [dir="rtl"] & {
+    right: unset;
+    left: 0;
+  }
+}
+
+
+/**
+ * Chat form styles
+ */
 .ocha-ai-chat-chat-form details {
   display: block;
+  margin: 0 12px;
   padding: 12px;
   border: 1px solid #ddd;
   border-radius: 3px;
   background-color: #fff;
-  box-shadow: rgba(0, 0, 0, 0.1) 0 2px 4px 0;
+  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.1);
 }
+
 .ocha-ai-chat-chat-form details > summary {
   cursor: pointer;
   font-weight: bold;
 }
+
 .ocha-ai-chat-chat-form details[open] > summary {
   margin-bottom: 12px;
 }
@@ -21,67 +156,144 @@
   word-break: break-all;
 }
 
-.ocha-ai-chat-chat-form .ocha-ai-chat-result {
-  margin-top: 1rem;
-  padding: 12px;
-  border: 1px solid black;
-  border-radius: 6px;
-}
 .ocha-ai-chat-chat-form .ocha-ai-chat-result + .ocha-ai-chat-result {
-  margin-top: 1rem;
-}
-.ocha-ai-chat-chat-form .ocha-ai-chat-result:last-child {
-  border: 4px solid #82b5e9;
-}
-.ocha-ai-chat-chat-form .ocha-ai-chat-result dl {
-  margin-top: 0;
-}
-.ocha-ai-chat-chat-form .ocha-ai-chat-result dt {
-  font-weight: bold;
-}
-.ocha-ai-chat-chat-form .ocha-ai-chat-result dd {
-  margin-left: 24px;
-}
-
-.ocha-ai-chat-chat-form .ocha-ai-chat-reference-list {
-  padding-left: 0;
-}
-.ocha-ai-chat-chat-form .ocha-ai-chat-reference {
-  display: inline;
-  margin: 0;
-  padding: 0;
-  list-style-type: none;
-}
-.ocha-ai-chat-chat-form .ocha-ai-chat-reference li {
-  display: inline;
-}
-.ocha-ai-chat-chat-form .ocha-ai-chat-reference li:not(:last-child)::after {
-  content: ", ";
+  margin-block-start: 1rem;
 }
 
 .ocha-ai-chat-chat-form input[type="number"] {
   max-width: 10ch;
 }
+
 .ocha-ai-chat-chat-form input[type="text"] {
   max-width: 100%;
 }
 
-/* Hide everything except the chat form content. */
-.ocha-ai-chat-popup {
-  background-color: white;
+/**
+ * Q/A history
+ *
+ * Each Q/A results in a chat-like set of bubbles. Think of SMS or WhatsApp.
+ */
+.ocha-ai-chat-chat-form .ocha-ai-chat-result .chat {
+  display: flex;
+  flex-flow: column nowrap;
+  margin-block-start: 1rem;
+  margin-block-end: 0;
 }
-.ocha-ai-chat-popup *:has( ~ main) {
-  display: none;
+
+.ocha-ai-chat-chat-form .ocha-ai-chat-result dd {
+  margin: 0;
 }
-.ocha-ai-chat-popup main ~ * {
-  display: none;
+
+.ocha-ai-chat-chat-form .ocha-ai-chat-result .chat__q,
+.ocha-ai-chat-chat-form .ocha-ai-chat-result .chat__a,
+.ocha-ai-chat-chat-form .ocha-ai-chat-result .chat__refs {
+  padding: 6px 12px;
+  border-radius: 5px;
+  position: relative;
 }
-.ocha-ai-chat-popup body > *:not(:has(main)) {
-  display: none;
+
+.ocha-ai-chat-chat-form .ocha-ai-chat-result .chat__q {
+  margin-inline-start: 2rem;
+  text-align: end;
+  color: white;
+  background: var(--brand-primary);
+
+  /* TODO: RTL */
+  &::before {
+    display: block;
+    position: absolute;
+    right: -8px;
+    bottom: 6px;
+    content: '';
+    width: 0;
+    height: 0;
+    border-top: 8px solid transparent;
+    border-left: 10px solid var(--brand-primary);
+    border-bottom: 4px solid transparent;
+  }
 }
-.ocha-ai-chat-popup main {
-  padding: 24px;
+
+.ocha-ai-chat-chat-form .ocha-ai-chat-result .chat__q--loading {
+  margin-block-end: 2rem;
 }
-.ocha-ai-chat-popup main h1 {
-  font-size: 1.5rem;
+
+.ocha-ai-chat-chat-form .ocha-ai-chat-result .chat__a,
+.ocha-ai-chat-chat-form .ocha-ai-chat-result .chat__refs {
+  margin-block-start: 0.5rem;
+  margin-inline-end: 2rem;
+  text-align: start;
+  color: #333;
+  background: var(--brand-grey);
+
+  /* TODO: RTL */
+  &::before {
+    display: block;
+    position: absolute;
+    left: -8px;
+    bottom: 6px;
+    content: '';
+    width: 0;
+    height: 0;
+    border-top: 8px solid transparent;
+    border-right: 10px solid var(--brand-grey);
+    border-bottom: 4px solid transparent;
+  }
+}
+
+.ocha-ai-chat-chat-form .ocha-ai-chat-result .chat__refs dt {
+  font-weight: 700;
+}
+
+.ocha-ai-chat-chat-form .ocha-ai-chat-reference-list {
+  list-style-type: none;
+}
+
+.ocha-ai-chat-chat-form .ocha-ai-chat-reference {
+  display: inline;
+  margin: 0;
+  padding: 0;
+}
+
+.ocha-ai-chat-chat-form .ocha-ai-chat-reference li {
+  display: inline;
+}
+
+.ocha-ai-chat-chat-form .ocha-ai-chat-reference li:not(:last-child)::after {
+  content: ", ";
+}
+
+/**
+ * User input area
+ */
+/* Textarea */
+.ocha-ai-chat-chat-form [data-drupal-selector="edit-question"] {
+  /* The 'Ask' button takes up this space, so we pad the textarea. */
+  padding-inline-end: 4rem;
+  resize: none;
+  height: var(--oaic-textarea-height);
+}
+
+/* Submit button */
+.ocha-ai-chat-chat-form .cd-button[data-drupal-selector="edit-submit"] {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  height: calc(100% + 2px);
+  margin-inline-end: 0;
+  border-radius: 0;
+  background: var(--brand-primary);
+}
+
+/* Ajax throbber */
+.ocha-ai-chat-chat-form .ajax-progress {
+  position: absolute;
+  top: -2.5rem;
+  right: 21px;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 3px;
+
+  [dir="rtl"] & {
+    right: initial;
+    left: 21px;
+  }
 }

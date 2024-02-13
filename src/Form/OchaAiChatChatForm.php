@@ -96,9 +96,9 @@ class OchaAiChatChatForm extends FormBase {
   public function getPageTitle(?bool $popup = NULL): TranslatableMarkup {
     $limit = $this->getRequest()?->query?->get('limit');
     if (isset($limit) && $limit == 1) {
-      return $this->t('Ask the document');
+      return $this->t('Ask ReliefWeb');
     }
-    return $this->t('Ask the documents');
+    return $this->t('Ask ReliefWeb');
   }
 
   /**
@@ -106,48 +106,6 @@ class OchaAiChatChatForm extends FormBase {
    */
   public function buildForm(array $form, FormStateInterface $form_state, ?bool $popup = NULL): array {
     $defaults = $this->ochaAiChat->getSettings();
-
-    // Display the form instructions.
-    if (!empty($defaults['form']['instructions']['value'])) {
-      $hide = $form_state->getValue([
-        'instructions',
-        'content',
-        'hide',
-      ], $this->database
-        ->select('ocha_ai_chat_preferences', 't')
-        ->fields('t', ['hide_instructions'])
-        ->condition('t.uid', $this->currentUser->id())
-        ->execute()
-        ?->fetchField()
-      );
-
-      $form['instructions'] = [
-        '#type' => 'details',
-        '#prefix' => '<div id="ocha-ai-chat-instructions" class="ocha-ai-chat-chat-form__instructions">',
-        '#suffix' => '</div>',
-        '#title' => $this->t('Instructions'),
-        '#open' => !empty($hide) ? FALSE : TRUE,
-        '#tree' => TRUE,
-      ];
-      $form['instructions']['content'] = [
-        '#type' => 'processed_text',
-        '#text' => $defaults['form']['instructions']['value'],
-        '#format' => $defaults['form']['instructions']['format'],
-      ];
-      $form['instructions']['content']['hide'] = [
-        '#type' => 'checkbox',
-        '#title' => $this->t('Do not show instructions anymore'),
-        '#default_value' => !empty($hide),
-        '#limit_validation_errors' => [
-          ['instructions', 'content', 'hide'],
-        ],
-        '#ajax' => [
-          'callback' => [$this, 'hideInstructions'],
-          'wrapper' => 'ocha-ai-chat-instructions',
-          'disable-refocus' => TRUE,
-        ],
-      ];
-    }
 
     // Add the source widget.
     $form = $this->ochaAiChat->getSourcePlugin()->getSourceWidget($form, $form_state, $defaults);
@@ -180,7 +138,7 @@ class OchaAiChatChatForm extends FormBase {
     $form['advanced']['completion_plugin_id'] = [
       '#type' => 'select',
       '#title' => $this->t('AI service'),
-      '#description' => $this->t('Select the AI service to use to generate the answer.'),
+      '#description' => $this->t('Select which AI service will generate the answer.'),
       '#options' => $completion_options,
       '#default_value' => $completion_default,
       '#required' => TRUE,
@@ -191,12 +149,22 @@ class OchaAiChatChatForm extends FormBase {
     $form['chat'] = [
       '#type' => 'fieldset',
       '#title' => $this->t('History'),
-      '#access' => !empty($history),
+      '#title_display' => 'invisible',
+      '#access' => TRUE,
       '#tree' => TRUE,
     ];
     $form['history'] = [
       '#type' => 'hidden',
       '#value' => $history,
+    ];
+
+    // Output instructions as part of scrollable chat history.
+    $form['chat']['content'] = [
+      '#type' => 'processed_text',
+      '#prefix' => '<div id="ocha-ai-chat-instructions" class="ocha-ai-chat-chat-form__instructions">',
+      '#suffix' => '</div>',
+      '#text' => $defaults['form']['instructions']['value'],
+      '#format' => $defaults['form']['instructions']['format'],
     ];
 
     foreach (json_decode($history, TRUE) ?? [] as $index => $record) {
@@ -208,7 +176,7 @@ class OchaAiChatChatForm extends FormBase {
       ];
       $form['chat'][$index]['result'] = [
         '#type' => 'inline_template',
-        '#template' => '<dl><dt>Question</dt><dd>{{ question }}</dd><dt>Answer</dt><dd>{{ answer }}</dd>{% if references %}<dt>References</dt><dd>{{ references }}</dd>{% endif %}</dl>',
+        '#template' => '<dl class="chat"><div class="chat__q"><dt class="visually-hidden">Question</dt><dd>{{ question }}</dd></div><div class="chat__a"><dt class="visually-hidden">Answer</dt><dd>{{ answer }}</dd></div>{% if references %}<div class="chat__refs"><dt>References</dt><dd>{{ references }}</dd></div>{% endif %}</dl>',
         '#context' => [
           'question' => $record['question'],
           'answer' => $record['answer'],
@@ -263,9 +231,10 @@ class OchaAiChatChatForm extends FormBase {
 
     $form['question'] = [
       '#type' => 'textarea',
-      '#title' => $this->t('Question'),
+      '#title' => $this->t('Enter your question'),
+      '#title_display' => 'invisible',
       '#default_value' => $form_state->getValue('question') ?? NULL,
-      '#description' => $this->t('Ex: How many people are in need of humanitarian assistance in <em>location</em> due to the <em>event</em> that started on <em>date</em>?'),
+      '#placeholder' => $this->t('Ex: How many people are in need of food assistance?'),
       '#rows' => 2,
     ];
 
@@ -474,6 +443,7 @@ class OchaAiChatChatForm extends FormBase {
         ],
       ];
     }
+
     return [
       '#theme' => 'item_list',
       '#items' => $items,
@@ -482,6 +452,7 @@ class OchaAiChatChatForm extends FormBase {
         'class' => [
           'ocha-ai-chat-reference-list',
         ],
+        'role' => 'list',
       ],
     ];
   }

@@ -1,3 +1,7 @@
+chat.utils:
+  js:
+    components/chat-utils/chat-utils.js: {}
+
 chat.form:
   css:
     theme:
@@ -5,7 +9,10 @@ chat.form:
   js:
     components/chat-form/chat-form.js: {}
   dependencies:
+    - core/drupal
+    - core/drupal.debounce
     - ocha_ai_chat/rw-icons
+    - ocha_ai_chat/chat.utils
 
 chat.popup:
   css:
@@ -15,6 +22,7 @@ chat.popup:
     components/chat-popup/chat-popup.js: {}
   dependencies:
     - ocha_ai_chat/rw-icons
+    - ocha_ai_chat/chat.utils
 
 logs.form:
   css:
