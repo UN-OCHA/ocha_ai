@@ -1,0 +1,89 @@
+<?php
+
+/**
+ * @file
+ * OCHA AI Job tagging.
+ */
+
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\node\Entity\Node;
+
+/**
+ * Implements hook_form_HOOK_alter() for "node_form".
+ */
+function ocha_ai_job_tag_form_node_form_alter(array &$form, FormStateInterface $form_state, $form_id) {
+  $form_ids = [
+    'node_job_edit_form',
+    'node_job_form',
+  ];
+
+  if (!in_array($form_id, $form_ids)) {
+    return;
+  }
+
+  $user = \Drupal::currentUser();
+  if ($user->hasPermission('bypass ocha ai job tag')) {
+    return;
+  }
+
+  // Hide form elements.
+  $form['field_job_experience']['#access'] = FALSE;
+  $form['field_career_categories']['#access'] = FALSE;
+  $form['field_theme']['#access'] = FALSE;
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_insert().
+ */
+function ocha_ai_job_tag_node_insert(EntityInterface $entity) {
+  if (!$entity instanceof Node) {
+    return;
+
+  }
+
+  if ($entity->bundle() != 'job') {
+    return;
+  }
+
+  return ocha_ai_job_tag_queue_job($entity);
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_update().
+ */
+function ocha_ai_job_tag_node_update(EntityInterface $node) {
+  if (!$node instanceof Node) {
+    return;
+
+  }
+
+  if ($node->bundle() != 'job') {
+    return;
+  }
+
+  // Only queue it when fields are empty.
+  if (!$node->field_job_experience->isEmpty()) {
+    return;
+  }
+
+  if (!$node->field_career_categories->isEmpty()) {
+    return;
+  }
+
+  if (!$node->field_theme->isEmpty()) {
+    return;
+  }
+
+  return ocha_ai_job_tag_queue_job($node);
+}
+
+/**
+ * Queue the job for tagging.
+ */
+function ocha_ai_job_tag_queue_job(Node $job) : void {
+  $queue = \Drupal::service('queue')->get('ocha_ai_job_tag_tagger');
+  $item = new \stdClass();
+  $item->nid = $job->id();
+  $queue->createItem($item);
+}
