@@ -50,3 +50,8 @@ TODO
 
 - [ ] Log requests (debug mode --> add setting to plugins).
 - [ ] Log number of pages, passages and estimated count of tokens.
+
+**Dependencies**
+
+- `apt install mupdf-tools`
+

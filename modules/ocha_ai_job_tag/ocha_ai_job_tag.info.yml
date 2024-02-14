@@ -1,0 +1,7 @@
+type: module
+name: OCHA AI Job tag
+description: 'Classify and tag jobs.'
+package: ocha
+core_version_requirement: ^9 || ^10
+dependencies:
+  - unocha:ocha_ai_chat

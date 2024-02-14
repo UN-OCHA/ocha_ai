@@ -17,8 +17,7 @@ interface EmbeddingPluginInterface {
    *   embedding for a document.
    *
    * @return array
-   *   List of embeddings. Each contains a text property with the original text
-   *   and an embedding property with the vector.
+   *   List of vectors.
    *
    * @throws \Exception
    *   Throw an exception if the generation of the embedddings fails.

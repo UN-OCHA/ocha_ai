@@ -1,0 +1,16 @@
+services:
+  ocha_ai_job_tag.tagger:
+    class: Drupal\ocha_ai_job_tag\Services\OchaAiJobTagTagger
+    arguments:
+      - '@config.factory'
+      - '@logger.factory'
+      - '@state'
+      - '@current_user'
+      - '@database'
+      - '@datetime.time'
+      - '@plugin.manager.ocha_ai_chat.completion'
+      - '@plugin.manager.ocha_ai_chat.embedding'
+      - '@plugin.manager.ocha_ai_chat.source'
+      - '@plugin.manager.ocha_ai_chat.text_extractor'
+      - '@plugin.manager.ocha_ai_chat.text_splitter'
+      - '@plugin.manager.ocha_ai_chat.vector_store'
