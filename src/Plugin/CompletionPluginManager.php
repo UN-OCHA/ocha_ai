@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\ocha_ai_chat\Plugin;
+namespace Drupal\ocha_ai\Plugin;
 
 use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
@@ -19,15 +19,15 @@ class CompletionPluginManager extends PluginManagerBase implements CompletionPlu
     ModuleHandlerInterface $module_handler
   ) {
     parent::__construct(
-      'Plugin/ocha_ai_chat/Completion',
+      'Plugin/ocha_ai/Completion',
       $namespaces,
       $module_handler,
-      'Drupal\ocha_ai_chat\Plugin\CompletionPluginInterface',
-      'Drupal\ocha_ai_chat\Annotation\OchaAiChatCompletion'
+      'Drupal\ocha_ai\Plugin\CompletionPluginInterface',
+      'Drupal\ocha_ai\Annotation\OchaAiChatCompletion'
     );
 
-    $this->setCacheBackend($cache_backend, 'ocha_ai_chat_completion_plugins');
-    $this->alterInfo('ocha_ai_chat_completion_info');
+    $this->setCacheBackend($cache_backend, 'ocha_ai_completion_plugins');
+    $this->alterInfo('ocha_ai_completion_info');
   }
 
   /**

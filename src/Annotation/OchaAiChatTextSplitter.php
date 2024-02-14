@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\ocha_ai_chat\Annotation;
+namespace Drupal\ocha_ai\Annotation;
 
 use Drupal\Component\Annotation\Plugin;
 use Drupal\Core\Annotation\Translation;
@@ -8,11 +8,11 @@ use Drupal\Core\Annotation\Translation;
 /**
  * Defines a OCHA AI Chat text splitter plugin annotation object.
  *
- * Plugin Namespace: Plugin\ocha_ai_chat\TextSplitter.
+ * Plugin Namespace: Plugin\ocha_ai\TextSplitter.
  *
- * @see \Drupal\ocha_ai_chat\Plugin\TextSplitterPluginBase
- * @see \Drupal\ocha_ai_chat\Plugin\TextSplitterPluginInterface
- * @see \Drupal\ocha_ai_chat\Plugin\TextSplitterPluginManager
+ * @see \Drupal\ocha_ai\Plugin\TextSplitterPluginBase
+ * @see \Drupal\ocha_ai\Plugin\TextSplitterPluginInterface
+ * @see \Drupal\ocha_ai\Plugin\TextSplitterPluginManager
  * @see plugin_api
  *
  * @Annotation

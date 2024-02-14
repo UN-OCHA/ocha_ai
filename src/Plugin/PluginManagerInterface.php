@@ -1,9 +1,9 @@
 <?php
 
-namespace Drupal\ocha_ai_chat\Plugin;
+namespace Drupal\ocha_ai\Plugin;
 
 /**
- * Base interface for the ocha_ai_chat plugins.
+ * Base interface for the ocha_ai plugins.
  */
 interface PluginManagerInterface {
 
@@ -18,7 +18,7 @@ interface PluginManagerInterface {
   /**
    * Get the available completion plugins.
    *
-   * @return \Drupal\ocha_ai_chat\Plugin\PluginInterface[]
+   * @return \Drupal\ocha_ai\Plugin\PluginInterface[]
    *   List of plugins.
    */
   public function getAvailablePlugins(): array;
@@ -29,7 +29,7 @@ interface PluginManagerInterface {
    * @param string $plugin_id
    *   Plugin ID.
    *
-   * @return \Drupal\ocha_ai_chat\Plugin\PluginInterface
+   * @return \Drupal\ocha_ai\Plugin\PluginInterface
    *   Plugin instance.
    */
   public function getPlugin(string $plugin_id): PluginInterface;

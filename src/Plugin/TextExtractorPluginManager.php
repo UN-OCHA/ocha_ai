@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\ocha_ai_chat\Plugin;
+namespace Drupal\ocha_ai\Plugin;
 
 use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
@@ -19,15 +19,15 @@ class TextExtractorPluginManager extends PluginManagerBase implements TextExtrac
     ModuleHandlerInterface $module_handler
   ) {
     parent::__construct(
-      'Plugin/ocha_ai_chat/TextExtractor',
+      'Plugin/ocha_ai/TextExtractor',
       $namespaces,
       $module_handler,
-      'Drupal\ocha_ai_chat\Plugin\TextExtractorPluginInterface',
-      'Drupal\ocha_ai_chat\Annotation\OchaAiChatTextExtractor'
+      'Drupal\ocha_ai\Plugin\TextExtractorPluginInterface',
+      'Drupal\ocha_ai\Annotation\OchaAiChatTextExtractor'
     );
 
-    $this->setCacheBackend($cache_backend, 'ocha_ai_chat_text_extractor_plugins');
-    $this->alterInfo('ocha_ai_chat_text_extractor_info');
+    $this->setCacheBackend($cache_backend, 'ocha_ai_text_extractor_plugins');
+    $this->alterInfo('ocha_ai_text_extractor_info');
   }
 
   /**

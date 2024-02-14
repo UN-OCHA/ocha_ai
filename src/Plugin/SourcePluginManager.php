@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\ocha_ai_chat\Plugin;
+namespace Drupal\ocha_ai\Plugin;
 
 use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
@@ -19,15 +19,15 @@ class SourcePluginManager extends PluginManagerBase implements SourcePluginManag
     ModuleHandlerInterface $module_handler
   ) {
     parent::__construct(
-      'Plugin/ocha_ai_chat/Source',
+      'Plugin/ocha_ai/Source',
       $namespaces,
       $module_handler,
-      'Drupal\ocha_ai_chat\Plugin\SourcePluginInterface',
-      'Drupal\ocha_ai_chat\Annotation\OchaAiChatSource'
+      'Drupal\ocha_ai\Plugin\SourcePluginInterface',
+      'Drupal\ocha_ai\Annotation\OchaAiChatSource'
     );
 
-    $this->setCacheBackend($cache_backend, 'ocha_ai_chat_source_plugins');
-    $this->alterInfo('ocha_ai_chat_source_info');
+    $this->setCacheBackend($cache_backend, 'ocha_ai_source_plugins');
+    $this->alterInfo('ocha_ai_source_info');
   }
 
   /**

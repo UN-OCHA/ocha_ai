@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\ocha_ai_chat\Plugin;
+namespace Drupal\ocha_ai\Plugin;
 
 use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
@@ -19,15 +19,15 @@ class VectorStorePluginManager extends PluginManagerBase implements VectorStoreP
     ModuleHandlerInterface $module_handler
   ) {
     parent::__construct(
-      'Plugin/ocha_ai_chat/VectorStore',
+      'Plugin/ocha_ai/VectorStore',
       $namespaces,
       $module_handler,
-      'Drupal\ocha_ai_chat\Plugin\VectorStorePluginInterface',
-      'Drupal\ocha_ai_chat\Annotation\OchaAiChatVectorStore'
+      'Drupal\ocha_ai\Plugin\VectorStorePluginInterface',
+      'Drupal\ocha_ai\Annotation\OchaAiChatVectorStore'
     );
 
-    $this->setCacheBackend($cache_backend, 'ocha_ai_chat_vector_store_plugins');
-    $this->alterInfo('ocha_ai_chat_vector_store_info');
+    $this->setCacheBackend($cache_backend, 'ocha_ai_vector_store_plugins');
+    $this->alterInfo('ocha_ai_vector_store_info');
   }
 
   /**

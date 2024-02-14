@@ -2,7 +2,7 @@
 
 namespace Drupal\ocha_ai_job_tag\Services;
 
-use Drupal\ocha_ai_chat\Helpers\VectorHelper;
+use Drupal\ocha_ai\Helpers\VectorHelper;
 use Drupal\ocha_ai_chat\Services\OchaAiChat;
 
 /**

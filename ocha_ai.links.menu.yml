@@ -1,0 +1,9 @@
+ocha_ai.admin_config:
+  title: OCHA AI
+  route_name: ocha_ai.admin_config
+  parent: system.admin_config
+ocha_ai.config_form:
+  title: OCHA AI settings
+  description: 'Configure the default settings for OCHA AI'
+  route_name: ocha_ai.config_form
+  parent: ocha_ai.admin_config

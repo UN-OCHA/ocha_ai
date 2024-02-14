@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\ocha_ai_chat\Plugin;
+namespace Drupal\ocha_ai\Plugin;
 
 /**
  * Interface for the embedding plugin manager.

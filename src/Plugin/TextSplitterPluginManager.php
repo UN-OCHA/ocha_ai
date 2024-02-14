@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\ocha_ai_chat\Plugin;
+namespace Drupal\ocha_ai\Plugin;
 
 use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
@@ -19,15 +19,15 @@ class TextSplitterPluginManager extends PluginManagerBase implements TextSplitte
     ModuleHandlerInterface $module_handler
   ) {
     parent::__construct(
-      'Plugin/ocha_ai_chat/TextSplitter',
+      'Plugin/ocha_ai/TextSplitter',
       $namespaces,
       $module_handler,
-      'Drupal\ocha_ai_chat\Plugin\TextSplitterPluginInterface',
-      'Drupal\ocha_ai_chat\Annotation\OchaAiChatTextSplitter'
+      'Drupal\ocha_ai\Plugin\TextSplitterPluginInterface',
+      'Drupal\ocha_ai\Annotation\OchaAiChatTextSplitter'
     );
 
-    $this->setCacheBackend($cache_backend, 'ocha_ai_chat_text_splitter_plugins');
-    $this->alterInfo('ocha_ai_chat_text_splitter_info');
+    $this->setCacheBackend($cache_backend, 'ocha_ai_text_splitter_plugins');
+    $this->alterInfo('ocha_ai_text_splitter_info');
   }
 
   /**

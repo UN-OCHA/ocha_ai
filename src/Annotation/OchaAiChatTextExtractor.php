@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\ocha_ai_chat\Annotation;
+namespace Drupal\ocha_ai\Annotation;
 
 use Drupal\Component\Annotation\Plugin;
 use Drupal\Core\Annotation\Translation;
@@ -8,11 +8,11 @@ use Drupal\Core\Annotation\Translation;
 /**
  * Defines a OCHA AI Chat text extractor plugin annotation object.
  *
- * Plugin Namespace: Plugin\ocha_ai_chat\TextExtractor.
+ * Plugin Namespace: Plugin\ocha_ai\TextExtractor.
  *
- * @see \Drupal\ocha_ai_chat\Plugin\TextExtractorPluginBase
- * @see \Drupal\ocha_ai_chat\Plugin\TextExtractorPluginInterface
- * @see \Drupal\ocha_ai_chat\Plugin\TextExtractorPluginManager
+ * @see \Drupal\ocha_ai\Plugin\TextExtractorPluginBase
+ * @see \Drupal\ocha_ai\Plugin\TextExtractorPluginInterface
+ * @see \Drupal\ocha_ai\Plugin\TextExtractorPluginManager
  * @see plugin_api
  *
  * @Annotation

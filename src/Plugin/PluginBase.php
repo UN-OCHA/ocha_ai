@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\ocha_ai_chat\Plugin;
+namespace Drupal\ocha_ai\Plugin;
 
 use Drupal\Component\Plugin\ConfigurableInterface;
 use Drupal\Core\Config\ConfigFactoryInterface;
@@ -99,7 +99,7 @@ abstract class PluginBase extends CorePluginBase implements ContainerFactoryPlug
   public function getLogger(): LoggerInterface {
     if (!isset($this->logger)) {
       $this->logger = $this->loggerFactory->get(implode('.', [
-        'ocha_ai_chat',
+        'ocha_ai',
         $this->getPluginType(),
         $this->getPluginId(),
       ]));
@@ -126,7 +126,7 @@ abstract class PluginBase extends CorePluginBase implements ContainerFactoryPlug
    * {@inheritdoc}
    */
   protected function getEditableConfigNames(): array {
-    return ['ocha_ai_chat.settings'];
+    return ['ocha_ai.settings'];
   }
 
   /**

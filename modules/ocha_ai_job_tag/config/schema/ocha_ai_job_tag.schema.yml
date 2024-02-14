@@ -1,0 +1,50 @@
+ocha_ai_job_tag.settings:
+  type: config_object
+  label: 'OCHA AI Job Tag settings'
+  mapping:
+    defaults:
+      type: mapping
+      label: 'Default settings.'
+      mapping:
+        form:
+          type: mapping
+          label: 'Default form settings.'
+          mapping:
+            instructions:
+              type: string
+              label: 'Instructions.'
+        plugins:
+          type: mapping
+          label: 'Default plugins.'
+          mapping:
+            embedding:
+              type: mapping
+              label: 'Default embedding plugin settings.'
+              mapping:
+                plugin_id:
+                  type: string
+                  label: 'Plugin ID.'
+            text_extractor:
+              type: sequence
+              label: 'Default text extractor plugin settings grouped by file mimetype.'
+              sequence:
+                type: mapping
+                label: 'Default text extractor plugin settings for the mimetype.'
+                mapping:
+                  plugin_id:
+                    type: string
+                    label: 'Plugin ID.'
+            text_splitter:
+              type: mapping
+              label: 'Default text splitter plugin settings.'
+              mapping:
+                plugin_id:
+                  type: string
+                  label: 'Plugin ID.'
+            vector_store:
+              type: mapping
+              label: 'Default vector store plugin settings.'
+              mapping:
+                plugin_id:
+                  type: string
+                  label: 'Plugin ID.'

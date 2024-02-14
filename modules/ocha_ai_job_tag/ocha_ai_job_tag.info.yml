@@ -4,4 +4,5 @@ description: 'Classify and tag jobs.'
 package: ocha
 core_version_requirement: ^9 || ^10
 dependencies:
+  - unocha:ocha_ai
   - unocha:ocha_ai_chat

@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\ocha_ai_chat\Plugin;
+namespace Drupal\ocha_ai\Plugin;
 
 use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
@@ -19,15 +19,15 @@ class EmbeddingPluginManager extends PluginManagerBase implements EmbeddingPlugi
     ModuleHandlerInterface $module_handler
   ) {
     parent::__construct(
-      'Plugin/ocha_ai_chat/Embedding',
+      'Plugin/ocha_ai/Embedding',
       $namespaces,
       $module_handler,
-      'Drupal\ocha_ai_chat\Plugin\EmbeddingPluginInterface',
-      'Drupal\ocha_ai_chat\Annotation\OchaAiChatEmbedding'
+      'Drupal\ocha_ai\Plugin\EmbeddingPluginInterface',
+      'Drupal\ocha_ai\Annotation\OchaAiChatEmbedding'
     );
 
-    $this->setCacheBackend($cache_backend, 'ocha_ai_chat_embedding_plugins');
-    $this->alterInfo('ocha_ai_chat_embedding_info');
+    $this->setCacheBackend($cache_backend, 'ocha_ai_embedding_plugins');
+    $this->alterInfo('ocha_ai_embedding_info');
   }
 
   /**

@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\ocha_ai_chat\Helpers;
+namespace Drupal\ocha_ai\Helpers;
 
 /**
  * Helper to manipulate text.

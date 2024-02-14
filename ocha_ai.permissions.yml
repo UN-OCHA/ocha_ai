@@ -1,0 +1,7 @@
+manage ocha ai configuration:
+  title: 'Manage OCHA AI config'
+  description: 'Allow users to manage the OCHA AI form config.'
+
+view ocha ai admin config menu:
+  title: 'View the OCHA AI admin config menu'
+  description: 'Allow users to view the OCHA AI admin config menu.'

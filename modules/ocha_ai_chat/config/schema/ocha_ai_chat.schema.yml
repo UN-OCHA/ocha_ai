@@ -1,0 +1,104 @@
+ocha_ai_chat.settings:
+  type: config_object
+  label: 'OCHA AI Chat settings'
+  mapping:
+    plugins:
+      type: mapping
+      label: 'List of plugins.'
+      mapping:
+        completion:
+          type: sequence
+          label: 'List of completion plugins.'
+          sequence:
+            type: ocha_ai.plugin.completion.[%key]
+            label: 'Settings for a completion plugin.'
+        embedding:
+          type: sequence
+          label: 'List of embedding plugins.'
+          sequence:
+            type: ocha_ai.plugin.embedding.[%key]
+            label: 'Settings for a embedding plugin.'
+        source:
+          type: sequence
+          label: 'List of source plugins.'
+          sequence:
+            type: ocha_ai.plugin.source.[%key]
+            label: 'Settings for a source plugin.'
+        text_extractor:
+          type: sequence
+          label: 'List of completion plugins.'
+          sequence:
+            type: ocha_ai.plugin.text_extractor.[%key]
+            label: 'Settings for a text extractor plugin.'
+        text_splitter:
+          type: sequence
+          label: 'List of text splitter plugins.'
+          sequence:
+            type: ocha_ai.plugin.text_splitter.[%key]
+            label: 'Settings for a text splitter plugin.'
+        vector_store:
+          type: sequence
+          label: 'List of vector store plugins.'
+          sequence:
+            type: ocha_ai.plugin.vector_store.[%key]
+            label: 'Settings for a vector store plugin.'
+    defaults:
+      type: mapping
+      label: 'Default settings.'
+      mapping:
+        form:
+          type: mapping
+          label: 'Default form settings.'
+          mapping:
+            instructions:
+              type: string
+              label: 'Instructions.'
+        plugins:
+          type: mapping
+          label: 'Default plugins.'
+          mapping:
+            completion:
+              type: mapping
+              label: 'Default completion plugin settings.'
+              mapping:
+                plugin_id:
+                  type: string
+                  label: 'Plugin ID.'
+            embedding:
+              type: mapping
+              label: 'Default embedding plugin settings.'
+              mapping:
+                plugin_id:
+                  type: string
+                  label: 'Plugin ID.'
+            source:
+              type: mapping
+              label: 'Default source plugin settings.'
+              mapping:
+                plugin_id:
+                  type: string
+                  label: 'Plugin ID.'
+            text_extractor:
+              type: sequence
+              label: 'Default text extractor plugin settings grouped by file mimetype.'
+              sequence:
+                type: mapping
+                label: 'Default text extractor plugin settings for the mimetype.'
+                mapping:
+                  plugin_id:
+                    type: string
+                    label: 'Plugin ID.'
+            text_splitter:
+              type: mapping
+              label: 'Default text splitter plugin settings.'
+              mapping:
+                plugin_id:
+                  type: string
+                  label: 'Plugin ID.'
+            vector_store:
+              type: mapping
+              label: 'Default vector store plugin settings.'
+              mapping:
+                plugin_id:
+                  type: string
+                  label: 'Plugin ID.'

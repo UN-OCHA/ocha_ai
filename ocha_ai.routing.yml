@@ -1,0 +1,17 @@
+ocha_ai.admin_config:
+  path: '/admin/config/ocha-ai'
+  defaults:
+    _controller: '\Drupal\system\Controller\SystemController::systemAdminMenuBlockPage'
+    _title: 'OCHA AI'
+  requirements:
+    _permission: 'view ocha ai admin config menu'
+ocha_ai.config_form:
+  path: '/admin/config/ocha-ai/config'
+  defaults:
+    _form: '\Drupal\ocha_ai\Form\OchaAiConfigForm'
+    _title: 'OCHA AI module configuration'
+  options:
+    _admin_route: TRUE
+  requirements:
+    _user_is_logged_in: 'TRUE'
+    _permission: manage ocha ai configuration

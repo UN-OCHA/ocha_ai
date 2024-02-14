@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\ocha_ai_chat\Annotation;
+namespace Drupal\ocha_ai\Annotation;
 
 use Drupal\Component\Annotation\Plugin;
 use Drupal\Core\Annotation\Translation;
@@ -8,11 +8,11 @@ use Drupal\Core\Annotation\Translation;
 /**
  * Defines a OCHA AI Chat document source plugin annotation object.
  *
- * Plugin Namespace: Plugin\ocha_ai_chat\Source.
+ * Plugin Namespace: Plugin\ocha_ai\Source.
  *
- * @see \Drupal\ocha_ai_chat\Plugin\SourcePluginBase
- * @see \Drupal\ocha_ai_chat\Plugin\SourcePluginInterface
- * @see \Drupal\ocha_ai_chat\Plugin\SourcePluginManager
+ * @see \Drupal\ocha_ai\Plugin\SourcePluginBase
+ * @see \Drupal\ocha_ai\Plugin\SourcePluginInterface
+ * @see \Drupal\ocha_ai\Plugin\SourcePluginManager
  * @see plugin_api
  *
  * @Annotation

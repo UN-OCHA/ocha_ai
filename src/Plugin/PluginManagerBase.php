@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\ocha_ai_chat\Plugin;
+namespace Drupal\ocha_ai\Plugin;
 
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Plugin\DefaultPluginManager;
@@ -20,7 +20,7 @@ abstract class PluginManagerBase extends DefaultPluginManager implements PluginM
   /**
    * Static cache for the plugin instances.
    *
-   * @var \Drupal\ocha_ai_chat\Plugin\PluginInterface[]
+   * @var \Drupal\ocha_ai\Plugin\PluginInterface[]
    */
   protected array $instances = [];
 
@@ -59,7 +59,7 @@ abstract class PluginManagerBase extends DefaultPluginManager implements PluginM
       $this->configFactory = \Drupal::configFactory();
     }
     return $this->configFactory
-      ->get('ocha_ai_chat.settings')
+      ->get('ocha_ai.settings')
       ->get('plugins.' . $this->getPluginType() . '.' . $plugin_id) ?? [];
   }
 

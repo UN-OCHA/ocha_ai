@@ -1,11 +1,11 @@
 <?php
 
-namespace Drupal\ocha_ai_chat\Plugin;
+namespace Drupal\ocha_ai\Plugin;
 
 use Psr\Log\LoggerInterface;
 
 /**
- * Interface for the ocha_ai_chat plugins.
+ * Interface for the ocha_ai plugins.
  */
 interface PluginInterface {
 

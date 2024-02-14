@@ -1,0 +1,7 @@
+type: module
+name: OCHA AI Chat
+description: 'Provides AI integration to chat with documents.'
+package: ocha
+core_version_requirement: ^9 || ^10
+dependencies:
+  - unocha:ocha_ai

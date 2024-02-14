@@ -1,6 +1,6 @@
 {
-    "name": "unocha/ocha_ai_chat",
-    "description": "OCHA AI Chat module",
+    "name": "unocha/ocha_ai",
+    "description": "OCHA AI module",
     "type": "drupal-module",
     "license": "GPL-2.0-or-later",
     "authors": [
