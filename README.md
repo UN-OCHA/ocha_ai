@@ -5,6 +5,17 @@ This module contains 2 additional modules
 - OCHA AI Chat Module
 - OCHA AI Job Tag Module
 
+## Migrate from ocha_ai_chat
+
+Uninstall `ocha_ai_chat` and `reliefweb_openai`
+Copy your `config/ocha_ai_chat.settings.yml` to a safe place
+Run `druch cex -y`
+Clone this repo and run `drush en ocha_ai_chat -y`
+Run `druch cex -y`
+Copy back your `config/ocha_ai_chat.settings.yml` to config
+Run `druch cim -y`
+Run `drush cr`
+
 ## Plugins
 
 The module uses a system of [plugins](src/Annotation) to handle the different components of the
