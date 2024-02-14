@@ -16,6 +16,32 @@ This module contains 2 additional modules
 - Run `druch cim -y`
 - Run `drush cr`
 
+New settings in `settings/php`
+
+```php
+$config['ocha_ai.settings']['plugins']['text_extractor']['mupdf']['mutool'] = '/usr/bin/mutool';
+
+$config['ocha_ai.settings']['plugins']['vector_store']['elasticsearch']['url'] = 'http://elasticsearch:9200';
+$config['ocha_ai.settings']['plugins']['vector_store']['elasticsearch']['indexing_batch_size'] = 10;
+$config['ocha_ai.settings']['plugins']['vector_store']['elasticsearch']['topk'] = 5;
+
+$config['ocha_ai.settings']['plugins']['completion']['aws_bedrock']['region'] = '';
+$config['ocha_ai.settings']['plugins']['completion']['aws_bedrock']['api_key'] = '';
+$config['ocha_ai.settings']['plugins']['completion']['aws_bedrock']['api_secret'] = '';
+$config['ocha_ai.settings']['plugins']['completion']['aws_bedrock']['model'] = 'amazon.titan-text-express-v1';
+$config['ocha_ai.settings']['plugins']['completion']['aws_bedrock']['version'] = '';
+$config['ocha_ai.settings']['plugins']['completion']['aws_bedrock']['max_tokens'] = 512;
+
+$config['ocha_ai.settings']['plugins']['embedding']['aws_bedrock']['region'] = '';
+$config['ocha_ai.settings']['plugins']['embedding']['aws_bedrock']['api_key'] = '';
+$config['ocha_ai.settings']['plugins']['embedding']['aws_bedrock']['api_secret'] = '';
+$config['ocha_ai.settings']['plugins']['embedding']['aws_bedrock']['model'] = 'amazon.titan-embed-text-v1';
+$config['ocha_ai.settings']['plugins']['embedding']['aws_bedrock']['version'] = '';
+$config['ocha_ai.settings']['plugins']['embedding']['aws_bedrock']['batch_size'] = 1;
+$config['ocha_ai.settings']['plugins']['embedding']['aws_bedrock']['dimensions'] = 1536;
+$config['ocha_ai.settings']['plugins']['embedding']['aws_bedrock']['max_tokens'] = 8192;
+```
+
 ## Plugins
 
 The module uses a system of [plugins](src/Annotation) to handle the different components of the
