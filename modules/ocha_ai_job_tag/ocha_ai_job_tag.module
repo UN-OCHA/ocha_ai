@@ -22,8 +22,13 @@ function ocha_ai_job_tag_form_node_form_alter(array &$form, FormStateInterface $
     return;
   }
 
+  // Check permissions.
   $user = \Drupal::currentUser();
   if ($user->hasPermission('bypass ocha ai job tag')) {
+    return;
+  }
+
+  if (!$user->hasPermission('enforce ocha ai job tag')) {
     return;
   }
 
@@ -59,6 +64,16 @@ function ocha_ai_job_tag_node_update(EntityInterface $node) {
   }
 
   if ($node->bundle() != 'job') {
+    return;
+  }
+
+  // Check permissions.
+  $user = \Drupal::currentUser();
+  if ($user->hasPermission('bypass ocha ai job tag')) {
+    return;
+  }
+
+  if (!$user->hasPermission('enforce ocha ai job tag')) {
     return;
   }
 
