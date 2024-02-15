@@ -23,7 +23,7 @@ class CompletionPluginManager extends PluginManagerBase implements CompletionPlu
       $namespaces,
       $module_handler,
       'Drupal\ocha_ai\Plugin\CompletionPluginInterface',
-      'Drupal\ocha_ai\Annotation\OchaAiChatCompletion'
+      'Drupal\ocha_ai\Attribute\OchaAiCompletion'
     );
 
     $this->setCacheBackend($cache_backend, 'ocha_ai_completion_plugins');

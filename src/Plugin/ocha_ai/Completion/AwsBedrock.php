@@ -7,17 +7,18 @@ namespace Drupal\ocha_ai\Plugin\ocha_ai\Completion;
 use Aws\BedrockRuntime\BedrockRuntimeClient;
 use Aws\Sts\StsClient;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
+use Drupal\ocha_ai\Attribute\OchaAiCompletion;
 use Drupal\ocha_ai\Plugin\CompletionPluginBase;
 
 /**
  * AWS Bedrock completion generator.
- *
- * @OchaAiChatCompletion(
- *   id = "aws_bedrock",
- *   label = @Translation("AWS Bedrock"),
- *   description = @Translation("Use AWS Bedrock as completion generator."),
- * )
  */
+#[OchaAiCompletion(
+  id: 'aws_bedrock',
+  label: new TranslatableMarkup('AWS Bedrock'),
+  description: new TranslatableMarkup('Use AWS Bedrock as completion generator.')
+)]
 class AwsBedrock extends CompletionPluginBase {
 
   /**

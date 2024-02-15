@@ -1,21 +1,24 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Drupal\ocha_ai\Plugin\ocha_ai\Embedding;
 
 use Aws\BedrockRuntime\BedrockRuntimeClient;
 use Aws\Sts\StsClient;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
+use Drupal\ocha_ai\Attribute\OchaAiEmbedding;
 use Drupal\ocha_ai\Plugin\EmbeddingPluginBase;
 
 /**
  * AWS embedding generator.
- *
- * @OchaAiChatEmbedding(
- *   id = "aws_bedrock",
- *   label = @Translation("AWS Bedrock"),
- *   description = @Translation("Use AWS Bedrock as embedding generator."),
- * )
  */
+#[OchaAiEmbedding(
+  id: 'aws_bedrock',
+  label: new TranslatableMarkup('AWS Bedrock'),
+  description: new TranslatableMarkup('Use AWS Bedrock as embedding generator.')
+)]
 class AwsBedrock extends EmbeddingPluginBase {
 
   /**

@@ -23,7 +23,7 @@ class TextSplitterPluginManager extends PluginManagerBase implements TextSplitte
       $namespaces,
       $module_handler,
       'Drupal\ocha_ai\Plugin\TextSplitterPluginInterface',
-      'Drupal\ocha_ai\Annotation\OchaAiChatTextSplitter'
+      'Drupal\ocha_ai\Attribute\OchaAiTextSplitter'
     );
 
     $this->setCacheBackend($cache_backend, 'ocha_ai_text_splitter_plugins');

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Drupal\ocha_ai\Plugin\ocha_ai\Source;
 
 use Drupal\Component\Datetime\TimeInterface;
@@ -11,7 +13,9 @@ use Drupal\Core\Link;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\Core\Render\Element;
 use Drupal\Core\Render\Markup;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\Core\Url;
+use Drupal\ocha_ai\Attribute\OchaAiSource;
 use Drupal\ocha_ai\Helpers\LocalizationHelper;
 use Drupal\ocha_ai\Plugin\SourcePluginBase;
 use GuzzleHttp\ClientInterface;
@@ -23,13 +27,12 @@ use Symfony\Component\Uid\Uuid;
 
 /**
  * ReliefWeb document source.
- *
- * @OchaAiChatSource(
- *   id = "reliefweb",
- *   label = @Translation("ReliefWeb"),
- *   description = @Translation("Use ReliefWeb as document source."),
- * )
  */
+#[OchaAiSource(
+  id: 'reliefweb',
+  label: new TranslatableMarkup('ReliefWeb'),
+  description: new TranslatableMarkup('Use ReliefWeb as document source.')
+)]
 class ReliefWeb extends SourcePluginBase {
 
   /**
@@ -709,10 +712,10 @@ class ReliefWeb extends SourcePluginBase {
     if (!empty($list)) {
       if ($more > 0 && !empty($singular)) {
         if (!empty($plural) && $more > 1) {
-          $list[] = str_replace('@count', $more, $plural);
+          $list[] = str_replace('@count', (string) $more, $plural);
         }
         else {
-          $list[] = str_replace('@count', $more, $singular);
+          $list[] = str_replace('@count', (string) $more, $singular);
         }
       }
 

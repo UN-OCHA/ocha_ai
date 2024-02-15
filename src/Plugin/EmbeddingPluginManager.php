@@ -23,7 +23,7 @@ class EmbeddingPluginManager extends PluginManagerBase implements EmbeddingPlugi
       $namespaces,
       $module_handler,
       'Drupal\ocha_ai\Plugin\EmbeddingPluginInterface',
-      'Drupal\ocha_ai\Annotation\OchaAiChatEmbedding'
+      'Drupal\ocha_ai\Attribute\OchaAiEmbedding'
     );
 
     $this->setCacheBackend($cache_backend, 'ocha_ai_embedding_plugins');

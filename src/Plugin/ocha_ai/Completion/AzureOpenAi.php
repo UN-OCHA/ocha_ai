@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Drupal\ocha_ai\Plugin\ocha_ai\Completion;
 
+use Drupal\Core\StringTranslation\TranslatableMarkup;
+use Drupal\ocha_ai\Attribute\OchaAiCompletion;
 use Drupal\ocha_ai\Plugin\CompletionPluginBase;
 use GuzzleHttp\Client as GuzzleClient;
 use GuzzleHttp\HandlerStack;
@@ -13,13 +15,12 @@ use Psr\Http\Message\ResponseInterface;
 
 /**
  * Azure OpenAI completion generator.
- *
- * @OchaAiChatCompletion(
- *   id = "azure_openai",
- *   label = @Translation("Azure OpenAI"),
- *   description = @Translation("Use Azure OpenAI as completion generator."),
- * )
  */
+#[OchaAiCompletion(
+  id: 'azure_openai',
+  label: new TranslatableMarkup('Azure OpenAI'),
+  description: new TranslatableMarkup('Use Azure OpenAI as completion generator.')
+)]
 class AzureOpenAi extends CompletionPluginBase {
 
   /**

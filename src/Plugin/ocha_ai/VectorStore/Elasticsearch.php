@@ -1,8 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Drupal\ocha_ai\Plugin\ocha_ai\VectorStore;
 
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
+use Drupal\ocha_ai\Attribute\OchaAiVectorStore;
 use Drupal\ocha_ai\Helpers\VectorHelper;
 use Drupal\ocha_ai\Plugin\VectorStorePluginBase;
 use GuzzleHttp\Exception\BadResponseException;
@@ -10,13 +14,12 @@ use Psr\Http\Message\ResponseInterface;
 
 /**
  * Light elasticsearch vector store.
- *
- * @OchaAiChatVectorStore(
- *   id = "elasticsearch",
- *   label = @Translation("Elasticsearch"),
- *   description = @Translation("Use Elasticsearch as vector store."),
- * )
  */
+#[OchaAiVectorStore(
+  id: 'elasticsearch',
+  label: new TranslatableMarkup('Elasticsearch'),
+  description: new TranslatableMarkup('Use Elasticsearch as vector store.')
+)]
 class Elasticsearch extends VectorStorePluginBase {
 
   /**
@@ -449,7 +452,7 @@ class Elasticsearch extends VectorStorePluginBase {
         'id',
         // @todo that may not be needed if the entire document is already
         // available to the caller.
-        // @see OchaAiChat::answer()
+        // @see \Drupal\ocha_ai\modules\ocha_ai_chat\Services\OchaAiChat::answer()
         'url',
         'title',
         'source',

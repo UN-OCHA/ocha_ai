@@ -13,4 +13,3 @@ manage ocha ai chat config:
 view ocha ai chat logs:
   title: 'View the OCHA AI Chat logs'
   description: 'Allow users to view the OCHA AI Chat logs.'
-
