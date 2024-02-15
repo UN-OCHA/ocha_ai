@@ -1,20 +1,23 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Drupal\ocha_ai\Plugin\ocha_ai\TextSplitter;
 
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
+use Drupal\ocha_ai\Attribute\OchaAiTextSplitter;
 use Drupal\ocha_ai\Helpers\TextHelper;
 use Drupal\ocha_ai\Plugin\TextSplitterPluginBase;
 
 /**
  * Split a text into passages based on their estimated token count.
- *
- * @OchaAiChatTextSplitter(
- *   id = "token",
- *   label = @Translation("Token"),
- *   description = @Translation("Split a text into passges based on their estimated token count."),
- * )
  */
+#[OchaAiTextSplitter(
+  id: 'token',
+  label: new TranslatableMarkup('Token'),
+  description: new TranslatableMarkup('Split a text into passges based on their estimated token count.')
+)]
 class Token extends TextSplitterPluginBase {
 
   /**

@@ -23,7 +23,7 @@ class VectorStorePluginManager extends PluginManagerBase implements VectorStoreP
       $namespaces,
       $module_handler,
       'Drupal\ocha_ai\Plugin\VectorStorePluginInterface',
-      'Drupal\ocha_ai\Annotation\OchaAiChatVectorStore'
+      'Drupal\ocha_ai\Attribute\OchaAiVectorStore'
     );
 
     $this->setCacheBackend($cache_backend, 'ocha_ai_vector_store_plugins');

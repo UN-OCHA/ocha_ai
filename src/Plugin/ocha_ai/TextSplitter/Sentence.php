@@ -1,19 +1,22 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Drupal\ocha_ai\Plugin\ocha_ai\TextSplitter;
 
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
+use Drupal\ocha_ai\Attribute\OchaAiTextSplitter;
 use Drupal\ocha_ai\Plugin\TextSplitterPluginBase;
 
 /**
  * Split a text in groups of sentences.
- *
- * @OchaAiChatTextSplitter(
- *   id = "sentence",
- *   label = @Translation("Sentence"),
- *   description = @Translation("Split a text in groups of sentences."),
- * )
  */
+#[OchaAiTextSplitter(
+  id: 'sentence',
+  label: new TranslatableMarkup('Sentence'),
+  description: new TranslatableMarkup('Split a text in groups of sentences.')
+)]
 class Sentence extends TextSplitterPluginBase {
 
   /**

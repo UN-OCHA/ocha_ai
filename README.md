@@ -44,7 +44,7 @@ $config['ocha_ai.settings']['plugins']['embedding']['aws_bedrock']['max_tokens']
 
 ## Plugins
 
-The module uses a system of [plugins](src/Annotation) to handle the different components of the
+The module uses a system of [plugins](src/Attribute) to handle the different components of the
 functionality
 
 - Completion plugins: handle the answer generation from inference models

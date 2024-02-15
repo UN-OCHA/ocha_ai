@@ -1,7 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Drupal\ocha_ai\Plugin\ocha_ai\Embedding;
 
+use Drupal\Core\StringTranslation\TranslatableMarkup;
+use Drupal\ocha_ai\Attribute\OchaAiEmbedding;
 use Drupal\ocha_ai\Helpers\TextHelper;
 use Drupal\ocha_ai\Plugin\EmbeddingPluginBase;
 use GuzzleHttp\Client as GuzzleClient;
@@ -12,13 +16,12 @@ use Psr\Http\Message\ResponseInterface;
 
 /**
  * Azure OpenAI embedding generator.
- *
- * @OchaAiChatEmbedding(
- *   id = "azure_openai",
- *   label = @Translation("Azure OpenAI"),
- *   description = @Translation("Use Azure OpenAI as embedding generator."),
- * )
  */
+#[OchaAiEmbedding(
+  id: 'azure_openai',
+  label: new TranslatableMarkup('Azure OpenAI'),
+  description: new TranslatableMarkup('Use Azure OpenAI as embedding generator.')
+)]
 class AzureOpenAi extends EmbeddingPluginBase {
 
   /**

@@ -23,7 +23,7 @@ class SourcePluginManager extends PluginManagerBase implements SourcePluginManag
       $namespaces,
       $module_handler,
       'Drupal\ocha_ai\Plugin\SourcePluginInterface',
-      'Drupal\ocha_ai\Annotation\OchaAiChatSource'
+      'Drupal\ocha_ai\Attribute\OchaAiSource'
     );
 
     $this->setCacheBackend($cache_backend, 'ocha_ai_source_plugins');

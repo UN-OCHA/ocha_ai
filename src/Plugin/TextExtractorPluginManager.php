@@ -23,7 +23,7 @@ class TextExtractorPluginManager extends PluginManagerBase implements TextExtrac
       $namespaces,
       $module_handler,
       'Drupal\ocha_ai\Plugin\TextExtractorPluginInterface',
-      'Drupal\ocha_ai\Annotation\OchaAiChatTextExtractor'
+      'Drupal\ocha_ai\Attribute\OchaAiTextExtractor'
     );
 
     $this->setCacheBackend($cache_backend, 'ocha_ai_text_extractor_plugins');

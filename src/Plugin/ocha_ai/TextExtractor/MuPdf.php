@@ -1,25 +1,28 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Drupal\ocha_ai\Plugin\ocha_ai\TextExtractor;
 
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
+use Drupal\ocha_ai\Attribute\OchaAiTextExtractor;
 use Drupal\ocha_ai\Plugin\TextExtractorPluginBase;
 
 /**
  * PDF to text extractor using MuPDF.
  *
- * @OchaAiChatTextExtractor(
- *   id = "mupdf",
- *   label = @Translation("MuPDF"),
- *   description = @Translation("Extract text from PDF using MuPDF"),
- *   mimetypes = {
- *     "application/pdf",
- *   }
- * )
- *
  * @todo if we can use FFI we may be able to extract the text for each page
  * without having to call mutool for each page which would be much faster.
  */
+#[OchaAiTextExtractor(
+  id: 'mupdf',
+  label: new TranslatableMarkup('MuPDF'),
+  description: new TranslatableMarkup('Extract text from PDF using MuPDF.'),
+  mimetypes: [
+    'application/pdf',
+  ],
+)]
 class MuPdf extends TextExtractorPluginBase {
 
   /**
