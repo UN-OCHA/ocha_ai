@@ -1,4 +1,8 @@
 defaults:
+  form:
+    instructions:
+      value: ''
+      format: 'plain_text'
   plugins:
     completion:
       plugin_id: aws_bedrock

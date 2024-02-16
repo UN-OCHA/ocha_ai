@@ -159,13 +159,15 @@ class OchaAiChatChatForm extends FormBase {
     ];
 
     // Output instructions as part of scrollable chat history.
-    $form['chat']['content'] = [
-      '#type' => 'processed_text',
-      '#prefix' => '<div id="ocha-ai-chat-instructions" class="ocha-ai-chat-chat-form__instructions">',
-      '#suffix' => '</div>',
-      '#text' => $defaults['form']['instructions']['value'],
-      '#format' => $defaults['form']['instructions']['format'],
-    ];
+    if (!empty($defaults['form']['instructions']['value'])) {
+      $form['chat']['content'] = [
+        '#type' => 'processed_text',
+        '#prefix' => '<div id="ocha-ai-chat-instructions" class="ocha-ai-chat-chat-form__instructions">',
+        '#suffix' => '</div>',
+        '#text' => $defaults['form']['instructions']['value'],
+        '#format' => $defaults['form']['instructions']['format'] ?? 'text_editor_simple',
+      ];
+    }
 
     foreach (json_decode($history, TRUE) ?? [] as $index => $record) {
       $form['chat'][$index] = [
