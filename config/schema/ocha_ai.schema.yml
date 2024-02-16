@@ -272,9 +272,18 @@ ocha_ai.plugin.vector_store.elasticsearch:
     base_index_name:
       type: string
       label: 'The prefix used for the indices.'
+    shards:
+      type: integer
+      label: 'Number of elasticsearch index shards'
+    replicas:
+      type: integer
+      label: 'Number of elasticsearch index replicas'
+    nested_object_limit:
+      type: integer
+      label: 'Maximum number of nested objects'
     indexing_batch_size:
       type: integer
-      label: 'Number of documents to index at conce'
+      label: 'Number of documents to index at once'
     topk:
       type: integer
       label: 'Number of nearest neighbours to retrieve when doing similarity search.'
