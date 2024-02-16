@@ -122,9 +122,9 @@ class Elasticsearch extends VectorStorePluginBase {
     // publication date so we can generate proper references.
     $payload = [
       'settings' => [
-        'index.mapping.nested_objects.limit' => 100000,
-        'number_of_shards' => 1,
-        'number_of_replicas' => 1,
+        'index.mapping.nested_objects.limit' => $this->getPluginSetting('nested_object_limit', 100000),
+        'number_of_shards' => $this->getPluginSetting('shards', 1),
+        'number_of_replicas' => $this->getPluginSetting('replicas', 0),
       ],
       'mappings' => [
         'properties' => [
