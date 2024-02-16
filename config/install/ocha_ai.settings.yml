@@ -33,6 +33,9 @@ plugins:
   vector_store:
     elasticsearch:
       base_index_name: ocha_ai
+      shards: 1
+      replicas: 0
+      nested_object_limit: 100000
 defaults:
   plugins:
     completion:
