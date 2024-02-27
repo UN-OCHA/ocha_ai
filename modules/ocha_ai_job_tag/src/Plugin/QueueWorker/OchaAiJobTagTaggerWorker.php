@@ -95,8 +95,9 @@ class OchaAiJobTagTaggerWorker extends QueueWorkerBase implements ContainerFacto
 
     if (isset($data['experience']) && $node->field_job_experience->isEmpty()) {
       $message[] = 'Experience:' . implode(', ', $this->createRevisionLogLine($data['experience']));
+      $first = reset(array_keys($data['experience']));
       $terms = $storage->loadByProperties([
-        'name' => reset(array_keys($data['experience'])),
+        'name' => $first,
         'vid' => 'job_experience',
       ]);
       $term = reset($terms);
@@ -107,8 +108,9 @@ class OchaAiJobTagTaggerWorker extends QueueWorkerBase implements ContainerFacto
 
     if (isset($data['career_category']) && $node->field_career_categories->isEmpty()) {
       $message[] = 'Career category:' . implode(', ', $this->createRevisionLogLine($data['career_category']));
+      $first = reset(array_keys($data['career_category']));
       $terms = $storage->loadByProperties([
-        'name' => reset(array_keys($data['career_category'])),
+        'name' => $first,
         'vid' => 'career_category',
       ]);
       $term = reset($terms);
@@ -119,8 +121,9 @@ class OchaAiJobTagTaggerWorker extends QueueWorkerBase implements ContainerFacto
 
     if (isset($data['theme']) && $node->field_theme->isEmpty()) {
       $message[] = 'Theme(s):' . implode(', ', $this->createRevisionLogLine($data['theme']));
+      $first = reset(array_keys($data['theme']));
       $terms = $storage->loadByProperties([
-        'name' => reset(array_keys($data['theme'])),
+        'name' => $first,
         'vid' => 'theme',
       ]);
       $term = reset($terms);
