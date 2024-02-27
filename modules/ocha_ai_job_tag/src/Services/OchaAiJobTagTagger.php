@@ -2,13 +2,73 @@
 
 namespace Drupal\ocha_ai_job_tag\Services;
 
-use Drupal\ocha_ai\Helpers\VectorHelper;
+use Drupal\Component\Datetime\TimeInterface;
+use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\Core\Database\Connection;
+use Drupal\Core\Logger\LoggerChannelFactoryInterface;
+use Drupal\Core\Session\AccountProxyInterface;
+use Drupal\Core\State\StateInterface;
 use Drupal\ocha_ai_chat\Services\OchaAiChat;
+use Drupal\ocha_ai\Helpers\VectorHelper;
+use Drupal\ocha_ai\Plugin\CompletionPluginManagerInterface;
+use Drupal\ocha_ai\Plugin\EmbeddingPluginManagerInterface;
+use Drupal\ocha_ai\Plugin\SourcePluginManagerInterface;
+use Drupal\ocha_ai\Plugin\TextExtractorPluginManagerInterface;
+use Drupal\ocha_ai\Plugin\TextSplitterPluginManagerInterface;
+use Drupal\ocha_ai\Plugin\VectorStorePluginManagerInterface;
 
 /**
  * OCHA AI Chat service.
  */
 class OchaAiJobTagTagger extends OchaAiChat {
+
+  /**
+   * Constructor.
+   */
+  public function __construct(
+    ConfigFactoryInterface $config_factory,
+    LoggerChannelFactoryInterface $logger_factory,
+    StateInterface $state,
+    AccountProxyInterface $current_user,
+    Connection $database,
+    TimeInterface $time,
+    CompletionPluginManagerInterface $completion_plugin_manager,
+    EmbeddingPluginManagerInterface $embedding_plugin_manager,
+    SourcePluginManagerInterface $source_plugin_manager,
+    TextExtractorPluginManagerInterface $text_extractor_plugin_manager,
+    TextSplitterPluginManagerInterface $text_splitter_plugin_manager,
+    VectorStorePluginManagerInterface $vector_store_plugin_manager
+  ) {
+    $this->config = $config_factory->get('ocha_ai_job_tag.settings');
+    $this->logger = $logger_factory->get('ocha_ai_job_tag');
+    $this->state = $state;
+    $this->currentUser = $current_user;
+    $this->database = $database;
+    $this->time = $time;
+    $this->completionPluginManager = $completion_plugin_manager;
+    $this->embeddingPluginManager = $embedding_plugin_manager;
+    $this->sourcePluginManager = $source_plugin_manager;
+    $this->textExtractorPluginManager = $text_extractor_plugin_manager;
+    $this->textSplitterPluginManager = $text_splitter_plugin_manager;
+    $this->vectorStorePluginManager = $vector_store_plugin_manager;
+  }
+
+  /**
+   * Get the default settings for the OCHA AI Chat.
+   *
+   * @return array
+   *   The OCHA AI Chat settings.
+   */
+  public function getSettings(): array {
+    if (!isset($this->settings)) {
+      $config_defaults = $this->config->get('defaults') ?? [];
+
+      $state_defaults = $this->state->get('ocha_ai_job_tag.default_settings', []);
+
+      $this->settings = array_replace_recursive($config_defaults, $state_defaults);
+    }
+    return $this->settings;
+  }
 
   /**
    * Tag a job given a title and description.
@@ -47,7 +107,7 @@ class OchaAiJobTagTagger extends OchaAiChat {
       return [];
     }
 
-    $text_splitter_plugin = $this->getTextSplitterPluginManager()->getPlugin('token');
+    $text_splitter_plugin = $this->getTextSplitterPlugin();
 
     // Split the text into chunks of around 300 tokens to be below the 512
     // recommend token limit.
@@ -233,7 +293,10 @@ class OchaAiJobTagTagger extends OchaAiChat {
       ];
       $embeddings = [];
       foreach ($vocabularies as $vocabulary => $terms) {
-        $data = reset($this->getEmbeddings($terms, FALSE));
+        // Keep first one.
+        $data = $this->getEmbeddings($terms, FALSE);
+        $data = reset($data);
+
         foreach (array_keys($terms) as $index => $term) {
           $embeddings[$vocabulary][$term] = $data[$index];
         }
