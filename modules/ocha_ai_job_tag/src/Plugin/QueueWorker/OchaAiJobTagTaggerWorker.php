@@ -121,14 +121,19 @@ class OchaAiJobTagTaggerWorker extends QueueWorkerBase implements ContainerFacto
 
     if (isset($data['theme']) && $node->field_theme->isEmpty()) {
       $message[] = 'Theme(s):' . implode(', ', $this->createRevisionLogLine($data['theme']));
-      $first = reset(array_keys($data['theme']));
-      $terms = $storage->loadByProperties([
-        'name' => $first,
-        'vid' => 'theme',
-      ]);
-      $term = reset($terms);
 
-      $node->set('field_theme', $term);
+      $themes = $this->getTop3Themes($data['theme']);
+      $result = [];
+
+      foreach ($themes as $theme) {
+        $terms = $storage->loadByProperties([
+          'name' => $theme,
+          'vid' => 'theme',
+        ]);
+        $result[] = reset($terms);
+      }
+
+      $node->set('field_theme', $result);
       $needs_save = TRUE;
     }
 
@@ -152,6 +157,30 @@ class OchaAiJobTagTaggerWorker extends QueueWorkerBase implements ContainerFacto
       $data,
       array_keys($data)
     );
+  }
+
+  /**
+   * Get top 3 relevant themes.
+   */
+  protected function getTop3Themes($themes) {
+    $result = [];
+
+    $themes = array_slice($themes, 0, 3, TRUE);
+
+    foreach ($themes as $theme => $score) {
+      // Add first one regardless of score.
+      if (empty($result)) {
+        $result[] = $theme;
+        continue;
+      }
+
+      if ($score > .25) {
+        $result[] = $theme;
+      }
+
+    }
+
+    return $result;
   }
 
 }
