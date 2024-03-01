@@ -263,6 +263,24 @@ button doesn't overlay any text */
 }
 
 /**
+ * Feedback message
+ *
+ * Instead of introducing a CD dependency, we add a few status message styles.
+ */
+.ocha-ai-chat-result-feedback .messages {
+  padding: 0.5rem;
+  background: var(--cd-grey--light);
+  border: 1px solid var(--cd-grey--mid);
+  margin-block-start: 0.5rem;
+  border-radius: 3px;
+}
+
+.ocha-ai-chat-result-feedback .messages--status {
+  background-color: var(--cd-green--light);
+  border-color: var(--cd-green);
+}
+
+/**
  * User input area
  */
 /* Textarea */

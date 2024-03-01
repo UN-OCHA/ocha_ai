@@ -1,6 +1,10 @@
 (function () {
   'use strict';
 
+  // Some operations, like submitting feedback, shouldn't invoke the scrolling
+  // behavior at all. A simple flag to control whether it happens.
+  var scrollingEnabled = true;
+
   // Some data needs to survive between executions of Drupal's `attach` method
   // so we instantiate it outside the Behavior itself.
   var oldScrollHeight;
@@ -13,10 +17,11 @@
     attach: function (context, settings) {
       var chatContainer = document.querySelector('[data-drupal-selector="edit-chat"] .fieldset-wrapper');
       var submitButton = document.querySelector('[data-drupal-selector="edit-submit"]');
+      var feedbackButtons = document.querySelectorAll('[data-drupal-selector$="-feedback-submit"]');
       var chatHeight = this.padChatWindow();
 
       // Do some calculations to decide where to start our smooth scroll.
-      if (oldScrollHeight) {
+      if (oldScrollHeight && scrollingEnabled) {
         var smoothScrollStart = oldScrollHeight - chatHeight;
 
         // Jump to where the bottom of the previous container was before the DOM
@@ -24,13 +29,24 @@
         chatContainer.scrollTo({top: smoothScrollStart, behavior: 'instant'});
         chatContainer.scrollTo({top: chatContainer.scrollHeight, behavior: 'smooth'});
       }
-      else {
+      else if (scrollingEnabled) {
         chatContainer.scrollTo({top: chatContainer.scrollHeight, behavior: 'smooth'});
       }
+      else {
+        chatContainer.scrollTo({top: chatContainer.scrollHeight, behavior: 'instant'});
 
-      // Upate UI when submit is pressed. Each time ajax finishes, the whole
-      // chat history will be re-inserted into the DOM. That means we can
-      // temporarily inject whatever we like and it will get cleaned up for us.
+        // Now that we completed the non-scroll action, set the variable back to
+        // TRUE for the next user interaction.
+        scrollingEnabled = true;
+      }
+
+      /**
+       * Chat submission.
+       *
+       * Upate UI when submit is pressed. Each time ajax finishes, the whole
+       * chat history will be re-inserted into the DOM. That means we can
+       * temporarily inject whatever we like and it will get cleaned up for us.
+       */
       function chatSend (ev) {
         // First check the question textarea for a value. We don't want to act
         // unless we have a value to send.
@@ -42,6 +58,7 @@
           return;
         }
 
+        // Build DOM nodes to be inserted.
         var chatContainer = document.querySelector('[data-drupal-selector="edit-chat"] .fieldset-wrapper');
         var chatResult = Drupal.behaviors.ochaAiChatUtils.createElement('div', {
           'class': 'ocha-ai-chat-result',
@@ -79,7 +96,8 @@
         }, 200);
       };
 
-      // Check all the input modes and add our client-side effect.
+      // Check all the input modes and add our client-side chat effects to the
+      // form's main submit button.
       //
       // We use `mousedown` instead of `click` because the latter didn't seem to
       // have any effect when testing. It's possible that Drupal stops event
@@ -98,6 +116,27 @@
         if (ev.keyCode === 13) {
           chatSend(ev);
         }
+      });
+
+      /**
+       * Feedback submission
+       */
+      function feedbackSend(ev) {
+        // Disable scrolling on next ajax reload. The `attach` function contains
+        // logic which will reset this to true.
+        scrollingEnabled = false;
+      }
+
+      // Listen for feedback button and disable scrolling.
+      feedbackButtons.forEach((el) => {
+        el.addEventListener('touchend', feedbackSend);
+        el.addEventListener('mousedown', feedbackSend);
+        el.addEventListener('keydown', function(ev) {
+          // First check that the [Enter] key is being pressed.
+          if (ev.keyCode === 13) {
+            feedbackSend(ev);
+          }
+        });
       });
 
       // Listen for window resizes and recalculate the amount of padding needed
