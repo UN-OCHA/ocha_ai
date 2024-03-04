@@ -8,6 +8,7 @@
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\node\Entity\Node;
+use Drupal\reliefweb_moderation\Helpers\UserPostingRightsHelper;
 
 /**
  * Implements hook_form_HOOK_alter() for "node_form".
@@ -32,10 +33,35 @@ function ocha_ai_job_tag_form_node_form_alter(array &$form, FormStateInterface $
     return;
   }
 
-  // Hide form elements.
-  $form['field_job_experience']['#access'] = FALSE;
-  $form['field_career_categories']['#access'] = FALSE;
-  $form['field_theme']['#access'] = FALSE;
+  $sources = array_keys(UserPostingRightsHelper::getUserPostingRights());
+  if (empty($sources)) {
+    $form['field_job_experience']['#access'] = FALSE;
+    $form['field_career_categories']['#access'] = FALSE;
+    $form['field_theme']['#access'] = FALSE;
+    return;
+  }
+
+  $fields = [
+    'field_job_experience',
+    'field_career_categories',
+    'field_theme',
+  ];
+
+  $conditions = [];
+  foreach ($sources as $source) {
+    $conditions[] = [
+      'value' => $source,
+    ];
+  }
+
+  foreach ($fields as $field) {
+    $form[$field]['#states'] = [
+      'visible' => [
+        'select[name="field_source"]' => $conditions,
+      ],
+    ];
+  }
+
 }
 
 /**
@@ -51,6 +77,21 @@ function ocha_ai_job_tag_node_insert(EntityInterface $entity) {
     return;
   }
 
+  // Check permissions.
+  $user = \Drupal::currentUser();
+  if ($user->hasPermission('bypass ocha ai job tag')) {
+    return;
+  }
+
+  if (!$user->hasPermission('enforce ocha ai job tag')) {
+    return;
+  }
+
+  // Trusted job posters do not need to use AI.
+  if (UserPostingRightsHelper::getEntityAuthorPostingRights($entity) == 'trusted') {
+    return;
+  }
+
   return ocha_ai_job_tag_queue_job($entity);
 }
 
@@ -60,7 +101,6 @@ function ocha_ai_job_tag_node_insert(EntityInterface $entity) {
 function ocha_ai_job_tag_node_update(EntityInterface $node) {
   if (!$node instanceof Node) {
     return;
-
   }
 
   if ($node->bundle() != 'job') {
@@ -74,6 +114,11 @@ function ocha_ai_job_tag_node_update(EntityInterface $node) {
   }
 
   if (!$user->hasPermission('enforce ocha ai job tag')) {
+    return;
+  }
+
+  // Trusted job posters do not need to use AI.
+  if (UserPostingRightsHelper::getEntityAuthorPostingRights($entity) == 'trusted') {
     return;
   }
 
