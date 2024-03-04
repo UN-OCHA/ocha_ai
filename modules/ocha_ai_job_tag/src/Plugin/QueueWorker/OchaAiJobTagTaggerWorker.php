@@ -94,7 +94,7 @@ class OchaAiJobTagTaggerWorker extends QueueWorkerBase implements ContainerFacto
     $storage = $this->entityTypeManager->getStorage('taxonomy_term');
 
     if (isset($data['experience']) && $node->field_job_experience->isEmpty()) {
-      $message[] = 'Experience:' . implode(', ', $this->createRevisionLogLine($data['experience']));
+      $message[] = '# Experience' . "\n\n- " . implode("\n- ", $this->createRevisionLogLine($data['experience'])) . "\n\n";
       $first = reset(array_keys($data['experience']));
       $terms = $storage->loadByProperties([
         'name' => $first,
@@ -107,7 +107,7 @@ class OchaAiJobTagTaggerWorker extends QueueWorkerBase implements ContainerFacto
     }
 
     if (isset($data['career_category']) && $node->field_career_categories->isEmpty()) {
-      $message[] = 'Career category:' . implode(', ', $this->createRevisionLogLine($data['career_category']));
+      $message[] = '# Career category' . "\n\n- " . implode("\n- ", $this->createRevisionLogLine($data['career_category'])) . "\n\n";
       $first = reset(array_keys($data['career_category']));
       $terms = $storage->loadByProperties([
         'name' => $first,
@@ -120,7 +120,7 @@ class OchaAiJobTagTaggerWorker extends QueueWorkerBase implements ContainerFacto
     }
 
     if (isset($data['theme']) && $node->field_theme->isEmpty()) {
-      $message[] = 'Theme(s):' . implode(', ', $this->createRevisionLogLine($data['theme']));
+      $message[] = '# Theme(s)' . "\n\n- " . implode("\n- ", $this->createRevisionLogLine($data['theme'])) . "\n\n";
 
       $themes = $this->getTop3Themes($data['theme']);
       $result = [];
@@ -138,7 +138,12 @@ class OchaAiJobTagTaggerWorker extends QueueWorkerBase implements ContainerFacto
     }
 
     if ($needs_save) {
-      $node->setRevisionLogMessage(implode("\n", $message));
+      if ($node->hasField('reliefweb_job_tagger_info')) {
+        $node->set('reliefweb_job_tagger_info', [
+          'value' => implode("\n\n", $message),
+          'format' => 'markdown',
+        ]);
+      }
       $node->save();
     }
   }

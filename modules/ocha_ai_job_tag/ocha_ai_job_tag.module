@@ -10,7 +10,7 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\node\Entity\Node;
 
 /**
- * Implements hook_form_HOOK_alter() for "node_form".
+ * Implements hook_form_HOOK_alter().
  */
 function ocha_ai_job_tag_form_node_form_alter(array &$form, FormStateInterface $form_state, $form_id) {
   $form_ids = [
