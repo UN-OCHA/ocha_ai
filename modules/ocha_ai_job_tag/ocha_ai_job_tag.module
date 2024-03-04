@@ -8,7 +8,6 @@
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\node\Entity\Node;
-use Drupal\reliefweb_moderation\Helpers\UserPostingRightsHelper;
 
 /**
  * Implements hook_form_HOOK_alter() for "node_form".
@@ -57,11 +56,6 @@ function ocha_ai_job_tag_node_insert(EntityInterface $entity) {
     return;
   }
 
-  // Trusted job posters do not need to use AI.
-  if (UserPostingRightsHelper::getEntityAuthorPostingRights($entity) == 'trusted') {
-    return;
-  }
-
   return ocha_ai_job_tag_queue_job($entity);
 }
 
@@ -84,11 +78,6 @@ function ocha_ai_job_tag_node_update(EntityInterface $node) {
   }
 
   if (!$user->hasPermission('enforce ocha ai job tag')) {
-    return;
-  }
-
-  // Trusted job posters do not need to use AI.
-  if (UserPostingRightsHelper::getEntityAuthorPostingRights($entity) == 'trusted') {
     return;
   }
 
