@@ -32,36 +32,6 @@ function ocha_ai_job_tag_form_node_form_alter(array &$form, FormStateInterface $
   if (!$user->hasPermission('enforce ocha ai job tag')) {
     return;
   }
-
-  $sources = array_keys(UserPostingRightsHelper::getUserPostingRights());
-  if (empty($sources)) {
-    $form['field_job_experience']['#access'] = FALSE;
-    $form['field_career_categories']['#access'] = FALSE;
-    $form['field_theme']['#access'] = FALSE;
-    return;
-  }
-
-  $fields = [
-    'field_job_experience',
-    'field_career_categories',
-    'field_theme',
-  ];
-
-  $conditions = [];
-  foreach ($sources as $source) {
-    $conditions[] = [
-      'value' => $source,
-    ];
-  }
-
-  foreach ($fields as $field) {
-    $form[$field]['#states'] = [
-      'visible' => [
-        'select[name="field_source"]' => $conditions,
-      ],
-    ];
-  }
-
 }
 
 /**
