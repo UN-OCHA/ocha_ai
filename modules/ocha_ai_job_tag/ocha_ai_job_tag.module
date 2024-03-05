@@ -10,7 +10,7 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\node\Entity\Node;
 
 /**
- * Implements hook_form_HOOK_alter() for "node_form".
+ * Implements hook_form_HOOK_alter().
  */
 function ocha_ai_job_tag_form_node_form_alter(array &$form, FormStateInterface $form_state, $form_id) {
   $form_ids = [
@@ -31,11 +31,6 @@ function ocha_ai_job_tag_form_node_form_alter(array &$form, FormStateInterface $
   if (!$user->hasPermission('enforce ocha ai job tag')) {
     return;
   }
-
-  // Hide form elements.
-  $form['field_job_experience']['#access'] = FALSE;
-  $form['field_career_categories']['#access'] = FALSE;
-  $form['field_theme']['#access'] = FALSE;
 }
 
 /**
@@ -51,6 +46,16 @@ function ocha_ai_job_tag_node_insert(EntityInterface $entity) {
     return;
   }
 
+  // Check permissions.
+  $user = \Drupal::currentUser();
+  if ($user->hasPermission('bypass ocha ai job tag')) {
+    return;
+  }
+
+  if (!$user->hasPermission('enforce ocha ai job tag')) {
+    return;
+  }
+
   return ocha_ai_job_tag_queue_job($entity);
 }
 
@@ -60,7 +65,6 @@ function ocha_ai_job_tag_node_insert(EntityInterface $entity) {
 function ocha_ai_job_tag_node_update(EntityInterface $node) {
   if (!$node instanceof Node) {
     return;
-
   }
 
   if ($node->bundle() != 'job') {
