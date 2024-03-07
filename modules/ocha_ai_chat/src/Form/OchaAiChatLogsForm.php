@@ -427,7 +427,7 @@ class OchaAiChatLogsForm extends FormBase {
     }
 
     $handle = fopen($file->getFileUri(), 'a');
-    if ($strean === FALSE) {
+    if ($handle === FALSE) {
       return $response->addCommand(new MessageCommand('Unable to create temporary file for the log export', $selector));
     }
 
