@@ -8,7 +8,6 @@ use Drupal\Core\Database\Connection;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\Core\Session\AccountProxyInterface;
 use Drupal\Core\State\StateInterface;
-use Drupal\ocha_ai_chat\Services\OchaAiChat;
 use Drupal\ocha_ai\Helpers\VectorHelper;
 use Drupal\ocha_ai\Plugin\CompletionPluginManagerInterface;
 use Drupal\ocha_ai\Plugin\EmbeddingPluginManagerInterface;
@@ -16,6 +15,7 @@ use Drupal\ocha_ai\Plugin\SourcePluginManagerInterface;
 use Drupal\ocha_ai\Plugin\TextExtractorPluginManagerInterface;
 use Drupal\ocha_ai\Plugin\TextSplitterPluginManagerInterface;
 use Drupal\ocha_ai\Plugin\VectorStorePluginManagerInterface;
+use Drupal\ocha_ai_chat\Services\OchaAiChat;
 
 /**
  * OCHA AI Chat service.
