@@ -190,10 +190,17 @@ button doesn't overlay any text */
   padding: 6px 12px;
   border-radius: 5px;
   position: relative;
+  width: fit-content;
+}
+
+.ocha-ai-chat-chat-form .ocha-ai-chat-result .chat__q,
+.ocha-ai-chat-chat-form .ocha-ai-chat-result .chat__a {
+  text-wrap: balance;
 }
 
 .ocha-ai-chat-chat-form .ocha-ai-chat-result .chat__q {
   margin-inline-start: 2rem;
+  align-self: flex-end;
   text-align: end;
   color: white;
   background: var(--brand-primary);
@@ -221,6 +228,7 @@ button doesn't overlay any text */
 .ocha-ai-chat-chat-form .ocha-ai-chat-result .chat__refs {
   margin-block-start: 0.5rem;
   margin-inline-end: 2rem;
+  align-self: flex-start;
   text-align: start;
   color: #333;
   background: var(--brand-grey);
