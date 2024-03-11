@@ -26,20 +26,32 @@
 
 /* Open button */
 .data-ocha-ai-chat-chat-popup__button-open {
+  display: block;
   position: fixed;
   z-index: 9999;
   right: 24px;
   bottom: 24px;
-  width: 64px;
-  height: 64px;
-  border: none;
-  background: var(--rw-icons--chat--chat--64--dark-blue);
+  width: 80px;
+  height: 80px;
+  border: 0;
+  border-radius: 50%;
+  background-color: var(--brand-grey);
 }
 
-.data-ocha-ai-chat-chat-popup__button-open:active,
-.data-ocha-ai-chat-chat-popup__button-open:focus,
-.data-ocha-ai-chat-chat-popup__button-open:hover {
-  background: var(--rw-icons--chat--chat--64--dark-red);
+.data-ocha-ai-chat-chat-popup__button-open-icon {
+  display: inline-block;
+  overflow: hidden;
+  width: 48px;
+  height: 48px;
+  margin-top: 12px;
+  border: none;
+  background: var(--rw-icons--chat--chat--48--dark-blue);
+}
+
+.data-ocha-ai-chat-chat-popup__button-open:active .data-ocha-ai-chat-chat-popup__button-open-icon,
+.data-ocha-ai-chat-chat-popup__button-open:focus .data-ocha-ai-chat-chat-popup__button-open-icon,
+.data-ocha-ai-chat-chat-popup__button-open:hover .data-ocha-ai-chat-chat-popup__button-open-icon {
+  background: var(--rw-icons--chat--chat--48--dark-red);
 }
 
 /* Close button */
