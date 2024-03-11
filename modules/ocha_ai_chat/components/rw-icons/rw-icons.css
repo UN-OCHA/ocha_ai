@@ -103,8 +103,12 @@
   --rw-icons--datepicker--32--dark-red--x: -278px;
   --rw-icons--datepicker--datepicker--32--dark-blue: var(--rw-icons-sprite) -246px 0 no-repeat;
   --rw-icons--datepicker--datepicker--32--dark-red: var(--rw-icons-sprite) -278px 0 no-repeat;
-  --rw-icons--chat--64--dark-blue--x: -310px;
-  --rw-icons--chat--64--dark-red--x: -374px;
-  --rw-icons--chat--chat--64--dark-blue: var(--rw-icons-sprite) -310px 0 no-repeat;
-  --rw-icons--chat--chat--64--dark-red: var(--rw-icons-sprite) -374px 0 no-repeat;
+  --rw-icons--chat--48--dark-blue--x: -310px;
+  --rw-icons--chat--48--dark-red--x: -358px;
+  --rw-icons--chat--64--dark-blue--x: -406px;
+  --rw-icons--chat--64--dark-red--x: -470px;
+  --rw-icons--chat--chat--48--dark-blue: var(--rw-icons-sprite) -310px 0 no-repeat;
+  --rw-icons--chat--chat--48--dark-red: var(--rw-icons-sprite) -358px 0 no-repeat;
+  --rw-icons--chat--chat--64--dark-blue: var(--rw-icons-sprite) -406px 0 no-repeat;
+  --rw-icons--chat--chat--64--dark-red: var(--rw-icons-sprite) -470px 0 no-repeat;
 }
