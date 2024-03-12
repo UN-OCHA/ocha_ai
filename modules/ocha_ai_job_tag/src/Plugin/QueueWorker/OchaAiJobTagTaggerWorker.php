@@ -76,6 +76,19 @@ class OchaAiJobTagTaggerWorker extends QueueWorkerBase implements ContainerFacto
       return;
     }
 
+    // Only process it when fields are empty.
+    if (!$node->field_job_experience->isEmpty()) {
+      return;
+    }
+
+    if (!$node->field_career_categories->isEmpty()) {
+      return;
+    }
+
+    if (!$node->field_theme->isEmpty()) {
+      return;
+    }
+
     $data = $this->jobTagger->tag($node->getTitle(), $node->get('body')->value);
 
     if (empty($data)) {
@@ -144,6 +157,7 @@ class OchaAiJobTagTaggerWorker extends QueueWorkerBase implements ContainerFacto
           'format' => 'markdown',
         ]);
       }
+      $node->revision_log = 'Job has updated by AI.';
       $node->save();
     }
   }
