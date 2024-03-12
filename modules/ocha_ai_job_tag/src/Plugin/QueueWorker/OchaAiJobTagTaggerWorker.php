@@ -108,7 +108,8 @@ class OchaAiJobTagTaggerWorker extends QueueWorkerBase implements ContainerFacto
 
     if (isset($data['experience']) && $node->field_job_experience->isEmpty()) {
       $message[] = '**Experience**' . "\n\n- " . implode("\n- ", $this->createRevisionLogLine($data['experience'])) . "\n\n";
-      $first = reset(array_keys($data['experience']));
+      $first = array_keys($data['experience']);
+      $first = reset($first);
       $terms = $storage->loadByProperties([
         'name' => $first,
         'vid' => 'job_experience',
@@ -121,7 +122,8 @@ class OchaAiJobTagTaggerWorker extends QueueWorkerBase implements ContainerFacto
 
     if (isset($data['career_category']) && $node->field_career_categories->isEmpty()) {
       $message[] = '**Career category**' . "\n\n- " . implode("\n- ", $this->createRevisionLogLine($data['career_category'])) . "\n\n";
-      $first = reset(array_keys($data['career_category']));
+      $first = array_keys($data['career_category']);
+      $first = reset($first);
       $terms = $storage->loadByProperties([
         'name' => $first,
         'vid' => 'career_category',
