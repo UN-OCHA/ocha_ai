@@ -47,7 +47,7 @@
          *
          * Upate UI when submit is pressed. Each time ajax finishes, the whole
          * chat history will be re-inserted into the DOM. That means we can
-         * temporarily inject whatever we like and it will get cleaned up for us.
+         * temporarily inject whatever we like; it will get cleaned up for us.
          */
         function chatSend (ev) {
           // First check the question textarea for a value. We don't want to act
@@ -86,10 +86,10 @@
           setTimeout(() => {
             chatContainer.append(chatResult);
 
-            // In this instance we use smooth scrolling. It won't be smooth unless
-            // the continer can be scrolled to begin with, but if padding was able
-            // to be added when the window opened, then it should work from the
-            // very beginning of the chat history.
+            // In this instance we use smooth scrolling. It won't be smooth
+            // unless the continer can be scrolled to begin with, but if padding
+            // was able to be added when the window opened, then it should work
+            // from the very beginning of the chat history.
             chatContainer.scrollTo({top: chatContainer.scrollHeight, behavior: 'smooth'});
 
             // Store the scroll position so that we can attempt to smooth-scroll
@@ -104,14 +104,14 @@
         // Check all the input modes and add our client-side chat effects to the
         // form's main submit button.
         //
-        // We use `mousedown` instead of `click` because the latter didn't seem to
-        // have any effect when testing. It's possible that Drupal stops event
-        // propagation, preventing a `click` from ever executing.
+        // We use `mousedown` instead of `click` because the latter didn't seem
+        // to have any effect when testing. It's possible that Drupal stops
+        // event propagation, preventing a `click` from ever executing.
         //
         // Note: Drupal 10 has a bug that might seem like we introduced, but
         // its behavior comes from core. Ajax event listeners use mousedown so
-        // forms will submit even when doing actions like right-click which aren't
-        // meant to submit the form.
+        // forms will submit even when doing actions like right-click which
+        // aren't meant to submit the form.
         //
         // @see https://www.drupal.org/project/drupal/issues/2616184
         submitButton.addEventListener('touchend', chatSend);
@@ -150,9 +150,13 @@
       });
     },
 
-    // Calculates the size of the chat window and adds padding to ensure there
-    // is always a scrollable area. This allows the smooth-scroll code to create
-    // the illusion of a chat UI like SMS or WhatsApp.
+    /**
+     * Calculates the size of the chat window and adds padding to ensure there
+     * is always a scrollable area. This allows the smooth-scroll code to create
+     * the illusion of a chat UI like SMS or WhatsApp.
+     *
+     * @return int height of chat container minus some padding
+     */
     padChatWindow: function (ev) {
       var chatContainerOuter = document.querySelector('[data-drupal-selector="edit-chat"]');
       var chatContainer = document.querySelector('[data-drupal-selector="edit-chat"] .fieldset-wrapper');
