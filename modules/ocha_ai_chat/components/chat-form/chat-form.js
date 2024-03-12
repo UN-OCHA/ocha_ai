@@ -95,6 +95,9 @@
             // Store the scroll position so that we can attempt to smooth-scroll
             // when the form reloads with new data attached.
             oldScrollHeight = chatContainer.scrollHeight;
+
+            // Remove old question from textarea.
+            document.querySelector('[data-drupal-selector="edit-question"]').value = '';
           }, 200);
         };
 
