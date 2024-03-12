@@ -306,8 +306,23 @@ button doesn't overlay any text */
   right: 0;
   height: calc(100% + 2px);
   margin-inline-end: 0;
+  padding-inline: 0.5rem;
+  padding-inline-end: 1.5rem;
   border-radius: 0;
   background: var(--brand-primary);
+  white-space: nowrap;
+
+  &::after {
+    display: block;
+    content: '';
+    position: absolute;
+    top: 1.85rem;
+    right: 0.5rem;
+    width: 12px;
+    height: 12px;
+    background: var(--rw-icons--common--next--12--white);
+    transform: rotate(-90deg);
+  }
 }
 
 /* Ajax throbber */
