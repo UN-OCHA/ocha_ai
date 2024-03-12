@@ -159,7 +159,7 @@ class OchaAiJobTagTaggerWorker extends QueueWorkerBase implements ContainerFacto
           'format' => 'markdown',
         ]);
       }
-      $node->revision_log = 'Job has updated by AI.';
+      $node->revision_log = 'Job has been updated by AI.';
       $node->save();
     }
   }

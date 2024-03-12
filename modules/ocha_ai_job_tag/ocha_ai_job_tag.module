@@ -128,7 +128,7 @@ function ocha_ai_job_tag_job_is_queued(NodeInterface $node) : bool {
 }
 
 /**
- * Revision log message
+ * Revision log message.
  */
 function ocha_ai_job_tag_revision_log_message() : string {
   return 'Job has been queued for tagging';
