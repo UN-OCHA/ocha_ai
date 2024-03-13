@@ -270,6 +270,10 @@ button doesn't overlay any text */
   content: ", ";
 }
 
+.ocha-ai-chat-result-feedback {
+  scroll-margin-bottom: 1rem;
+}
+
 /**
  * Feedback message
  *

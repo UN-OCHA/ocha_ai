@@ -2,10 +2,6 @@
 (function () {
   'use strict';
 
-  // Some operations, like submitting feedback, shouldn't invoke the scrolling
-  // behavior at all. A simple flag to control whether it happens.
-  var scrollingEnabled = true;
-
   // Some data needs to survive between executions of Drupal's `attach` method
   // so we instantiate it outside the Behavior itself.
   var oldScrollHeight;
@@ -23,7 +19,7 @@
         var chatHeight = this.padChatWindow();
 
         // Do some calculations to decide where to start our smooth scroll.
-        if (oldScrollHeight && scrollingEnabled) {
+        if (oldScrollHeight) {
           var smoothScrollStart = oldScrollHeight - chatHeight;
 
           // Jump to where the bottom of the previous container was before the DOM
@@ -31,15 +27,8 @@
           chatContainer.scrollTo({top: smoothScrollStart, behavior: 'instant'});
           chatContainer.scrollTo({top: chatContainer.scrollHeight, behavior: 'smooth'});
         }
-        else if (scrollingEnabled) {
-          chatContainer.scrollTo({top: chatContainer.scrollHeight, behavior: 'smooth'});
-        }
         else {
-          chatContainer.scrollTo({top: chatContainer.scrollHeight, behavior: 'instant'});
-
-          // Now that we completed the non-scroll action, set the variable back to
-          // TRUE for the next user interaction.
-          scrollingEnabled = true;
+          chatContainer.scrollTo({top: chatContainer.scrollHeight, behavior: 'smooth'});
         }
 
         /**
@@ -123,26 +112,8 @@
           }
         });
 
-        /**
-         * Feedback submission
-         */
-        function feedbackSend(ev) {
-          // Disable scrolling on next ajax reload. The `attach` function contains
-          // logic which will reset this to true.
-          scrollingEnabled = false;
-        }
-
-        // Listen for feedback button and disable scrolling.
-        feedbackButtons.forEach((el) => {
-          el.addEventListener('touchend', feedbackSend);
-          el.addEventListener('mousedown', feedbackSend);
-          el.addEventListener('keydown', function(ev) {
-            // First check that the [Enter] key is being pressed.
-            if (ev.keyCode === 13) {
-              feedbackSend(ev);
-            }
-          });
-        });
+        // Set up feedback observers
+        this.feedbackObservers();
 
         // Listen for window resizes and recalculate the amount of padding needed
         // within the chat history.
@@ -151,6 +122,8 @@
     },
 
     /**
+     * Pad chat window
+     *
      * Calculates the size of the chat window and adds padding to ensure there
      * is always a scrollable area. This allows the smooth-scroll code to create
      * the illusion of a chat UI like SMS or WhatsApp.
@@ -166,6 +139,44 @@
       chatContainer.style.setProperty('--oaic-padding-block-start', chatHeight + 'px');
 
       return chatHeight;
+    },
+
+    /**
+     * Feedback observers
+     *
+     * We use two Mutation Observers to monitor when any feedback section is
+     * either toggled or submitted. We react to the two events differently.
+     * Everything that happens here is totally optional is considered a UX
+     * improvement instead of core functionality.
+     */
+    feedbackObservers: function() {
+      const chatContainer = document.querySelector('[data-drupal-selector="edit-chat"] .fieldset-wrapper');
+      const targetElements = document.querySelectorAll('.ocha-ai-chat-result-feedback');
+
+      // Options for the observer (which mutations to observe)
+      const config = { attributes: true };
+
+      // Callback function to execute when mutations are observed
+      const callback = (mutationList, observer) => {
+        for (const mutation of mutationList) {
+          if (mutation.type === "attributes") {
+            setTimeout(() => {
+              // If the feedback was opened, scroll to it.
+              if (mutation.target.hasAttribute('open')) {
+                mutation.target.scrollIntoView({block: 'end', behavior: 'smooth'});
+              }
+            }, 250);
+          }
+        }
+      };
+
+      // Create an observer instance linked to the callback function
+      const observer = new MutationObserver(callback);
+
+      // Start observing the targets for configured mutations.
+      targetElements.forEach((el) => {
+        observer.observe(el, config);
+      });
     },
   };
 
