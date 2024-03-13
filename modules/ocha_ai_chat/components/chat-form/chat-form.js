@@ -150,7 +150,6 @@
      * improvement instead of core functionality.
      */
     feedbackObservers: function() {
-      const chatContainer = document.querySelector('[data-drupal-selector="edit-chat"] .fieldset-wrapper');
       const targetElements = document.querySelectorAll('.ocha-ai-chat-result-feedback');
 
       // Options for the observer (which mutations to observe)
