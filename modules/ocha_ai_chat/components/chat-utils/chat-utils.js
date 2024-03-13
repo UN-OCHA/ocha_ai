@@ -2,6 +2,7 @@
   'use strict';
 
   Drupal.behaviors.ochaAiChatUtils = {
+
     /**
      * Create a DOM element with the given attributes and content.
      *
@@ -15,7 +16,7 @@
      * @return Element
      *   The created DOM element.
      */
-    createElement: function(tag, attributes, content) {
+    createElement: function (tag, attributes, content) {
       const element = document.createElement(tag);
       if (typeof attributes === 'object') {
         for (const attribute in attributes) {

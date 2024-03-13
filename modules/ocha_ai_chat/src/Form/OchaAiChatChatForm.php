@@ -190,6 +190,9 @@ class OchaAiChatChatForm extends FormBase {
         '#title' => $this->t('Please give feedback'),
         '#id' => 'chat-result-' . $index . '-feedback',
         '#open' => FALSE,
+        '#attributes' => [
+          'class' => ['ocha-ai-chat-result-feedback'],
+        ],
       ];
       $form['chat'][$index]['feedback']['satisfaction'] = [
         '#type' => 'select',
