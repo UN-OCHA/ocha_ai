@@ -154,12 +154,12 @@
       const targetElements = document.querySelectorAll('.ocha-ai-chat-result-feedback');
 
       // Options for the observer (which mutations to observe)
-      const config = { attributes: true };
+      const config = { attributes: true, childList: true };
 
       // Callback function to execute when mutations are observed
       const callback = (mutationList, observer) => {
         for (const mutation of mutationList) {
-          if (mutation.type === "attributes") {
+          if (['attributes', 'childList'].includes(mutation.type)) {
             setTimeout(() => {
               // If the feedback was opened, scroll to it.
               if (mutation.target.hasAttribute('open')) {
