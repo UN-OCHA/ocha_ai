@@ -1,0 +1,3 @@
+manage ocha ai tag config:
+  title: 'Manage OCHA AI tag configuration'
+  description: 'Allow users to manage the OCHA AI tag module configuration.'
