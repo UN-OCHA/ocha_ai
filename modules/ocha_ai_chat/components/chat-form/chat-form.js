@@ -15,7 +15,6 @@
       once('ocha-ai-chat-form', '[data-drupal-selector="edit-chat"]', context).forEach(element => {
         var chatContainer = document.querySelector('[data-drupal-selector="edit-chat"] .fieldset-wrapper');
         var submitButton = document.querySelector('[data-drupal-selector="edit-submit"]');
-        var feedbackButtons = document.querySelectorAll('[data-drupal-selector$="-feedback-submit"]');
         var chatHeight = this.padChatWindow();
 
         // Do some calculations to decide where to start our smooth scroll.
@@ -38,7 +37,7 @@
          * chat history will be re-inserted into the DOM. That means we can
          * temporarily inject whatever we like; it will get cleaned up for us.
          */
-        function chatSend (ev) {
+        function chatSend(ev) {
           // First check the question textarea for a value. We don't want to act
           // unless we have a value to send.
           var questionValue = document.querySelector('[data-drupal-selector="edit-question"]').value;
@@ -52,16 +51,16 @@
           // Build DOM nodes to be inserted.
           var chatContainer = document.querySelector('[data-drupal-selector="edit-chat"] .fieldset-wrapper');
           var chatResult = Drupal.behaviors.ochaAiChatUtils.createElement('div', {
-            'class': 'ocha-ai-chat-result',
+            'class': 'ocha-ai-chat-result'
           }, {});
           var questionDl = Drupal.behaviors.ochaAiChatUtils.createElement('dl', {
-            'class': 'chat',
+            'class': 'chat'
           }, {});
           var questionWrapper = Drupal.behaviors.ochaAiChatUtils.createElement('div', {
-            'class': 'chat__q chat__q--loading',
+            'class': 'chat__q chat__q--loading'
           }, {});
           var questionDt = Drupal.behaviors.ochaAiChatUtils.createElement('dt', {
-            'class': 'visually-hidden',
+            'class': 'visually-hidden'
           }, 'Question');
           var questionDd = Drupal.behaviors.ochaAiChatUtils.createElement('dd', {}, questionValue);
 
@@ -88,7 +87,7 @@
             // Remove old question from textarea.
             document.querySelector('[data-drupal-selector="edit-question"]').value = '';
           }, 200);
-        };
+        }
 
         // Check all the input modes and add our client-side chat effects to the
         // form's main submit button.
@@ -105,7 +104,7 @@
         // @see https://www.drupal.org/project/drupal/issues/2616184
         submitButton.addEventListener('touchend', chatSend);
         submitButton.addEventListener('mousedown', chatSend);
-        submitButton.addEventListener('keydown', function(ev) {
+        submitButton.addEventListener('keydown', function (ev) {
           // First check that the [Enter] key is being pressed.
           if (ev.keyCode === 13) {
             chatSend(ev);
@@ -149,11 +148,11 @@
      * Everything that happens here is totally optional is considered a UX
      * improvement instead of core functionality.
      */
-    feedbackObservers: function() {
+    feedbackObservers: function () {
       const targetElements = document.querySelectorAll('.ocha-ai-chat-result-feedback');
 
       // Options for the observer (which mutations to observe)
-      const config = { attributes: true, childList: true };
+      const config = {attributes: true, childList: true};
 
       // Callback function to execute when mutations are observed
       const callback = (mutationList, observer) => {
@@ -176,7 +175,7 @@
       targetElements.forEach((el) => {
         observer.observe(el, config);
       });
-    },
+    }
   };
 
 })();
