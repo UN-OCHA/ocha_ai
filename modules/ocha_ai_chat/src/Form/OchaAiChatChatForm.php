@@ -238,7 +238,7 @@ class OchaAiChatChatForm extends FormBase {
       '#type' => 'textarea',
       '#title' => $this->t('Enter your question'),
       '#title_display' => 'invisible',
-      '#default_value' => $form_state->getValue('question') ?? NULL,
+      '#default_value' => NULL,
       '#placeholder' => $this->t('Ex: How many people are in need of food assistance?'),
       '#rows' => 2,
     ];
@@ -324,6 +324,12 @@ class OchaAiChatChatForm extends FormBase {
 
         $form_state->setValue('history', json_encode($history));
       }
+
+      // Remove the question from the user input so that the question is empty
+      // when the form is rebuilt.
+      $user_input = $form_state->getUserInput();
+      unset($user_input['question']);
+      $form_state->setUserInput($user_input);
 
       // Rebuild the form so that it is reloaded with the inputs from the user
       // as well as the AI answer.

@@ -188,11 +188,18 @@ button doesn't overlay any text */
 .ocha-ai-chat-chat-form .ocha-ai-chat-result .chat__a,
 .ocha-ai-chat-chat-form .ocha-ai-chat-result .chat__refs {
   position: relative;
+  width: fit-content;
   padding: 6px 12px;
   border-radius: 5px;
 }
 
+.ocha-ai-chat-chat-form .ocha-ai-chat-result .chat__q,
+.ocha-ai-chat-chat-form .ocha-ai-chat-result .chat__a {
+  text-wrap: balance;
+}
+
 .ocha-ai-chat-chat-form .ocha-ai-chat-result .chat__q {
+  align-self: flex-end;
   margin-inline-start: 2rem;
   text-align: end;
   color: white;
@@ -219,6 +226,7 @@ button doesn't overlay any text */
 
 .ocha-ai-chat-chat-form .ocha-ai-chat-result .chat__a,
 .ocha-ai-chat-chat-form .ocha-ai-chat-result .chat__refs {
+  align-self: flex-start;
   margin-block-start: 0.5rem;
   margin-inline-end: 2rem;
   text-align: start;
@@ -262,6 +270,10 @@ button doesn't overlay any text */
   content: ", ";
 }
 
+.ocha-ai-chat-result-feedback {
+  scroll-margin-bottom: 1rem;
+}
+
 /**
  * Feedback message
  *
@@ -298,8 +310,23 @@ button doesn't overlay any text */
   bottom: 0;
   height: calc(100% + 2px);
   margin-inline-end: 0;
+  padding-inline: 0.5rem;
+  padding-inline-end: 1.5rem;
+  white-space: nowrap;
   border-radius: 0;
   background: var(--brand-primary);
+
+  &::after {
+    position: absolute;
+    top: 1.85rem;
+    right: 0.5rem;
+    display: block;
+    width: 12px;
+    height: 12px;
+    content: '';
+    transform: rotate(-90deg);
+    background: var(--rw-icons--common--next--12--white);
+  }
 }
 
 /* Ajax throbber */

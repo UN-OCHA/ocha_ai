@@ -104,6 +104,10 @@
         "chat"
       ],
       "sizes": {
+        "48": [
+          "dark-blue",
+          "dark-red"
+        ],
         "64": [
           "dark-blue",
           "dark-red"
