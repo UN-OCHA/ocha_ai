@@ -76,6 +76,19 @@ class OchaAiJobTagTaggerWorker extends QueueWorkerBase implements ContainerFacto
       return;
     }
 
+    // Only process it when fields are empty.
+    if (!$node->field_job_experience->isEmpty()) {
+      return;
+    }
+
+    if (!$node->field_career_categories->isEmpty()) {
+      return;
+    }
+
+    if (!$node->field_theme->isEmpty()) {
+      return;
+    }
+
     $data = $this->jobTagger->tag($node->getTitle(), $node->get('body')->value);
 
     if (empty($data)) {
@@ -95,7 +108,8 @@ class OchaAiJobTagTaggerWorker extends QueueWorkerBase implements ContainerFacto
 
     if (isset($data['experience']) && $node->field_job_experience->isEmpty()) {
       $message[] = '**Experience**' . "\n\n- " . implode("\n- ", $this->createRevisionLogLine($data['experience'])) . "\n\n";
-      $first = reset(array_keys($data['experience']));
+      $first = array_keys($data['experience']);
+      $first = reset($first);
       $terms = $storage->loadByProperties([
         'name' => $first,
         'vid' => 'job_experience',
@@ -108,7 +122,8 @@ class OchaAiJobTagTaggerWorker extends QueueWorkerBase implements ContainerFacto
 
     if (isset($data['career_category']) && $node->field_career_categories->isEmpty()) {
       $message[] = '**Career category**' . "\n\n- " . implode("\n- ", $this->createRevisionLogLine($data['career_category'])) . "\n\n";
-      $first = reset(array_keys($data['career_category']));
+      $first = array_keys($data['career_category']);
+      $first = reset($first);
       $terms = $storage->loadByProperties([
         'name' => $first,
         'vid' => 'career_category',
@@ -144,6 +159,7 @@ class OchaAiJobTagTaggerWorker extends QueueWorkerBase implements ContainerFacto
           'format' => 'markdown',
         ]);
       }
+      $node->revision_log = 'Job has been updated by AI.';
       $node->save();
     }
   }
