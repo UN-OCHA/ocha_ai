@@ -31,8 +31,10 @@
       'type': 'button',
       'class': 'data-ocha-ai-chat-chat-popup__button-open'
     }, Drupal.behaviors.ochaAiChatUtils.createElement('span', {
+      'class': 'data-ocha-ai-chat-chat-popup__button-open-icon'
+    }, Drupal.behaviors.ochaAiChatUtils.createElement('span', {
       'class': 'data-ocha-ai-chat-chat-popup__button-open__label visually-hidden'
-    }, Drupal.t('Open chat')));
+    }, Drupal.t('Open chat'))));
 
     popup.before(openButton);
 
