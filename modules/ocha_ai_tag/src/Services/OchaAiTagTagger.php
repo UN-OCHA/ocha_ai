@@ -24,6 +24,8 @@ class OchaAiTagTagger extends OchaAiChat {
 
   /**
    * Vocabulary mapping.
+   *
+   * @var array
    */
   protected $vocabularyMapping = [];
 
