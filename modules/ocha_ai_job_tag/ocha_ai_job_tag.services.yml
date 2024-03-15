@@ -1,6 +1,6 @@
 services:
-  ocha_ai_tag.tagger:
-    class: Drupal\ocha_ai_tag\Services\OchaAiTagTagger
+  ocha_ai_job_tag.tagger:
+    class: Drupal\ocha_ai_job_tag\Services\OchaAiJobTagTagger
     arguments:
       - '@config.factory'
       - '@logger.factory'

@@ -1,0 +1,5 @@
+ocha_ai_job_tag.config_form:
+  title: OCHA AI Job Tag module configuration
+  description: 'Configure the OCHA AI Job Tag module'
+  route_name: ocha_ai_job_tag.config_form
+  parent: ocha_ai.admin_config

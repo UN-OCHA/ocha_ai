@@ -1,5 +1,0 @@
-ocha_ai_tag.config_form:
-  title: OCHA AI Tag module configuration
-  description: 'Configure the OCHA AI Tag module'
-  route_name: ocha_ai_tag.config_form
-  parent: ocha_ai.admin_config

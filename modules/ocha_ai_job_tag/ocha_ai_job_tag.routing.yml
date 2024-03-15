@@ -1,0 +1,10 @@
+ocha_ai_job_tag.config_form:
+  path: '/admin/config/ocha-ai/job-tag/config'
+  defaults:
+    _form: '\Drupal\ocha_ai_job_tag\Form\OchaAiJobTagConfigForm'
+    _title: 'Default settings for the AI Job tag'
+  options:
+    _admin_route: TRUE
+  requirements:
+    _user_is_logged_in: 'TRUE'
+    _permission: manage ocha ai job tag config

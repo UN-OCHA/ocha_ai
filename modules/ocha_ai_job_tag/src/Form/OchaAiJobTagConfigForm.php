@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\ocha_ai_tag\Form;
+namespace Drupal\ocha_ai_job_tag\Form;
 
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Form\FormBase;
@@ -15,7 +15,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 /**
  * Default settings form for the Ocha AI Chat module.
  */
-class OchaAiTagConfigForm extends FormBase {
+class OchaAiJobTagConfigForm extends FormBase {
 
   /**
    * The state service.
@@ -205,7 +205,7 @@ class OchaAiTagConfigForm extends FormBase {
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $defaults = $form_state->getValue('defaults');
 
-    $this->state->set('ocha_ai_tag.default_settings', $defaults);
+    $this->state->set('ocha_ai_job_tag.default_settings', $defaults);
 
     $this->messenger()->addStatus($this->t('Default settings saved.'));
   }
@@ -214,7 +214,7 @@ class OchaAiTagConfigForm extends FormBase {
    * {@inheritdoc}
    */
   public function getFormId() {
-    return 'ocha_ai_tag_config_form';
+    return 'ocha_ai_job_tag_config_form';
   }
 
   /**
@@ -225,11 +225,11 @@ class OchaAiTagConfigForm extends FormBase {
    */
   protected function getDefaultSettings(): array {
     $config_defaults = $this->configFactory()
-      ->get('ocha_ai_tag.settings')
+      ->get('ocha_ai_job_tag.settings')
       ->get('defaults') ?? [];
 
     $state_defaults = $this->state
-      ->get('ocha_ai_tag.default_settings', []);
+      ->get('ocha_ai_job_tag.default_settings', []);
 
     return array_replace_recursive($config_defaults, $state_defaults);
   }

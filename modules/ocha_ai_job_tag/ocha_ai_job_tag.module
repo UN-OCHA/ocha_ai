@@ -1,0 +1,135 @@
+<?php
+
+/**
+ * @file
+ * OCHA AI Job tagging.
+ */
+
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\node\Entity\Node;
+use Drupal\node\NodeInterface;
+
+/**
+ * Implements hook_form_HOOK_alter().
+ */
+function ocha_ai_job_tag_form_node_form_alter(array &$form, FormStateInterface $form_state, $form_id) {
+  $form_ids = [
+    'node_job_edit_form',
+    'node_job_form',
+  ];
+
+  if (!in_array($form_id, $form_ids)) {
+    return;
+  }
+
+  // Check permissions.
+  $user = \Drupal::currentUser();
+  if ($user->hasPermission('bypass ocha ai job tag')) {
+    return;
+  }
+
+  if (!$user->hasPermission('enforce ocha ai job tag')) {
+    return;
+  }
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_update().
+ */
+function ocha_ai_job_tag_node_presave(EntityInterface $node) {
+  if (!$node instanceof Node) {
+    return;
+  }
+
+  if ($node->bundle() != 'job') {
+    return;
+  }
+
+  \Drupal::logger('debug')->notice('status: ' . $node->moderation_status->value);
+  if ($node->moderation_status->value != 'pending') {
+    return;
+  }
+
+  // Check permissions.
+  $user = \Drupal::currentUser();
+  if ($user->hasPermission('bypass ocha ai job tag')) {
+    return;
+  }
+
+  if (!$user->hasPermission('enforce ocha ai job tag')) {
+    return;
+  }
+  \Drupal::logger('debug')->notice('permissions');
+
+  // Only queue it when fields are empty.
+  if (!$node->field_job_experience->isEmpty()) {
+    return;
+  }
+
+  if (!$node->field_career_categories->isEmpty()) {
+    return;
+  }
+
+  if (!$node->field_theme->isEmpty()) {
+    return;
+  }
+  \Drupal::logger('debug')->notice('fields');
+
+  if (ocha_ai_job_tag_job_is_queued($node)) {
+    return;
+  }
+  \Drupal::logger('debug')->notice('queued');
+
+  $log_message = $node->getRevisionLogMessage();
+  if (empty($log_message)) {
+    $node->setRevisionLogMessage('Job has been queued for tagging');
+  }
+  else {
+    $node->setRevisionLogMessage($log_message . ' Job has been queued for tagging');
+  }
+
+  ocha_ai_job_tag_queue_job($node);
+  \Drupal::logger('debug')->notice('queued');
+}
+
+/**
+ * Queue the job for tagging.
+ */
+function ocha_ai_job_tag_queue_job(Node $job) : void {
+  /** @var \Drupal\Core\Queue\QueueInterface $queue */
+  $queue = \Drupal::service('queue')->get('ocha_ai_job_tag_tagger');
+
+  $item = new \stdClass();
+  $item->nid = $job->id();
+  $queue->createItem($item);
+}
+
+/**
+ * Check if job has already been queued.
+ */
+function ocha_ai_job_tag_job_is_queued(NodeInterface $node) : bool {
+  $node_storage = \Drupal::entityTypeManager()->getStorage('node');
+  $result = $node_storage->getQuery()
+    ->accessCheck(TRUE)
+    ->allRevisions()
+    ->condition($node->getEntityType()->getKey('id'), $node->id())
+    ->sort($node->getEntityType()->getKey('revision'), 'DESC')
+    ->execute();
+
+  foreach (array_keys($result) as $vid) {
+    $revision = $node_storage->loadRevision($vid);
+    if ($revision->revision_log == ocha_ai_job_tag_revision_log_message()) {
+      return TRUE;
+    }
+  }
+
+  return FALSE;
+}
+
+/**
+ * Revision log message.
+ */
+function ocha_ai_job_tag_revision_log_message() : string {
+  return 'Job has been queued for tagging';
+}
