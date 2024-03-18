@@ -9,10 +9,7 @@ use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\Core\Session\AccountProxyInterface;
 use Drupal\Core\State\StateInterface;
 use Drupal\ocha_ai\Helpers\VectorHelper;
-use Drupal\ocha_ai\Plugin\CompletionPluginManagerInterface;
 use Drupal\ocha_ai\Plugin\EmbeddingPluginManagerInterface;
-use Drupal\ocha_ai\Plugin\SourcePluginManagerInterface;
-use Drupal\ocha_ai\Plugin\TextExtractorPluginManagerInterface;
 use Drupal\ocha_ai\Plugin\TextSplitterPluginManagerInterface;
 use Drupal\ocha_ai\Plugin\VectorStorePluginManagerInterface;
 use Drupal\ocha_ai_chat\Services\OchaAiChat;
@@ -47,10 +44,7 @@ class OchaAiTagTagger extends OchaAiChat {
     AccountProxyInterface $current_user,
     Connection $database,
     TimeInterface $time,
-    CompletionPluginManagerInterface $completion_plugin_manager,
     EmbeddingPluginManagerInterface $embedding_plugin_manager,
-    SourcePluginManagerInterface $source_plugin_manager,
-    TextExtractorPluginManagerInterface $text_extractor_plugin_manager,
     TextSplitterPluginManagerInterface $text_splitter_plugin_manager,
     VectorStorePluginManagerInterface $vector_store_plugin_manager
   ) {
@@ -60,10 +54,7 @@ class OchaAiTagTagger extends OchaAiChat {
     $this->currentUser = $current_user;
     $this->database = $database;
     $this->time = $time;
-    $this->completionPluginManager = $completion_plugin_manager;
     $this->embeddingPluginManager = $embedding_plugin_manager;
-    $this->sourcePluginManager = $source_plugin_manager;
-    $this->textExtractorPluginManager = $text_extractor_plugin_manager;
     $this->textSplitterPluginManager = $text_splitter_plugin_manager;
     $this->vectorStorePluginManager = $vector_store_plugin_manager;
   }
@@ -102,7 +93,7 @@ class OchaAiTagTagger extends OchaAiChat {
   }
 
   /**
-   * Tag a job given a title and description.
+   * Tag a text.
    *
    * @param string $text
    *   Text.
@@ -273,7 +264,7 @@ class OchaAiTagTagger extends OchaAiChat {
   }
 
   /**
-   * Get the embeddings for the taxonomy terms used to classify jobs.
+   * Get the embeddings for the taxonomy terms.
    */
   protected function getTermEmbeddings(): array {
     $embeddings = $this->state->get('ocha_ai_tag_term_embeddings');
