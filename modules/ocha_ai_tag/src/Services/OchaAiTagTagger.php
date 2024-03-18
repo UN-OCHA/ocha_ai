@@ -22,6 +22,14 @@ use Drupal\ocha_ai_chat\Services\OchaAiChat;
  */
 class OchaAiTagTagger extends OchaAiChat {
 
+  public const CALCULATION_METHOD_MAX_MEAN = 'max_mean';
+  public const CALCULATION_METHOD_MAX = 'max';
+  public const CALCULATION_METHOD_MEAN = 'mean';
+  public const CALCULATION_METHOD_MEAN_WITH_CUTOFF = 'mean_with_cutoff';
+
+  public const AVERAGE_FULL_AVERAGE = 'average';
+  public const AVERAGE_FULL_FULL = 'full';
+
   /**
    * Vocabulary mapping.
    *
@@ -95,18 +103,41 @@ class OchaAiTagTagger extends OchaAiChat {
 
   /**
    * Tag a job given a title and description.
+   *
+   * @param string $text
+   *   Text.
+   * @param array $calculation_methods
+   *   One or multiple of CALCULATION_METHOD_.
+   * @param array|string $average_full
+   *   AVERAGE_FULL_AVERAGE and/or AVERAGE_FULL_FULL.
    */
-  public function tag(string $title, string $description): array {
-    $text = $title . "\n\n" . $description;
-
+  public function tag(string $text, $calculation_methods = [], $average_full = []): array {
+    $text = trim($text);
     $embeddings = $this->getEmbeddings($text, TRUE);
 
-    $types = ['max_mean', 'max', 'mean', 'mean_with_cutoff'];
+    if (empty($calculation_methods)) {
+      $calculation_methods = [
+        self::CALCULATION_METHOD_MAX_MEAN,
+        self::CALCULATION_METHOD_MAX,
+        self::CALCULATION_METHOD_MEAN,
+        self::CALCULATION_METHOD_MEAN_WITH_CUTOFF,
+      ];
+    }
 
-    $results = [
-      'full' => $this->getSimilarTerms($embeddings, FALSE, $types),
-      'average' => $this->getSimilarTerms($embeddings, TRUE, $types),
-    ];
+    if (empty($average_full)) {
+      $average_full = [
+        self::AVERAGE_FULL_FULL,
+        self::AVERAGE_FULL_AVERAGE,
+      ];
+    }
+    elseif (is_string($average_full)) {
+      $average_full = [$average_full];
+    }
+
+    $results = [];
+    foreach ($average_full as $item) {
+      $results[$item] = $this->getSimilarTerms($embeddings, $item == self::AVERAGE_FULL_AVERAGE, $calculation_methods);
+    }
 
     return $results;
   }
@@ -132,46 +163,22 @@ class OchaAiTagTagger extends OchaAiChat {
 
     $text_splitter_plugin = $this->getTextSplitterPlugin();
 
-    // Split the text into chunks of around 300 tokens to be below the 512
-    // recommend token limit.
+    // Split the text into chunks.
+    $chunk_size = 2000;
+
+    $texts = [];
     if (is_string($text)) {
-      $texts = $text_splitter_plugin->splitText($text, 300, 0);
+      $texts = $text_splitter_plugin->splitText($text, $chunk_size, 0);
     }
     else {
       $texts = [];
       foreach ($text as $part) {
-        $texts = array_merge($texts, $text_splitter_plugin->splitText($part, 300, 0));
+        $texts = array_merge($texts, $text_splitter_plugin->splitText($part, $chunk_size, 0));
       }
     }
 
-    // Group the texts to reduce the number of API calls as they API can
-    // generate embeddings for group of texts up to 2048 tokens in total.
-    $token_count = 0;
-    $group = [];
-    $groups = [];
-    foreach ($texts as $text) {
-      // On average a token is worth 4 characters.
-      $text_token_count = ceil(mb_strlen($text) / 4);
-      // Use a smaller value than 2048 tokens to avoid cases where the number
-      // of tokens is higher than the average above.
-      if ($token_count + $text_token_count > 1500) {
-        $groups[] = $group;
-        $group = [];
-        $token_count = 0;
-      }
-      $group[] = $text;
-      $token_count += $text_token_count;
-    }
-    if (!empty($group)) {
-      $groups[] = $group;
-    }
+    $embeddings = $this->requestEmbeddings($texts, $query);
 
-    $embeddings = [];
-    foreach ($groups as $group) {
-      foreach (array_chunk($group, 96) as $chunk) {
-        $embeddings[] = $this->requestEmbeddings($chunk, $query);
-      }
-    }
     return $embeddings;
   }
 
@@ -216,8 +223,7 @@ class OchaAiTagTagger extends OchaAiChat {
    *   Associative array with vacobularies as keys and list of terms and their
    *   similarity score as values.
    */
-  protected function getSimilarTerms(array $embeddings, bool $average_embeddings = FALSE, array $types = ['max']): array {
-    $embeddings = reset($embeddings);
+  protected function getSimilarTerms(array $embeddings, bool $average_embeddings = FALSE, array $types = [self::CALCULATION_METHOD_MAX]): array {
     if ($average_embeddings) {
       $embeddings = [
         VectorHelper::mean($embeddings),
@@ -226,7 +232,6 @@ class OchaAiTagTagger extends OchaAiChat {
 
     $vocabularies = [];
     foreach ($this->getTermEmbeddings() as $vocabulary => $term_embeddings) {
-
       $results = [];
       foreach ($term_embeddings as $term => $term_embedding) {
         $similarities = [];
@@ -276,9 +281,7 @@ class OchaAiTagTagger extends OchaAiChat {
       $vocabularies = $this->getVocabularies();
       $embeddings = [];
       foreach ($vocabularies as $vocabulary => $terms) {
-        // Keep first one.
         $data = $this->getEmbeddings($terms, FALSE);
-        $data = reset($data);
 
         foreach (array_keys($terms) as $index => $term) {
           $embeddings[$vocabulary][$term] = $data[$index];
@@ -287,6 +290,7 @@ class OchaAiTagTagger extends OchaAiChat {
 
       $this->state->get('ocha_ai_tag_term_embeddings', $embeddings);
     }
+
     return $embeddings;
   }
 
@@ -302,7 +306,7 @@ class OchaAiTagTagger extends OchaAiChat {
    *   Filtered similarity scores.
    */
   protected function filterSimilarities(array $similarities, ?float $alpha = NULL): array {
-    $cutoff = $this->getSimilarityScoreCutOff($similarities, 0.2);
+    $cutoff = $this->getSimilarityScoreCutOff($similarities, $alpha);
     return array_filter($similarities, function ($score) use ($cutoff) {
       return $score >= $cutoff;
     });
