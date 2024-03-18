@@ -164,7 +164,7 @@ class OchaAiTagTagger extends OchaAiChat {
     $text_splitter_plugin = $this->getTextSplitterPlugin();
 
     // Split the text into chunks.
-    $chunk_size = 2000;
+    $chunk_size = $this->getEmbeddingPlugin()->getMaxTokens();
 
     $texts = [];
     if (is_string($text)) {
@@ -223,7 +223,7 @@ class OchaAiTagTagger extends OchaAiChat {
    *   Associative array with vacobularies as keys and list of terms and their
    *   similarity score as values.
    */
-  protected function getSimilarTerms(array $embeddings, bool $average_embeddings = FALSE, array $types = [self::CALCULATION_METHOD_MAX]): array {
+  protected function getSimilarTerms(array $embeddings, bool $average_embeddings = FALSE, array $types = [self::CALCULATION_METHOD_MAX], $alpha = 0.2): array {
     if ($average_embeddings) {
       $embeddings = [
         VectorHelper::mean($embeddings),
@@ -251,7 +251,7 @@ class OchaAiTagTagger extends OchaAiChat {
               break;
 
             case 'mean_with_cutoff':
-              $similarities = $this->filterSimilarities($similarities, 0.2);
+              $similarities = $this->filterSimilarities($similarities, $alpha);
               $results[$type][$term] = array_sum($similarities) / count($similarities);
               break;
 
