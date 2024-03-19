@@ -3,6 +3,7 @@ defaults:
     instructions:
       value: ''
       format: 'plain_text'
+    feedback: simple
   plugins:
     completion:
       plugin_id: aws_bedrock
