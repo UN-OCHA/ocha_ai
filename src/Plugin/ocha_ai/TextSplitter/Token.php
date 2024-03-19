@@ -24,20 +24,25 @@ class Token extends TextSplitterPluginBase {
    * {@inheritdoc}
    */
   public function splitText(string $text, ?int $length = NULL, ?int $overlap = NULL): array {
-    $lines = explode('##L##', trim(preg_replace('/(\n{1,})/u', '$1##L##', $text)));
-
-    foreach ($lines as $index => $line) {
-      $lines[$index] = [
-        'token_count' => TextHelper::estimateTokenCount($line),
-        'text' => $line,
-      ];
-    }
-
     $max_token_count = $length ?? $this->getPluginSetting('length');
     $overlap_token_count = $overlap ?? $this->getPluginSetting('overlap');
 
+    if (TextHelper::estimateTokenCount($text) <= $max_token_count) {
+      return [$text];
+    }
+
+    $lines = explode('##L##', trim(preg_replace('/(\n{1,})/u', '$1##L##', $text)));
+
+    $total_token_count = 0;
+    foreach ($lines as $index => $line) {
+      $line_token_count = TextHelper::estimateTokenCount($line);
+      $lines[$index] = [
+        'token_count' => $line_token_count,
+        'text' => $line,
+      ];
+      $total_token_count += $line_token_count;
+    }
     $total_lines = count($lines);
-    $total_token_count = TextHelper::estimateTokenCount($text);
 
     // Determine the max number of tokens for each passage and the size of the
     // actual overlap.
