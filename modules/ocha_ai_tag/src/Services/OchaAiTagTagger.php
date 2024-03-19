@@ -279,7 +279,7 @@ class OchaAiTagTagger extends OchaAiChat {
         }
       }
 
-      $this->state->get('ocha_ai_tag_term_embeddings', $embeddings);
+      $this->state->set('ocha_ai_tag_term_embeddings', $embeddings);
     }
 
     return $embeddings;
