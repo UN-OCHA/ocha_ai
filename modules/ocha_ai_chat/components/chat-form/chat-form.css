@@ -88,7 +88,7 @@
 }
 
 /* Actual chat container. This is the direct parent of the chat content. */
-.ocha-ai-chat-chat-form [data-drupal-selector="edit-chat"] .fieldset-wrapper {
+.ocha-ai-chat-chat-form [data-drupal-selector="edit-chat"] > .fieldset-wrapper {
   display: flex;
   overflow-x: hidden;
   overflow-y: scroll;
@@ -270,12 +270,15 @@ button doesn't overlay any text */
   content: ", ";
 }
 
+/**
+ * Feedback
+ */
 .ocha-ai-chat-result-feedback {
   scroll-margin-bottom: 1rem;
 }
 
 /**
- * Feedback message
+ * Feedback confirmation message
  *
  * Instead of introducing a CD dependency, we add a few status message styles.
  */

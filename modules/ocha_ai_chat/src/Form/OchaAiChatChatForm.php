@@ -197,7 +197,7 @@ class OchaAiChatChatForm extends FormBase {
           '#title_display' => 'invisible',
           '#id' => 'chat-result-' . $index . '-simple-feedback',
           '#attributes' => [
-            'class' => ['ocha-ai-chat-result__simple-feedback'],
+            'class' => ['ocha-ai-chat-result-feedback', 'ocha-ai-chat-result-feedback--simple'],
           ],
         ];
 

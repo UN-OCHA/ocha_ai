@@ -157,13 +157,22 @@
       // Callback function to execute when mutations are observed
       const callback = (mutationList, observer) => {
         for (const mutation of mutationList) {
-          if (['attributes', 'childList'].includes(mutation.type)) {
+          // When a <details> feedback element gets expanded.
+          if (mutation.type === 'attributes') {
             setTimeout(() => {
-              // If the feedback was opened, scroll to it.
+              // If the feedback was opened, scroll to its bottom edge.
               if (mutation.target.hasAttribute('open')) {
                 mutation.target.scrollIntoView({block: 'end', behavior: 'smooth'});
               }
             }, 250);
+          }
+
+          // When feedback was submitted and a message appeared.
+          if (mutation.type === 'childList') {
+            setTimeout(() => {
+              // Scroll to the feedback confirmation message.
+              mutation.target.scrollIntoView({block: 'end', behavior: 'smooth'});
+            }, 150);
           }
         }
       };
