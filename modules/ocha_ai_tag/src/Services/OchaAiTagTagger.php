@@ -209,6 +209,8 @@ class OchaAiTagTagger extends OchaAiChat {
    * @param array $types
    *   Types of formula to use to compare the similarity scores. One of "max",
    *   "mean" or "mean_with_cutoff" or "max_mean".
+   * @param float|null $alpha
+   *   Coefficient to calculate the cutoff value.
    *
    * @return array
    *   Associative array with vacobularies as keys and list of terms and their
