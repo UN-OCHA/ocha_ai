@@ -101,9 +101,14 @@
     "chat": {
       "source": "img/icons/chat",
       "include": [
-        "chat"
+        "chat",
+        "copy"
       ],
       "sizes": {
+        "16": [
+          "dark-blue",
+          "dark-red"
+        ],
         "48": [
           "dark-blue",
           "dark-red"
