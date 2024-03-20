@@ -296,6 +296,9 @@ button doesn't overlay any text */
   background: var(--rw-icons--chat--copy--16--dark-blue);
 }
 
+.feedback-button--copy:focus::before {
+  background: var(--rw-icons--chat--copy--16--dark-red);
+}
 
 
 /**
