@@ -111,8 +111,11 @@
           }
         });
 
-        // Set up feedback observers
+        // Set up feedback observers.
         this.feedbackObservers();
+
+        // Set up copy to clipboard buttons.
+        this.copyToClipboard();
 
         // Listen for window resizes and recalculate the amount of padding needed
         // within the chat history.
@@ -184,7 +187,73 @@
       targetElements.forEach((el) => {
         observer.observe(el, config);
       });
-    }
+    },
+
+    /**
+     * Copy to Clipboard
+     *
+     * Needs to be run every time the form reloads. It will find all the copy
+     * buttons and attach an event listener that copies individual answers to
+     * the user's clipboard.
+     *
+     * Adapted from CD Social Links in CD v9.4.0
+     *
+     * @see https://github.com/UN-OCHA/common_design/blob/v9.4.0/libraries/cd-social-links/cd-social-links.js
+     */
+    copyToClipboard: function () {
+      // Collect all "copy" URL buttons.
+      const copyButtons = document.querySelectorAll('.feedback-button--copy');
+
+      // Process links so they copy URL to clipboard.
+      copyButtons.forEach(function (el) {
+        // First, define the status element for each button.
+        var status = el.parentNode.querySelector('[role=status]');
+
+        // Add our event listener so people can copy to clipboard.
+        el.addEventListener('click', function (ev) {
+          var tempInput = document.createElement('input');
+          var textToCopy = document.querySelector('#' + el.dataset.for).innerText;
+
+          try {
+            if (navigator.clipboard) {
+              // Easy way possible?
+              navigator.clipboard.writeText(textToCopy);
+            }
+            else {
+              // Legacy method
+              document.body.appendChild(tempInput);
+              tempInput.value = textToCopy;
+              tempInput.select();
+              document.execCommand('copy');
+              document.body.removeChild(tempInput);
+            }
+
+            // If we got this far, don't let the link click through.
+            ev.preventDefault();
+            ev.stopPropagation();
+
+            // Show user feedback and remove after some time.
+            status.removeAttribute('hidden');
+            status.innerText = el.dataset.message;
+
+            // Hide message.
+            setTimeout(function () {
+              status.setAttribute('hidden', '');
+            }, 2500);
+            // After message is hidden, remove status contents.
+            setTimeout(function () {
+              status.innerText = '';
+            }, 3000);
+          }
+          catch (err) {
+            // Log errors to console.
+            console.error(err);
+          }
+        });
+      });
+    },
   };
+
+
 
 })();

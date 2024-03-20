@@ -173,6 +173,9 @@ class OchaAiChatChatForm extends FormBase {
     $feedback_type = \Drupal::config('ocha_ai_chat.settings')->get('defaults.form.feedback');
 
     foreach (json_decode($history, TRUE) ?? [] as $index => $record) {
+      // Used on two different form elements; they must match to function.
+      $answer_id = 'chat__a--' . $index;
+
       $form['chat'][$index] = [
         '#type' => 'container',
         '#attributes' => [
@@ -181,10 +184,11 @@ class OchaAiChatChatForm extends FormBase {
       ];
       $form['chat'][$index]['result'] = [
         '#type' => 'inline_template',
-        '#template' => '<dl class="chat"><div class="chat__q"><dt class="visually-hidden">Question</dt><dd>{{ question }}</dd></div><div class="chat__a"><dt class="visually-hidden">Answer</dt><dd>{{ answer }}</dd></div>{% if references %}<div class="chat__refs"><dt>References</dt><dd>{{ references }}</dd></div>{% endif %}</dl>',
+        '#template' => '<dl class="chat"><div class="chat__q"><dt class="visually-hidden">Question</dt><dd>{{ question }}</dd></div><div class="chat__a"><dt class="visually-hidden">Answer</dt><dd id="{{ answer_id }}">{{ answer }}</dd></div>{% if references %}<div class="chat__refs"><dt>References</dt><dd>{{ references }}</dd></div>{% endif %}</dl>',
         '#context' => [
           'question' => $record['question'],
           'answer' => $record['answer'],
+          'answer_id' => $answer_id,
           'references' => $this->formatReferences($record['references']),
         ],
       ];
@@ -230,6 +234,22 @@ class OchaAiChatChatForm extends FormBase {
             'callback' => [$this, 'submitSimpleFeedback'],
             'wrapper' => 'chat-result-' . $index . '-simple-feedback',
             'disable-refocus' => TRUE,
+          ],
+        ];
+
+        // Copy button.
+        //
+        // We intentionally avoid a <button> despite that being the best choice
+        // HTML-wise, and instead use role="button" because Drupal will reload
+        // the form if any <button> receives a mousedown (even stuff like right-
+        // clicking). In this case we want pure client-side to copy the answer
+        // to clipboard without any Drupal ajax happening.
+        $form['chat'][$index]['feedback']['copy'] = [
+          '#type' => 'inline_template',
+          '#template' => '<span><a role="button" class="feedback-button feedback-button--copy" data-for="{{ answer_id }}" data-message="{{ success_message }}"><span class="visually-hidden">Copy to clipboard</span></a><span hidden role="status" class="messages messages--status"></span></span>',
+          '#context' => [
+            'answer_id' => $answer_id,
+            'success_message' => $this->t('Answer was copied to clipboard'),
           ],
         ];
       }

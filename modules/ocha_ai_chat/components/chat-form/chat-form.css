@@ -277,6 +277,27 @@ button doesn't overlay any text */
   scroll-margin-bottom: 1rem;
 }
 
+.ocha-ai-chat-result-feedback .fieldset-wrapper {
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: flex-start;
+  gap: 0.5rem;
+}
+
+.feedback-button--copy {
+  cursor: pointer;
+}
+
+.feedback-button--copy::before {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  content: '';
+  background: var(--rw-icons--chat--copy--16--dark-blue);
+}
+
+
+
 /**
  * Feedback confirmation message
  *
@@ -293,6 +314,12 @@ button doesn't overlay any text */
 .ocha-ai-chat-result-feedback .messages--status {
   border-color: var(--cd-green);
   background-color: var(--cd-green--light);
+}
+
+.ocha-ai-chat-result-feedback [role="status"] {
+  margin-inline-start: 0.5rem;
+  position: relative;
+  top: -3px;
 }
 
 /**
