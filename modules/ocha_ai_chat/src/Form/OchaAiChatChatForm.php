@@ -445,7 +445,7 @@ class OchaAiChatChatForm extends FormBase {
     $selector = '#' . $triggering_element['#ajax']['wrapper'];
     $feedback = $triggering_element['#array_parents'][3];
 
-    // Convert the thumbs up/down to an integer
+    // Convert the thumbs up/down to an integer.
     if ($feedback === 'good') {
       $feedback_int = 4;
       $feedback_msg = 'User clicked thumbs up';
@@ -455,14 +455,13 @@ class OchaAiChatChatForm extends FormBase {
       $feedback_msg = 'User clicked thumbs down';
     }
 
-    // Record the feedback
+    // Record the feedback.
     $this->ochaAiChat->addAnswerFeedback($id, $feedback_int, $feedback_msg);
 
     $response = new AjaxResponse();
     $response->addCommand(new MessageCommand($this->t('Feedback submitted, thank you.'), $selector));
     return $response;
   }
-
 
   /**
    * Hide the chat instructions and save the preference.
