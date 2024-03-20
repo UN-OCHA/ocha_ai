@@ -102,7 +102,9 @@
       "source": "img/icons/chat",
       "include": [
         "chat",
-        "copy"
+        "copy",
+        "thumbs-down",
+        "thumbs-up"
       ],
       "sizes": {
         "16": [
