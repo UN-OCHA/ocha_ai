@@ -35,6 +35,13 @@ class OchaAiChatChatForm extends FormBase {
   protected Connection $database;
 
   /**
+   * The module config.
+   *
+   * @var \Drupal\Core\Config\Config|\Drupal\Core\Config\ImmutableConfig
+   */
+  protected $config;
+
+  /**
    * The state service.
    *
    * @var \Drupal\Core\State\StateInterface
@@ -55,6 +62,8 @@ class OchaAiChatChatForm extends FormBase {
    *   The current user.
    * @param \Drupal\Core\Database\Connection $database
    *   The database connection.
+   * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
+   *   The config factory service.
    * @param \Drupal\Core\State\StateInterface $state
    *   The state service.
    * @param \Drupal\ocha_ai_chat\Services\OchaAiChat $ocha_ai_chat
@@ -63,11 +72,13 @@ class OchaAiChatChatForm extends FormBase {
   public function __construct(
     AccountProxyInterface $current_user,
     Connection $database,
+    ConfigFactory $config_factory,
     StateInterface $state,
     OchaAiChat $ocha_ai_chat
   ) {
     $this->currentUser = $current_user;
     $this->database = $database;
+    $this->config = $config_factory->get('ocha_ai_chat.settings');
     $this->state = $state;
     $this->ochaAiChat = $ocha_ai_chat;
   }
@@ -79,6 +90,7 @@ class OchaAiChatChatForm extends FormBase {
     return new static(
       $container->get('current_user'),
       $container->get('database'),
+      $container->get('config.factory'),
       $container->get('state'),
       $container->get('ocha_ai_chat.chat')
     );
@@ -170,7 +182,7 @@ class OchaAiChatChatForm extends FormBase {
     }
 
     // Read config to determine feedback type for each history entry.
-    $feedback_type = \Drupal::config('ocha_ai_chat.settings')->get('defaults.form.feedback');
+    $feedback_type = $this->config->get('defaults.form.feedback');
 
     foreach (json_decode($history, TRUE) ?? [] as $index => $record) {
       // Used on two different form elements; they must match to function.
