@@ -238,15 +238,9 @@ class OchaAiChatChatForm extends FormBase {
         ];
 
         // Copy button.
-        //
-        // We intentionally avoid a <button> despite that being the best choice
-        // HTML-wise, and instead use role="button" because Drupal will reload
-        // the form if any <button> receives a mousedown (even stuff like right-
-        // clicking). In this case we want pure client-side to copy the answer
-        // to clipboard without any Drupal ajax happening.
         $form['chat'][$index]['feedback']['copy'] = [
           '#type' => 'inline_template',
-          '#template' => '<span><a role="button" class="feedback-button feedback-button--copy" data-for="{{ answer_id }}" data-message="{{ success_message }}"><span class="visually-hidden">Copy to clipboard</span></a><span hidden role="status" class="messages messages--status"></span></span>',
+          '#template' => '<span><button class="feedback-button feedback-button--copy" data-for="{{ answer_id }}" data-message="{{ success_message }}"><span class="visually-hidden">Copy to clipboard</span></button><span hidden role="status" class="messages messages--status"></span></span>',
           '#context' => [
             'answer_id' => $answer_id,
             'success_message' => $this->t('Answer was copied to clipboard'),
