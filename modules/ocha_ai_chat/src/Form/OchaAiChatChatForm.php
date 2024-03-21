@@ -170,7 +170,7 @@ class OchaAiChatChatForm extends FormBase {
     }
 
     // Read config to determine feedback type for each history entry.
-    $feedback_type = \Drupal::config('ocha_ai_chat.settings')->get('defaults.form.feedback');
+    $feedback_type = $this->config('ocha_ai_chat.settings')->get('defaults.form.feedback');
 
     foreach (json_decode($history, TRUE) ?? [] as $index => $record) {
       // Used on two different form elements; they must match to function.
