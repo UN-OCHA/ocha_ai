@@ -212,7 +212,7 @@
         // Add our event listener so people can copy to clipboard.
         el.addEventListener('click', function (ev) {
           var tempInput = document.createElement('input');
-          var textToCopy = document.querySelector('#' + el.dataset.for).innerText;
+          var textToCopy = document.querySelector('#' + el.dataset.for).textContent;
 
           try {
             if (navigator.clipboard) {
