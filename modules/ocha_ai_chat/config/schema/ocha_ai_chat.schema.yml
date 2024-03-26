@@ -60,6 +60,9 @@ ocha_ai_chat.settings:
                 format:
                   type: string
                   label: 'Text format.'
+            feedback:
+              type: string
+              label: 'Feedback mode.'
         plugins:
           type: mapping
           label: 'Default plugins.'

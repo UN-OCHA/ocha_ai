@@ -101,6 +101,13 @@ The "chat" functionality is provided by the [OchaAiChat](modules/ocha_ai_chat/sr
 - [ ] Log requests (debug mode --> add setting to plugins).
 - [ ] Log number of pages, passages and estimated count of tokens.
 
+#### Feedback on answers
+
+There are two feedback modes that visitors might see:
+
+- **Default:** is an expandable area presenting a dropdown with values 1-5, plus an open textarea for comments.
+- **Simple mode:** presents a thumbs up/down. Set config `ocha_ai_chat.settings.feedback='simple'` to adopt this UI, which uses the same DB schema as the other. Thumbs-up is converted to a 4, thumbs-down a 2. The comment field will note that the relevant button was clicked.
+
 ## OCHA AI Tag Module
 
 ### Service (tag)

@@ -88,7 +88,7 @@
 }
 
 /* Actual chat container. This is the direct parent of the chat content. */
-.ocha-ai-chat-chat-form [data-drupal-selector="edit-chat"] .fieldset-wrapper {
+.ocha-ai-chat-chat-form [data-drupal-selector="edit-chat"] > .fieldset-wrapper {
   display: flex;
   overflow-x: hidden;
   overflow-y: scroll;
@@ -270,12 +270,57 @@ button doesn't overlay any text */
   content: ", ";
 }
 
-.ocha-ai-chat-result-feedback {
+/**
+ * Feedback
+ */
+.ocha-ai-chat-result-feedback.ocha-ai-chat-result-feedback {
+  margin-block-start: 0.5rem;
   scroll-margin-bottom: 1rem;
 }
 
+.ocha-ai-chat-result-feedback .fieldset-wrapper {
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: flex-start;
+  gap: 0.5rem;
+}
+
+button.feedback-button.feedback-button.feedback-button.feedback-button {
+  width: 1rem;
+  height: 1rem;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  background: none;
+  color: transparent;
+  overflow: hidden;
+}
+
+.feedback-button::before {
+  display: inline-block;
+  width: 1rem;
+  height: 1rem;
+  content: '';
+}
+
+.feedback-button--good::before { background: var(--rw-icons--chat--thumbs-up--16--dark-blue); }
+.feedback-button--bad::before { background: var(--rw-icons--chat--thumbs-down--16--dark-blue); }
+.feedback-button--copy::before { background: var(--rw-icons--chat--copy--16--dark-blue); }
+
+button.feedback-button.feedback-button.feedback-button.feedback-button:hover,
+button.feedback-button.feedback-button.feedback-button.feedback-button:focus {
+  background: none;
+  outline: none;
+  border: none;
+}
+
+.feedback-button--good:focus::before { background: var(--rw-icons--chat--thumbs-up--16--dark-red); }
+.feedback-button--bad:focus::before { background: var(--rw-icons--chat--thumbs-down--16--dark-red); }
+.feedback-button--copy:focus::before { background: var(--rw-icons--chat--copy--16--dark-red); }
+
+
 /**
- * Feedback message
+ * Feedback confirmation message
  *
  * Instead of introducing a CD dependency, we add a few status message styles.
  */
@@ -290,6 +335,14 @@ button doesn't overlay any text */
 .ocha-ai-chat-result-feedback .messages--status {
   border-color: var(--cd-green);
   background-color: var(--cd-green--light);
+}
+
+/* for copy button only */
+.ocha-ai-chat-result-feedback .feedback-button--copy + [role="status"] {
+  font-size: .8em;
+  margin-inline-start: 0.5rem;
+  position: relative;
+  top: -3px;
 }
 
 /**

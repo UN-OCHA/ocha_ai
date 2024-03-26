@@ -147,6 +147,16 @@ class OchaAiChatConfigForm extends FormBase {
       '#format' => $defaults['form']['instructions']['format'] ?? 'text_editor_simple',
       '#default_value' => $defaults['form']['instructions']['value'] ?? NULL,
     ];
+    $form['defaults']['form']['feedback'] = [
+      '#type' => 'select',
+      '#title' => $this->t('Feedback mode'),
+      '#default_value' => $defaults['form']['feedback'] ?? '',
+      '#options' => [
+        'detailed' => $this->t('Detailed feedback'),
+        'simple' => $this->t('Simple feedback'),
+      ],
+      '#description' => $this->t('Simple feedback displays a thumbs up/down instead of offering open comment fields on each answer.'),
+    ];
 
     $form['defaults']['plugins'] = [
       '#type' => 'details',
