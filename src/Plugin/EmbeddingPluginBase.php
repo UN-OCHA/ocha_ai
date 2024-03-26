@@ -107,4 +107,11 @@ abstract class EmbeddingPluginBase extends PluginBase implements EmbeddingPlugin
     return $this->getPluginSetting('model', '');
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function getMaxTokens(): int {
+    return $this->getPluginSetting('max_tokens') ?? 512;
+  }
+
 }
