@@ -62,4 +62,12 @@ interface EmbeddingPluginInterface {
    */
   public function getModels(): array;
 
+  /**
+   * Get the maximum allowed tokens.
+   *
+   * @return int
+   *   Maximum allowed tokens.
+   */
+  public function getMaxTokens(): int;
+
 }

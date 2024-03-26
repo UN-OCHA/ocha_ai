@@ -3,7 +3,7 @@
 This module contains 2 additional modules
 
 - OCHA AI Chat Module
-- OCHA AI Job Tag Module
+- OCHA AI Tag Module
 
 ## Migrate from ocha_ai_chat
 
@@ -108,8 +108,8 @@ There are two feedback modes that visitors might see:
 - **Default:** is an expandable area presenting a dropdown with values 1-5, plus an open textarea for comments.
 - **Simple mode:** presents a thumbs up/down. Set config `ocha_ai_chat.settings.feedback='simple'` to adopt this UI, which uses the same DB schema as the other. Thumbs-up is converted to a 4, thumbs-down a 2. The comment field will note that the relevant button was clicked.
 
-## OCHA AI Job Tag Module
+## OCHA AI Tag Module
 
-### Service (Job tag)
+### Service (tag)
 
-The "job tag" functionality is provided by the [OchaAiJobTag](modules/ocha_ai_job_tag/src/Services/OchaAiJobTag.php) service. This service glues the different plugins together.
+The "tag" functionality is provided by the [OchaAiTagTagger](modules/ocha_ai_tag/src/Services/OchaAiTagTagger.php) service. This service glues the different plugins together.
