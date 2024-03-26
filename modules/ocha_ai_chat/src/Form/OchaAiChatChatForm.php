@@ -169,8 +169,8 @@ class OchaAiChatChatForm extends FormBase {
       ];
     }
 
-    // Read config to determine feedback type for each history entry.
-    $feedback_type = $this->config('ocha_ai_chat.settings')->get('defaults.form.feedback');
+    // Get the feedback type to use for each history entry.
+    $feedback_type = $defaults['form']['feedback'] ?? 'detailed';
 
     foreach (json_decode($history, TRUE) ?? [] as $index => $record) {
       // Used on two different form elements; they must match to function.
