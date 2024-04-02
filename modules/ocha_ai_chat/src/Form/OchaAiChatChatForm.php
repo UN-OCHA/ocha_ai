@@ -193,9 +193,11 @@ class OchaAiChatChatForm extends FormBase {
         ],
       ];
 
-      if ($feedback_type === 'simple') {
+      // There are multiple "modes" for feedback. We check the config value/
+      // before deciding what UI widgets to render.
+      if ($feedback_type === 'simple' || $feedback_type === 'both') {
         // Container for simple feedback.
-        $form['chat'][$index]['feedback'] = [
+        $form['chat'][$index]['feedback_simple'] = [
           '#type' => 'fieldset',
           '#title' => $this->t('Provide feedback'),
           '#title_display' => 'invisible',
@@ -206,7 +208,7 @@ class OchaAiChatChatForm extends FormBase {
         ];
 
         // Thumbs up.
-        $form['chat'][$index]['feedback']['good'] = [
+        $form['chat'][$index]['feedback_simple']['good'] = [
           '#type' => 'submit',
           '#name' => 'chat-result-' . $index . '-simple-feedback-good',
           '#value' => $this->t('Good'),
@@ -222,7 +224,7 @@ class OchaAiChatChatForm extends FormBase {
         ];
 
         // Thumbs down.
-        $form['chat'][$index]['feedback']['bad'] = [
+        $form['chat'][$index]['feedback_simple']['bad'] = [
           '#type' => 'submit',
           '#name' => 'chat-result-' . $index . '-simple-feedback-bad',
           '#value' => $this->t('Bad'),
@@ -238,7 +240,7 @@ class OchaAiChatChatForm extends FormBase {
         ];
 
         // Copy button.
-        $form['chat'][$index]['feedback']['copy'] = [
+        $form['chat'][$index]['feedback_simple']['copy'] = [
           '#type' => 'inline_template',
           '#template' => '<span><button class="feedback-button feedback-button--copy" data-for="{{ answer_id }}" data-message="{{ success_message }}"><span class="visually-hidden">Copy to clipboard</span></button><span hidden role="status" class="messages messages--status"></span></span>',
           '#context' => [
@@ -247,7 +249,9 @@ class OchaAiChatChatForm extends FormBase {
           ],
         ];
       }
-      else {
+
+      // Detailed feedback.
+      if ($feedback_type !== 'simple') {
         $form['chat'][$index]['feedback'] = [
           '#type' => 'details',
           '#title' => $this->t('Please give feedback'),
@@ -447,16 +451,14 @@ class OchaAiChatChatForm extends FormBase {
 
     // Convert the thumbs up/down to an integer.
     if ($feedback === 'good') {
-      $feedback_int = 4;
-      $feedback_msg = 'User clicked thumbs up';
+      $feedback_val = 'up';
     }
     else {
-      $feedback_int = 2;
-      $feedback_msg = 'User clicked thumbs down';
+      $feedback_val = 'down';
     }
 
     // Record the feedback.
-    $this->ochaAiChat->addAnswerFeedback($id, $feedback_int, $feedback_msg);
+    $this->ochaAiChat->addAnswerThumbs($id, $feedback_val);
 
     $response = new AjaxResponse();
     $response->addCommand(new MessageCommand($this->t('Feedback submitted, thank you.'), $selector));

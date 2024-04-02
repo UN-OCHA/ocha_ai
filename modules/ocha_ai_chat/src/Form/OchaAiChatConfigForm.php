@@ -154,6 +154,7 @@ class OchaAiChatConfigForm extends FormBase {
       '#options' => [
         'detailed' => $this->t('Detailed feedback'),
         'simple' => $this->t('Simple feedback'),
+        'both' => $this->t('Both feedback modes'),
       ],
       '#description' => $this->t('Simple feedback displays a thumbs up/down instead of offering open comment fields on each answer.'),
     ];
