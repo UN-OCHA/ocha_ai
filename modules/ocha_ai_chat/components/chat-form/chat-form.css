@@ -135,7 +135,7 @@ button doesn't overlay any text */
  */
 .ocha-ai-chat-chat-form details {
   display: block;
-  margin: 0 12px;
+  margin: 0;
   padding: 12px;
   border: 1px solid #ddd;
   border-radius: 3px;
@@ -166,6 +166,10 @@ button doesn't overlay any text */
 
 .ocha-ai-chat-chat-form input[type="text"] {
   max-width: 100%;
+}
+
+.ocha-ai-chat-chat-form__advanced {
+  margin-inline: 12px;
 }
 
 /**
