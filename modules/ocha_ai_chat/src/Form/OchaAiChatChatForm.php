@@ -254,7 +254,7 @@ class OchaAiChatChatForm extends FormBase {
       if ($feedback_type !== 'simple') {
         $form['chat'][$index]['feedback'] = [
           '#type' => 'details',
-          '#title' => $this->t('Please give feedback'),
+          '#title' => $this->t('Provide detailed feedback'),
           '#id' => 'chat-result-' . $index . '-feedback',
           '#open' => FALSE,
           '#attributes' => [
