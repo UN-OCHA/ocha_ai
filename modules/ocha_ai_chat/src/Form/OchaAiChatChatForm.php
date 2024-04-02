@@ -211,7 +211,7 @@ class OchaAiChatChatForm extends FormBase {
         $form['chat'][$index]['feedback_simple']['good'] = [
           '#type' => 'submit',
           '#name' => 'chat-result-' . $index . '-simple-feedback-good',
-          '#value' => $this->t('Good'),
+          '#value' => $this->t('Like'),
           '#attributes' => [
             'class' => ['feedback-button', 'feedback-button--good'],
             'data-result-id' => $record['id'],
@@ -227,7 +227,7 @@ class OchaAiChatChatForm extends FormBase {
         $form['chat'][$index]['feedback_simple']['bad'] = [
           '#type' => 'submit',
           '#name' => 'chat-result-' . $index . '-simple-feedback-bad',
-          '#value' => $this->t('Bad'),
+          '#value' => $this->t('Dislike'),
           '#attributes' => [
             'class' => ['feedback-button', 'feedback-button--bad'],
             'data-result-id' => $record['id'],
