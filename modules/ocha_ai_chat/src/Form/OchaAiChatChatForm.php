@@ -242,7 +242,7 @@ class OchaAiChatChatForm extends FormBase {
         // Copy button.
         $form['chat'][$index]['feedback_simple']['copy'] = [
           '#type' => 'inline_template',
-          '#template' => '<span><button class="feedback-button feedback-button--copy" data-for="{{ answer_id }}" data-message="{{ success_message }}"><span class="visually-hidden">Copy to clipboard</span></button><span hidden role="status" class="messages messages--status"></span></span>',
+          '#template' => '<span><button class="feedback-button feedback-button--copy" data-for="{{ answer_id }}" data-message="{{ success_message }}"><span class="visually-hidden">Copy to clipboard</span></button><span hidden role="status" class="clipboard-feedback"></span></span>',
           '#context' => [
             'answer_id' => $answer_id,
             'success_message' => $this->t('Answer was copied to clipboard'),

@@ -341,12 +341,18 @@ button.feedback-button.feedback-button.feedback-button.feedback-button:focus {
   background-color: var(--cd-green--light);
 }
 
-/* for copy button only */
-.ocha-ai-chat-result-feedback .feedback-button--copy + [role="status"] {
-  font-size: .8em;
-  margin-inline-start: 0.5rem;
+/**
+ * Clipboard feedback message
+ */
+.clipboard-feedback {
+  font-size: .75em;
   position: relative;
   top: -3px;
+  background: var(--cd-black);
+  color: var(--cd-white);
+  border-radius: 3px;
+  margin-inline-start: 0.5rem;
+  padding: 0.2rem 0.25rem;
 }
 
 /**
