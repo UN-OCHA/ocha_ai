@@ -452,16 +452,18 @@ class OchaAiChatChatForm extends FormBase {
     // Convert the thumbs up/down to an integer.
     if ($feedback === 'good') {
       $feedback_val = 'up';
+      $feedback_msg = $this->t('Glad you liked this answer.');
     }
     else {
       $feedback_val = 'down';
+      $feedback_msg = $this->t('Thank you for your feedback.');
     }
 
     // Record the feedback.
     $this->ochaAiChat->addAnswerThumbs($id, $feedback_val);
 
     $response = new AjaxResponse();
-    $response->addCommand(new MessageCommand($this->t('Feedback submitted, thank you.'), $selector));
+    $response->addCommand(new MessageCommand($feedback_msg, $selector));
     return $response;
   }
 
