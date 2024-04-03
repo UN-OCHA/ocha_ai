@@ -375,6 +375,29 @@ class OchaAiChat {
   }
 
   /**
+   * Add thumbs up/down to an answer's log entry.
+   *
+   * @param int $id
+   *   The ID of the answer log.
+   * @param string $value
+   *   Up or down.
+   *
+   * @return bool
+   *   TRUE if a record was updated.
+   */
+  public function addAnswerThumbs(int $id, string $value): bool {
+    $updated = $this->database
+      ->update('ocha_ai_chat_logs')
+      ->fields([
+        'thumbs' => $value,
+      ])
+      ->condition('id', $id, '=')
+      ->execute();
+
+    return !empty($updated);
+  }
+
+  /**
    * Get a list of source documents for the given document source URL.
    *
    * @param array $source
