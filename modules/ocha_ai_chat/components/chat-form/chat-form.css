@@ -323,6 +323,13 @@ button.feedback-button.feedback-button.feedback-button.feedback-button:focus {
 .feedback-button--show-detailed:focus::before { background: var(--rw-icons--chat--chat--16--dark-red); }
 .feedback-button--copy:focus::before { background: var(--rw-icons--chat--copy--16--dark-red); }
 
+.feedback-button--copy {
+  /* this icon looks misaligned when the boxes are flush */
+  position: relative;
+  top: -1px;
+}
+
+
 /**
  * Feedback confirmation message
  *
