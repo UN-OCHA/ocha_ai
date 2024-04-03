@@ -347,13 +347,34 @@ button.feedback-button.feedback-button.feedback-button.feedback-button:focus {
 .clipboard-feedback {
   font-size: .75em;
   position: relative;
-  top: -3px;
+  top: -4px;
   background: var(--cd-black);
   color: var(--cd-white);
   border-radius: 3px;
   margin-inline-start: 0.5rem;
   padding: 0.2rem 0.25rem;
 }
+
+.clipboard-feedback::before {
+  --clipboard-arrow: 7px;
+
+  content: '';
+  border-inline-end: var(--clipboard-arrow) solid black;
+  border-block: 5px solid transparent;
+  display: block;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+[dir="ltr"] .clipboard-feedback::before {
+  left: calc(0px - var(--clipboard-arrow));
+}
+
+[dir="rtl"] .clipboard-feedback::before {
+  right: calc(0px - var(--clipboard-arrow));
+}
+
 
 /**
  * User input area
