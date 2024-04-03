@@ -245,7 +245,7 @@ class OchaAiChatChatForm extends FormBase {
             '#type' => 'inline_template',
             '#template' => '<button data-for="{{ target }}" class="feedback-button feedback-button--show-detailed">{{ button_text }}</button>',
             '#context' => [
-              'target' => 'chat-result-'. $index .'-feedback',
+              'target' => 'chat-result-' . $index . '-feedback',
               'button_text' => $this->t('Detailed feedback'),
             ],
           ];
