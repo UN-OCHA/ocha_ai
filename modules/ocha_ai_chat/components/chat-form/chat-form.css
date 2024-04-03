@@ -167,7 +167,7 @@ button doesn't overlay any text */
   max-width: 100%;
 }
 
-.ocha-ai-chat-chat-form__advanced {
+.ocha-ai-chat-chat-form .ocha-ai-chat-chat-form__advanced {
   margin-inline: 12px;
 }
 
