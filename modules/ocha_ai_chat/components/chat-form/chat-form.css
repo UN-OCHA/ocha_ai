@@ -134,7 +134,6 @@ button doesn't overlay any text */
  * Chat form styles
  */
 .ocha-ai-chat-chat-form details {
-  display: block;
   margin: 0;
   padding: 12px;
   border: 1px solid #ddd;
@@ -309,6 +308,7 @@ button.feedback-button.feedback-button.feedback-button.feedback-button {
 
 .feedback-button--good::before { background: var(--rw-icons--chat--thumbs-up--16--dark-blue); }
 .feedback-button--bad::before { background: var(--rw-icons--chat--thumbs-down--16--dark-blue); }
+.feedback-button--show-detailed::before { background: var(--rw-icons--chat--chat--16--dark-blue); }
 .feedback-button--copy::before { background: var(--rw-icons--chat--copy--16--dark-blue); }
 
 button.feedback-button.feedback-button.feedback-button.feedback-button:hover,
@@ -320,8 +320,8 @@ button.feedback-button.feedback-button.feedback-button.feedback-button:focus {
 
 .feedback-button--good:focus::before { background: var(--rw-icons--chat--thumbs-up--16--dark-red); }
 .feedback-button--bad:focus::before { background: var(--rw-icons--chat--thumbs-down--16--dark-red); }
+.feedback-button--show-detailed:focus::before { background: var(--rw-icons--chat--chat--16--dark-red); }
 .feedback-button--copy:focus::before { background: var(--rw-icons--chat--copy--16--dark-red); }
-
 
 /**
  * Feedback confirmation message

@@ -193,7 +193,7 @@ class OchaAiChatChatForm extends FormBase {
         ],
       ];
 
-      // There are multiple "modes" for feedback. We check the config value/
+      // There are multiple "modes" for feedback. We check the config value
       // before deciding what UI widgets to render.
       if ($feedback_type === 'simple' || $feedback_type === 'both') {
         // Container for simple feedback.
@@ -239,6 +239,18 @@ class OchaAiChatChatForm extends FormBase {
           ],
         ];
 
+        if ($feedback_type === 'both') {
+          // Button to toggle detailed feedback.
+          $form['chat'][$index]['feedback_simple']['show_detailed'] = [
+            '#type' => 'inline_template',
+            '#template' => '<button data-for="{{ target }}" class="feedback-button feedback-button--show-detailed">{{ button_text }}</button>',
+            '#context' => [
+              'target' => 'chat-result-'. $index .'-feedback',
+              'button_text' => $this->t('Detailed feedback'),
+            ],
+          ];
+        }
+
         // Copy button.
         $form['chat'][$index]['feedback_simple']['copy'] = [
           '#type' => 'inline_template',
@@ -259,6 +271,7 @@ class OchaAiChatChatForm extends FormBase {
           '#open' => FALSE,
           '#attributes' => [
             'class' => ['ocha-ai-chat-result-feedback'],
+            'hidden' => $feedback_type === 'both' ? '' : FALSE,
           ],
         ];
         $form['chat'][$index]['feedback']['satisfaction'] = [
