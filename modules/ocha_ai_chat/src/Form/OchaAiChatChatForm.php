@@ -239,18 +239,6 @@ class OchaAiChatChatForm extends FormBase {
           ],
         ];
 
-        if ($feedback_type === 'both') {
-          // Button to toggle detailed feedback.
-          $form['chat'][$index]['feedback_simple']['show_detailed'] = [
-            '#type' => 'inline_template',
-            '#template' => '<button data-for="{{ target }}" class="feedback-button feedback-button--show-detailed">{{ button_text }}</button>',
-            '#context' => [
-              'target' => 'chat-result-' . $index . '-feedback',
-              'button_text' => $this->t('Detailed feedback'),
-            ],
-          ];
-        }
-
         // Copy button.
         $form['chat'][$index]['feedback_simple']['copy'] = [
           '#type' => 'inline_template',
@@ -260,6 +248,18 @@ class OchaAiChatChatForm extends FormBase {
             'success_message' => $this->t('Answer was copied to clipboard'),
           ],
         ];
+
+        // If both modes are active, render button to toggle detailed feedback.
+        if ($feedback_type === 'both') {
+          $form['chat'][$index]['feedback_simple']['show_detailed'] = [
+            '#type' => 'inline_template',
+            '#template' => '<button data-for="{{ target }}" class="feedback-button--show-detailed">{{ button_text }}</button>',
+            '#context' => [
+              'target' => 'chat-result-' . $index . '-feedback',
+              'button_text' => $this->t('Give detailed feedback'),
+            ],
+          ];
+        }
       }
 
       // Detailed feedback.

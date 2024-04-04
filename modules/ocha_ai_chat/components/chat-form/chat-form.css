@@ -308,7 +308,6 @@ button.feedback-button.feedback-button.feedback-button.feedback-button {
 
 .feedback-button--good::before { background: var(--rw-icons--chat--thumbs-up--16--dark-blue); }
 .feedback-button--bad::before { background: var(--rw-icons--chat--thumbs-down--16--dark-blue); }
-.feedback-button--show-detailed::before { background: var(--rw-icons--chat--chat--16--dark-blue); }
 .feedback-button--copy::before { background: var(--rw-icons--chat--copy--16--dark-blue); }
 
 button.feedback-button.feedback-button.feedback-button.feedback-button:hover,
@@ -320,7 +319,6 @@ button.feedback-button.feedback-button.feedback-button.feedback-button:focus {
 
 .feedback-button--good:focus::before { background: var(--rw-icons--chat--thumbs-up--16--dark-red); }
 .feedback-button--bad:focus::before { background: var(--rw-icons--chat--thumbs-down--16--dark-red); }
-.feedback-button--show-detailed:focus::before { background: var(--rw-icons--chat--chat--16--dark-red); }
 .feedback-button--copy:focus::before { background: var(--rw-icons--chat--copy--16--dark-red); }
 
 .feedback-button--copy {
@@ -329,6 +327,22 @@ button.feedback-button.feedback-button.feedback-button.feedback-button:focus {
   top: -1px;
 }
 
+.feedback-button--show-detailed {
+  font-size: 0.8em;
+  padding: 0 .25rem;
+  background: transparent;
+  color: var(--brand-primary);
+  position: relative;
+  top: -4px;
+}
+
+.feedback-button--show-detailed:hover {
+  background: transparent;
+}
+
+.feedback-button--show-detailed:focus {
+  background: transparent;
+}
 
 /**
  * Feedback confirmation message
@@ -359,6 +373,7 @@ button.feedback-button.feedback-button.feedback-button.feedback-button:focus {
   font-size: .75em;
   position: absolute;
   top: -4px;
+  z-index: 100;
   background: var(--cd-black);
   color: var(--cd-white);
   border-radius: 3px;
