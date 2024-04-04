@@ -134,7 +134,6 @@ button doesn't overlay any text */
  * Chat form styles
  */
 .ocha-ai-chat-chat-form details {
-  display: block;
   margin: 0;
   padding: 12px;
   border: 1px solid #ddd;
@@ -168,7 +167,7 @@ button doesn't overlay any text */
   max-width: 100%;
 }
 
-.ocha-ai-chat-chat-form__advanced {
+.ocha-ai-chat-chat-form .ocha-ai-chat-chat-form__advanced {
   margin-inline: 12px;
 }
 
@@ -322,6 +321,28 @@ button.feedback-button.feedback-button.feedback-button.feedback-button:focus {
 .feedback-button--bad:focus::before { background: var(--rw-icons--chat--thumbs-down--16--dark-red); }
 .feedback-button--copy:focus::before { background: var(--rw-icons--chat--copy--16--dark-red); }
 
+.feedback-button--copy {
+  /* this icon looks misaligned when the boxes are flush */
+  position: relative;
+  top: -1px;
+}
+
+.feedback-button--show-detailed {
+  font-size: 0.8em;
+  padding: 0 .25rem;
+  background: transparent;
+  color: var(--brand-primary);
+  position: relative;
+  top: -4px;
+}
+
+.feedback-button--show-detailed:hover {
+  background: transparent;
+}
+
+.feedback-button--show-detailed:focus {
+  background: transparent;
+}
 
 /**
  * Feedback confirmation message
@@ -344,16 +365,43 @@ button.feedback-button.feedback-button.feedback-button.feedback-button:focus {
 /**
  * Clipboard feedback message
  */
+.clipboard-container {
+  position: relative;
+}
+
 .clipboard-feedback {
   font-size: .75em;
-  position: relative;
-  top: -3px;
+  position: absolute;
+  top: -4px;
+  z-index: 100;
   background: var(--cd-black);
   color: var(--cd-white);
   border-radius: 3px;
   margin-inline-start: 0.5rem;
   padding: 0.2rem 0.25rem;
+  white-space: nowrap;
 }
+
+.clipboard-feedback::before {
+  --clipboard-arrow: 7px;
+
+  content: '';
+  border-inline-end: var(--clipboard-arrow) solid black;
+  border-block: 5px solid transparent;
+  display: block;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+[dir="ltr"] .clipboard-feedback::before {
+  left: calc(0px - var(--clipboard-arrow));
+}
+
+[dir="rtl"] .clipboard-feedback::before {
+  right: calc(0px - var(--clipboard-arrow));
+}
+
 
 /**
  * User input area

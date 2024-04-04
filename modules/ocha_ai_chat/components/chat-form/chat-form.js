@@ -117,6 +117,9 @@
         // Set up copy to clipboard buttons.
         this.copyToClipboard();
 
+        // Initialize the button to toggle detailed feedback.
+        this.toggleFeedback();
+
         // Listen for window resizes and recalculate the amount of padding needed
         // within the chat history.
         window.addEventListener('resize', Drupal.debounce(this.padChatWindow, 33));
@@ -144,6 +147,38 @@
     },
 
     /**
+     * Detailed feedback toggle
+     *
+     * When both modes are shown simultaneously, we hide the detailed feedback
+     * until someone toggles it. The feedbackObservers function will handle the
+     * scrolling, but this code marks an individual detailed feedback <details>
+     * as non-hidden.
+     */
+    toggleFeedback: function () {
+      const thumbs = document.querySelectorAll('.feedback-button--show-detailed');
+      thumbs.forEach((el) => {
+        el.addEventListener('click', (ev) => {
+          // Find the <details> associated with this Answer.
+          const targetFeedback = document.querySelector(`[data-drupal-selector="${ev.target.dataset.for}"]`);
+
+          // Toggle visibility. The MutationObserver will scroll it into view.
+          if (targetFeedback.hasAttribute('hidden')) {
+            targetFeedback.removeAttribute('hidden');
+            targetFeedback.setAttribute('open', '');
+          }
+          else {
+            targetFeedback.setAttribute('hidden', '');
+            targetFeedback.removeAttribute('open');
+          }
+
+          // Prevent Drupal from processing the form further.
+          ev.preventDefault();
+          ev.stopPropagation();
+        });
+      });
+    },
+
+    /**
      * Feedback observers
      *
      * We use two Mutation Observers to monitor when any feedback section is
@@ -164,7 +199,7 @@
           if (mutation.type === 'attributes') {
             setTimeout(() => {
               // If the feedback was opened, scroll to its bottom edge.
-              if (mutation.target.hasAttribute('open')) {
+              if (mutation.target.hasAttribute('open') && !mutation.target.hasAttribute('hidden')) {
                 mutation.target.scrollIntoView({block: 'end', behavior: 'smooth'});
               }
             }, 250);
@@ -253,7 +288,4 @@
       });
     },
   };
-
-
-
 })();
