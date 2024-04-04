@@ -3,6 +3,8 @@
 namespace Drupal\ocha_ai_tag\Services;
 
 use Drupal\Component\Datetime\TimeInterface;
+use Drupal\Core\Cache\Cache;
+use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Database\Connection;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
@@ -28,11 +30,25 @@ class OchaAiTagTagger extends OchaAiChat {
   public const AVERAGE_FULL_FULL = 'full';
 
   /**
+   * The default cache backend.
+   *
+   * @var \Drupal\Core\Cache\CacheBackendInterface
+   */
+  protected CacheBackendInterface $cacheBackend;
+
+  /**
    * Vocabulary mapping.
    *
    * @var array
    */
   protected $vocabularyMapping = [];
+
+  /**
+   * Term cache tags.
+   *
+   * @var array
+   */
+  protected $termCacheTags = [];
 
   /**
    * Constructor.
@@ -44,6 +60,7 @@ class OchaAiTagTagger extends OchaAiChat {
     AccountProxyInterface $current_user,
     Connection $database,
     TimeInterface $time,
+    CacheBackendInterface $cache_backend,
     EmbeddingPluginManagerInterface $embedding_plugin_manager,
     TextSplitterPluginManagerInterface $text_splitter_plugin_manager,
     VectorStorePluginManagerInterface $vector_store_plugin_manager
@@ -54,6 +71,7 @@ class OchaAiTagTagger extends OchaAiChat {
     $this->currentUser = $current_user;
     $this->database = $database;
     $this->time = $time;
+    $this->cacheBackend = $cache_backend;
     $this->embeddingPluginManager = $embedding_plugin_manager;
     $this->textSplitterPluginManager = $text_splitter_plugin_manager;
     $this->vectorStorePluginManager = $vector_store_plugin_manager;
@@ -84,10 +102,18 @@ class OchaAiTagTagger extends OchaAiChat {
   }
 
   /**
+   * Get term cache tags.
+   */
+  public function getTermCacheTags() : array {
+    return $this->termCacheTags;
+  }
+
+  /**
    * Set vocabulary mapping.
    */
-  public function setVocabularies(array $mapping) : self {
+  public function setVocabularies(array $mapping, array $term_cache_tags = []) : self {
     $this->vocabularyMapping = $mapping;
+    $this->termCacheTags = $term_cache_tags;
 
     return $this;
   }
@@ -269,20 +295,24 @@ class OchaAiTagTagger extends OchaAiChat {
    * Get the embeddings for the taxonomy terms.
    */
   protected function getTermEmbeddings(): array {
-    $embeddings = $this->state->get('ocha_ai_tag_term_embeddings');
-    if (empty($embeddings)) {
-      $vocabularies = $this->getVocabularies();
-      $embeddings = [];
-      foreach ($vocabularies as $vocabulary => $terms) {
-        $data = $this->getEmbeddings($terms, FALSE);
+    $cid = $this->getSetting(['plugins', 'embedding', 'plugin_id']);
+    $embeddings = $this->cacheBackend->get($cid);
 
-        foreach (array_keys($terms) as $index => $term) {
-          $embeddings[$vocabulary][$term] = $data[$index];
-        }
-      }
-
-      $this->state->set('ocha_ai_tag_term_embeddings', $embeddings);
+    if ($embeddings) {
+      return $embeddings->data;
     }
+
+    $vocabularies = $this->getVocabularies();
+    $embeddings = [];
+    foreach ($vocabularies as $vocabulary => $terms) {
+      $data = $this->getEmbeddings($terms, FALSE);
+
+      foreach (array_keys($terms) as $index => $term) {
+        $embeddings[$vocabulary][$term] = $data[$index];
+      }
+    }
+
+    $this->cacheBackend->set($cid, $embeddings, Cache::PERMANENT, $this->getTermCacheTags());
 
     return $embeddings;
   }
