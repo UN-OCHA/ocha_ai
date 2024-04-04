@@ -351,15 +351,20 @@ button.feedback-button.feedback-button.feedback-button.feedback-button:focus {
 /**
  * Clipboard feedback message
  */
+.clipboard-container {
+  position: relative;
+}
+
 .clipboard-feedback {
   font-size: .75em;
-  position: relative;
+  position: absolute;
   top: -4px;
   background: var(--cd-black);
   color: var(--cd-white);
   border-radius: 3px;
   margin-inline-start: 0.5rem;
   padding: 0.2rem 0.25rem;
+  white-space: nowrap;
 }
 
 .clipboard-feedback::before {
