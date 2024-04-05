@@ -4,6 +4,7 @@ defaults:
       value: ''
       format: 'plain_text'
     feedback: ''
+    formatting: 'basic'
   plugins:
     completion:
       plugin_id: aws_bedrock

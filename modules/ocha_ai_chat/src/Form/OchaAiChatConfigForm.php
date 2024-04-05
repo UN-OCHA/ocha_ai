@@ -158,6 +158,16 @@ class OchaAiChatConfigForm extends FormBase {
       ],
       '#description' => $this->t('Simple feedback displays a thumbs up/down instead of offering open comment fields on each answer.'),
     ];
+    $form['defaults']['form']['formatting'] = [
+      '#type' => 'select',
+      '#title' => $this->t('Formatting'),
+      '#default_value' => $defaults['form']['formatting'] ?? '',
+      '#options' => [
+        'none' => $this->t('No special formatting.'),
+        'basic' => $this->t('Basic formatting.'),
+      ],
+      '#description' => $this->t('Basic formatting means that the module takes the answer from the LLM and restores line breaks within HTML.'),
+    ];
 
     $form['defaults']['plugins'] = [
       '#type' => 'details',
