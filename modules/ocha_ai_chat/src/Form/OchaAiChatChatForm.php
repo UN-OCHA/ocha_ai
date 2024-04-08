@@ -171,6 +171,7 @@ class OchaAiChatChatForm extends FormBase {
 
     // Get the feedback type to use for each history entry.
     $feedback_type = $defaults['form']['feedback'] ?? 'detailed';
+    $formatting = $defaults['form']['formatting'] ?? 'none';
 
     foreach (json_decode($history, TRUE) ?? [] as $index => $record) {
       // Used on two different form elements; they must match to function.
@@ -184,10 +185,10 @@ class OchaAiChatChatForm extends FormBase {
       ];
       $form['chat'][$index]['result'] = [
         '#type' => 'inline_template',
-        '#template' => '<dl class="chat"><div class="chat__q"><dt class="visually-hidden">Question</dt><dd>{{ question }}</dd></div><div class="chat__a"><dt class="visually-hidden">Answer</dt><dd id="{{ answer_id }}">{{ answer }}</dd></div>{% if references %}<div class="chat__refs"><dt>References</dt><dd>{{ references }}</dd></div>{% endif %}</dl>',
+        '#template' => '<dl class="chat"><div class="chat__q"><dt class="visually-hidden">Question</dt><dd>{{ question }}</dd></div><div class="chat__a"><dt class="visually-hidden">Answer</dt><dd id="{{ answer_id }}">{{ answer|raw }}</dd></div>{% if references %}<div class="chat__refs"><dt>References</dt><dd>{{ references }}</dd></div>{% endif %}</dl>',
         '#context' => [
           'question' => $record['question'],
-          'answer' => $record['answer'],
+          'answer' => $formatting !== 'none' ? $this->formatAnswer($record['answer'], $formatting) : $record['answer'],
           'answer_id' => $answer_id,
           'references' => $this->formatReferences($record['references']),
         ],
@@ -504,6 +505,33 @@ class OchaAiChatChatForm extends FormBase {
       ->execute();
 
     return $form['instructions'];
+  }
+
+  /**
+   * Format an answer.
+   *
+   * @param string $answer
+   *   Answer.
+   * @param string $format
+   *   Formatting mode.
+   *
+   * @return string
+   *   String of HTML.
+   */
+  protected function formatAnswer(string $answer, string $format): string {
+    if (!$answer) {
+      return '';
+    }
+
+    // If none of the following formatting applies, return the original answer.
+    $formatted_answer = $answer;
+
+    // Restore line breaks. The LLM returns line breaks, but they need to be
+    // converted to HTML to be seen in the browser.
+    $formatted_answer = str_replace("\n", '<br>', $formatted_answer);
+
+    // Return formatted answer.
+    return $formatted_answer;
   }
 
   /**
