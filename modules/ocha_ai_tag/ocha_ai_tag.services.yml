@@ -1,4 +1,10 @@
 services:
+  cache.ocha_ai_tag_cache:
+    class: Drupal\Core\Cache\CacheBackendInterface
+    tags:
+      - { name: cache.bin }
+    factory: cache_factory:get
+    arguments: [ocha_ai_tag]
   ocha_ai_tag.tagger:
     class: Drupal\ocha_ai_tag\Services\OchaAiTagTagger
     arguments:
@@ -8,6 +14,7 @@ services:
       - '@current_user'
       - '@database'
       - '@datetime.time'
+      - '@cache.ocha_ai_cache'
       - '@plugin.manager.ocha_ai.embedding'
       - '@plugin.manager.ocha_ai.text_splitter'
       - '@plugin.manager.ocha_ai.vector_store'
