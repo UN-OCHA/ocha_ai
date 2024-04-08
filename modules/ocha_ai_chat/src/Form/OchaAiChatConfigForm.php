@@ -163,8 +163,8 @@ class OchaAiChatConfigForm extends FormBase {
       '#title' => $this->t('Formatting'),
       '#default_value' => $defaults['form']['formatting'] ?? '',
       '#options' => [
-        'none' => $this->t('No special formatting.'),
-        'basic' => $this->t('Basic formatting.'),
+        'none' => $this->t('No special formatting'),
+        'basic' => $this->t('Basic formatting'),
       ],
       '#description' => $this->t('Basic formatting means that the module takes the answer from the LLM and restores line breaks within HTML.'),
     ];
