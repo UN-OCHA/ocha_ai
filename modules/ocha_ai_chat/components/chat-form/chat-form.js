@@ -241,11 +241,13 @@
 
       // Process links so they copy URL to clipboard.
       copyButtons.forEach(function (el) {
-        // First, define the status element for each button.
-        var status = el.parentNode.querySelector('[role=status]');
 
         // Add our event listener so people can copy to clipboard.
-        el.addEventListener('click', function (ev) {
+        //
+        // As of hook_update_10005() the button is hooked up to the Drupal form
+        // so that it can submit and record that the copy button was pressed.
+        // Drupal handles displaying feedback to the user.
+        el.addEventListener('mousedown', function (ev) {
           var tempInput = document.createElement('input');
           var textToCopy = document.querySelector('#' + el.dataset.for).innerHTML.replaceAll('<br>', '\n');
 
@@ -262,23 +264,6 @@
               document.execCommand('copy');
               document.body.removeChild(tempInput);
             }
-
-            // If we got this far, don't let the link click through.
-            ev.preventDefault();
-            ev.stopPropagation();
-
-            // Show user feedback and remove after some time.
-            status.removeAttribute('hidden');
-            status.innerText = el.dataset.message;
-
-            // Hide message.
-            setTimeout(function () {
-              status.setAttribute('hidden', '');
-            }, 2500);
-            // After message is hidden, remove status contents.
-            setTimeout(function () {
-              status.innerText = '';
-            }, 3000);
           }
           catch (err) {
             // Log errors to console.

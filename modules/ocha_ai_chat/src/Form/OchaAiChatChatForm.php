@@ -242,11 +242,18 @@ class OchaAiChatChatForm extends FormBase {
 
         // Copy button.
         $form['chat'][$index]['feedback_simple']['copy'] = [
-          '#type' => 'inline_template',
-          '#template' => '<span class="clipboard-container"><button class="feedback-button feedback-button--copy" data-for="{{ answer_id }}" data-message="{{ success_message }}"><span class="visually-hidden">Copy to clipboard</span></button><span hidden role="status" class="clipboard-feedback"></span></span>',
-          '#context' => [
-            'answer_id' => $answer_id,
-            'success_message' => $this->t('Answer was copied to clipboard'),
+          '#type' => 'submit',
+          '#name' => 'chat-result-' . $index . '-copy-clipboard',
+          '#value' => $this->t('Copy to clipboard'),
+          '#attributes' => [
+            'class' => ['feedback-button', 'feedback-button--copy'],
+            'data-result-id' => $record['id'],
+            'data-for' => $answer_id,
+          ],
+          '#ajax' => [
+            'callback' => [$this, 'recordCopyToClipboard'],
+            'wrapper' => 'chat-result-' . $index . '-simple-feedback',
+            'disable-refocus' => TRUE,
           ],
         ];
 
@@ -463,7 +470,7 @@ class OchaAiChatChatForm extends FormBase {
     $selector = '#' . $triggering_element['#ajax']['wrapper'];
     $feedback = $triggering_element['#array_parents'][3];
 
-    // Convert the thumbs up/down to an integer.
+    // Convert the thumbs up/down to a string.
     if ($feedback === 'good') {
       $feedback_val = 'up';
       $feedback_msg = $this->t('Glad you liked this answer.');
@@ -476,6 +483,37 @@ class OchaAiChatChatForm extends FormBase {
     // Record the feedback.
     $this->ochaAiChat->addAnswerThumbs($id, $feedback_val);
 
+    $response = new AjaxResponse();
+    $response->addCommand(new MessageCommand($feedback_msg, $selector));
+    return $response;
+  }
+
+
+  /**
+   * Record that the copy-to-clipboard button was pressed for this answer.
+   *
+   * @param array $form
+   *   The main form.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The form state.
+   *
+   * @return \Drupal\Core\Ajax\AjaxResponse
+   *   Ajax response to confirm the action was recorded.
+   */
+  public function recordCopyToClipboard(array &$form, FormStateInterface $form_state): AjaxResponse {
+    $triggering_element = $form_state->getTriggeringElement();
+
+    // Determine which button was pressed.
+    $id = $triggering_element['#attributes']['data-result-id'];
+    $selector = '#' . $triggering_element['#ajax']['wrapper'];
+
+    // Record the feedback.
+    $this->ochaAiChat->addAnswerCopy($id, 'copied');
+
+    // Prepare user feedback.
+    $feedback_msg = $this->t('Answer was copied to clipboard');
+
+    // Update form with feedback.
     $response = new AjaxResponse();
     $response->addCommand(new MessageCommand($feedback_msg, $selector));
     return $response;

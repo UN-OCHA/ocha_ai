@@ -200,6 +200,9 @@ class OchaAiChatLogsForm extends FormBase {
       'thumbs' => [
         'data' => $this->t('Thumbs'),
       ],
+      'copied' => [
+        'data' => $this->t('Copied'),
+      ],
       'stats' => [
         'data' => $this->t('Stats'),
       ],
@@ -269,6 +272,7 @@ class OchaAiChatLogsForm extends FormBase {
           ],
         ],
         'thumbs' => $record->thumbs ?? '',
+        'copied' => $record->copied ?? '',
         'stats' => [
           'data' => [
             '#type' => 'details',
