@@ -84,6 +84,16 @@ This implements a RAG (retrieval augmented generation) approach:
 
 The "chat" functionality is provided by the [OchaAiChat](modules/ocha_ai_chat/src/Services/OchaAiChat.php) service. This service glues the different plugins together.
 
+### User feedback on answers (Chat)
+
+There are three feedback modes that visitors might see:
+
+- **Default:** is an expandable area presenting a dropdown with values 1-5, plus an open textarea for comments.
+- **Simple mode:** presents a thumbs up/down. Set config `ocha_ai_chat.settings.feedback='simple'` to adopt this UI, which replaces the default feedback UI. The data is stored in a separate `thumbs` column in the logs table.
+- **Combined mode:** presents both widgets alongside each other.
+
+Additionally, the Copy to Clipboard button can now store whether it was clicked for each answer. This data is found in the `copied` column of the logs table.
+
 ### TODO (Chat)
 
 #### Plugins for Chat
@@ -100,13 +110,6 @@ The "chat" functionality is provided by the [OchaAiChat](modules/ocha_ai_chat/sr
 
 - [ ] Log requests (debug mode --> add setting to plugins).
 - [ ] Log number of pages, passages and estimated count of tokens.
-
-#### Feedback on answers
-
-There are two feedback modes that visitors might see:
-
-- **Default:** is an expandable area presenting a dropdown with values 1-5, plus an open textarea for comments.
-- **Simple mode:** presents a thumbs up/down. Set config `ocha_ai_chat.settings.feedback='simple'` to adopt this UI, which uses the same DB schema as the other. Thumbs-up is converted to a 4, thumbs-down a 2. The comment field will note that the relevant button was clicked.
 
 ## OCHA AI Tag Module
 
