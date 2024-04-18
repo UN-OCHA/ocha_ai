@@ -488,7 +488,6 @@ class OchaAiChatChatForm extends FormBase {
     return $response;
   }
 
-
   /**
    * Record that the copy-to-clipboard button was pressed for this answer.
    *
