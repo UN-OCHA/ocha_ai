@@ -398,6 +398,29 @@ class OchaAiChat {
   }
 
   /**
+   * Record that a copy-to-clipboard button was used.
+   *
+   * @param int $id
+   *   The ID of the answer log.
+   * @param string $value
+   *   Copied or not.
+   *
+   * @return bool
+   *   TRUE if a record was updated.
+   */
+  public function addAnswerCopy(int $id, string $value): bool {
+    $updated = $this->database
+      ->update('ocha_ai_chat_logs')
+      ->fields([
+        'copied' => $value,
+      ])
+      ->condition('id', $id, '=')
+      ->execute();
+
+    return !empty($updated);
+  }
+
+  /**
    * Get a list of source documents for the given document source URL.
    *
    * @param array $source

@@ -241,13 +241,17 @@
 
       // Process links so they copy URL to clipboard.
       copyButtons.forEach(function (el) {
-        // First, define the status element for each button.
-        var status = el.parentNode.querySelector('[role=status]');
 
-        // Add our event listener so people can copy to clipboard.
-        el.addEventListener('click', function (ev) {
+        // Event listener so people can copy to clipboard.
+        //
+        // As of hook_update_10005() the button is hooked up to the Drupal form
+        // so that it can submit and record that the copy button was pressed.
+        // Drupal handles displaying success feedback to the user. This code is
+        // still showing feedback in case of failure to copy.
+        el.addEventListener('mousedown', function (ev) {
           var tempInput = document.createElement('input');
           var textToCopy = document.querySelector('#' + el.dataset.for).innerHTML.replaceAll('<br>', '\n');
+          var status = el.parentNode.querySelector('[role=status]');
 
           try {
             if (navigator.clipboard) {
@@ -262,14 +266,14 @@
               document.execCommand('copy');
               document.body.removeChild(tempInput);
             }
-
-            // If we got this far, don't let the link click through.
-            ev.preventDefault();
-            ev.stopPropagation();
+          }
+          catch (err) {
+            // Log errors to console.
+            console.error(err);
 
             // Show user feedback and remove after some time.
             status.removeAttribute('hidden');
-            status.innerText = el.dataset.message;
+            status.innerText = status.dataset.failure;
 
             // Hide message.
             setTimeout(function () {
@@ -279,10 +283,9 @@
             setTimeout(function () {
               status.innerText = '';
             }, 3000);
-          }
-          catch (err) {
-            // Log errors to console.
-            console.error(err);
+
+            // Since the copy wasn't successful, we prevent Drupal from logging.
+            ev.stopImmediatePropagation();
           }
         });
       });
