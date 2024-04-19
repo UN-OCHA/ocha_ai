@@ -365,7 +365,7 @@ button.feedback-button.feedback-button.feedback-button.feedback-button:focus {
 /**
  * Clipboard feedback message
  */
-.clipboard-container {
+.ocha-ai-chat-result-feedback--simple {
   position: relative;
 }
 
@@ -394,10 +394,16 @@ button.feedback-button.feedback-button.feedback-button.feedback-button:focus {
   transform: translateY(-50%);
 }
 
+[dir="ltr"] .clipboard-feedback {
+  left: 4.25rem;
+}
 [dir="ltr"] .clipboard-feedback::before {
   left: calc(0px - var(--clipboard-arrow));
 }
 
+[dir="rtl"] .clipboard-feedback {
+  right: 4.25rem;
+}
 [dir="rtl"] .clipboard-feedback::before {
   right: calc(0px - var(--clipboard-arrow));
 }

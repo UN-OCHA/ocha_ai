@@ -257,6 +257,16 @@ class OchaAiChatChatForm extends FormBase {
           ],
         ];
 
+        // Copy button failure feedback. Successful feedback is handled by the
+        // callback in the `copy` form element.
+        $form['chat'][$index]['feedback_simple']['copy_feedback'] = [
+          '#type' => 'inline_template',
+          '#template' => '<span hidden data-failure="{{ failure_message }}" role="status" class="clipboard-feedback"></span>',
+          '#context' => [
+            'failure_message' => $this->t('Copying failed'),
+          ],
+        ];
+
         // If both modes are active, render button to toggle detailed feedback.
         if ($feedback_type === 'both') {
           $form['chat'][$index]['feedback_simple']['show_detailed'] = [

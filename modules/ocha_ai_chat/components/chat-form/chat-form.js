@@ -242,14 +242,16 @@
       // Process links so they copy URL to clipboard.
       copyButtons.forEach(function (el) {
 
-        // Add our event listener so people can copy to clipboard.
+        // Event listener so people can copy to clipboard.
         //
         // As of hook_update_10005() the button is hooked up to the Drupal form
         // so that it can submit and record that the copy button was pressed.
-        // Drupal handles displaying feedback to the user.
+        // Drupal handles displaying success feedback to the user. This code is
+        // still showing feedback in case of failure to copy.
         el.addEventListener('mousedown', function (ev) {
           var tempInput = document.createElement('input');
           var textToCopy = document.querySelector('#' + el.dataset.for).innerHTML.replaceAll('<br>', '\n');
+          var status = el.parentNode.querySelector('[role=status]');
 
           try {
             if (navigator.clipboard) {
@@ -268,6 +270,19 @@
           catch (err) {
             // Log errors to console.
             console.error(err);
+
+            // Show user feedback and remove after some time.
+            status.removeAttribute('hidden');
+            status.innerText = status.dataset.failure;
+
+            // Hide message.
+            setTimeout(function () {
+              status.setAttribute('hidden', '');
+            }, 2500);
+            // After message is hidden, remove status contents.
+            setTimeout(function () {
+              status.innerText = '';
+            }, 3000);
 
             // Since the copy wasn't successful, we prevent Drupal from logging.
             ev.stopImmediatePropagation();
