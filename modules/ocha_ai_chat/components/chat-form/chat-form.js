@@ -268,6 +268,9 @@
           catch (err) {
             // Log errors to console.
             console.error(err);
+
+            // Since the copy wasn't successful, we prevent Drupal from logging.
+            ev.stopImmediatePropagation();
           }
         });
       });
