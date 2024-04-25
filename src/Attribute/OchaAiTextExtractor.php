@@ -38,7 +38,7 @@ class OchaAiTextExtractor extends Plugin {
     public readonly string $id,
     public readonly TranslatableMarkup $label,
     public readonly TranslatableMarkup $description,
-    public readonly array $mimetypes
+    public readonly array $mimetypes,
   ) {}
 
 }

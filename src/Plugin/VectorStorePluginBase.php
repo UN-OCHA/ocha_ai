@@ -41,7 +41,7 @@ abstract class VectorStorePluginBase extends PluginBase implements VectorStorePl
     $plugin_definition,
     ConfigFactoryInterface $config_factory,
     LoggerChannelFactoryInterface $logger_factory,
-    ClientInterface $http_client
+    ClientInterface $http_client,
   ) {
     parent::__construct(
       $configuration,

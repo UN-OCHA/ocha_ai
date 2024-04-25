@@ -60,7 +60,7 @@ abstract class PluginBase extends CorePluginBase implements ContainerFactoryPlug
     $plugin_id,
     $plugin_definition,
     ConfigFactoryInterface $config_factory,
-    LoggerChannelFactoryInterface $logger_factory
+    LoggerChannelFactoryInterface $logger_factory,
   ) {
     parent::__construct(
       $configuration,
