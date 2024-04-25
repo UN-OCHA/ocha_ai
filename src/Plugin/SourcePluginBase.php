@@ -63,7 +63,7 @@ abstract class SourcePluginBase extends PluginBase implements SourcePluginInterf
     LoggerChannelFactoryInterface $logger_factory,
     ClientInterface $http_client,
     CacheBackendInterface $cache_backend,
-    TimeInterface $time
+    TimeInterface $time,
   ) {
     parent::__construct(
       $configuration,

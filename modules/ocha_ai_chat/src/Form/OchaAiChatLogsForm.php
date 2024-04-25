@@ -75,7 +75,7 @@ class OchaAiChatLogsForm extends FormBase {
     AccountProxyInterface $current_user,
     EntityTypeManagerInterface $entity_type_manager,
     FileSystemInterface $file_system,
-    OchaAiChat $ocha_ai_chat
+    OchaAiChat $ocha_ai_chat,
   ) {
     $this->database = $database;
     $this->currentUser = $current_user;

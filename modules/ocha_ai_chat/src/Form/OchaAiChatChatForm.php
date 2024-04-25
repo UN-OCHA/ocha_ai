@@ -64,7 +64,7 @@ class OchaAiChatChatForm extends FormBase {
     AccountProxyInterface $current_user,
     Connection $database,
     StateInterface $state,
-    OchaAiChat $ocha_ai_chat
+    OchaAiChat $ocha_ai_chat,
   ) {
     $this->currentUser = $current_user;
     $this->database = $database;

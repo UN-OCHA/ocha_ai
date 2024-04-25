@@ -94,7 +94,7 @@ class ReliefWeb extends SourcePluginBase {
     ClientInterface $http_client,
     CacheBackendInterface $cache_backend,
     TimeInterface $time,
-    RequestStack $request_stack
+    RequestStack $request_stack,
   ) {
     parent::__construct(
       $configuration,
