@@ -16,7 +16,7 @@ use Drupal\ocha_ai\Plugin\TextSplitterPluginBase;
 #[OchaAiTextSplitter(
   id: 'token',
   label: new TranslatableMarkup('Token'),
-  description: new TranslatableMarkup('Split a text into passges based on their estimated token count.')
+  description: new TranslatableMarkup('Split a text into passages based on their estimated token count.')
 )]
 class Token extends TextSplitterPluginBase {
 
@@ -36,11 +36,27 @@ class Token extends TextSplitterPluginBase {
     $total_token_count = 0;
     foreach ($lines as $index => $line) {
       $line_token_count = TextHelper::estimateTokenCount($line);
-      $lines[$index] = [
-        'token_count' => $line_token_count,
-        'text' => $line,
-      ];
-      $total_token_count += $line_token_count;
+
+      // Split a line when it's too long.
+      if ($line_token_count > $max_token_count) {
+        $sub_lines = $this->splitInLines($line, $length);
+
+        foreach ($sub_lines as $sub_line) {
+          $line_token_count = TextHelper::estimateTokenCount($sub_line);
+          $lines[$index] = [
+            'token_count' => $line_token_count,
+            'text' => $sub_line,
+          ];
+          $total_token_count += $line_token_count;
+        }
+      }
+      else {
+        $lines[$index] = [
+          'token_count' => $line_token_count,
+          'text' => $line,
+        ];
+        $total_token_count += $line_token_count;
+      }
     }
     $total_lines = count($lines);
 
@@ -100,6 +116,25 @@ class Token extends TextSplitterPluginBase {
     $form['plugins'][$plugin_type][$plugin_id]['overlap']['#description'] = $this->t('Maximum number of tokens from the previous passage to include in the passage to preserve context.');
 
     return $form;
+  }
+
+  /**
+   * Split a too long line in multiple lines.
+   */
+  protected function splitInLines(string $line, int $length) {
+    // Overlap of 10%.
+    $overlap = (int) round($length / 10, 0);
+
+    /** @var \Drupal\ocha_ai\Plugin\TextSplitterPluginManager $text_splitter_manager */
+    $text_splitter_manager = \Drupal::service('plugin.manager.ocha_ai.text_splitter');
+
+    /** @var \Drupal\ocha_ai\Plugin\ocha_ai\TextSplitter\Sentence */
+    $splitter = $text_splitter_manager->createInstance('sentence', [
+      'length' => $length,
+      'overlap' => $overlap,
+    ]);
+
+    return $splitter->splitText($line, $length, $overlap);
   }
 
 }

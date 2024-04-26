@@ -24,10 +24,10 @@ class Sentence extends TextSplitterPluginBase {
    * {@inheritdoc}
    */
   public function splitText(string $text, ?int $length = NULL, ?int $overlap = NULL): array {
-    $length = $this->getPluginSetting('length');
-    $overlap = $this->getPluginSetting('overlap');
+    $length = $length ?? $this->getPluginSetting('length');
+    $overlap = $overlap ?? $this->getPluginSetting('overlap');
 
-    // Split the text into paragraphs and setences.
+    // Split the text into paragraphs and sentences.
     $paragraphs = [];
 
     // @todo review how to better split paragraphs.
@@ -78,6 +78,12 @@ class Sentence extends TextSplitterPluginBase {
         for ($j = max(0, $i - $overlap); $j < $i + $length; $j++) {
           if (isset($sentences[$j])) {
             $group[] = $sentences[$j];
+
+            // Limit to length.
+            if (mb_strlen(implode(' ', $group)) > $length) {
+              $groups[] = implode(' ', $group);
+              $group = [];
+            }
           }
         }
         $groups[] = implode(' ', $group);
