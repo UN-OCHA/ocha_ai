@@ -16,7 +16,7 @@ class EmbeddingPluginManager extends PluginManagerBase implements EmbeddingPlugi
   public function __construct(
     \Traversable $namespaces,
     CacheBackendInterface $cache_backend,
-    ModuleHandlerInterface $module_handler
+    ModuleHandlerInterface $module_handler,
   ) {
     parent::__construct(
       'Plugin/ocha_ai/Embedding',

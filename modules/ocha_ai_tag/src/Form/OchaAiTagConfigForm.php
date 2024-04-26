@@ -74,7 +74,7 @@ class OchaAiTagConfigForm extends FormBase {
     EmbeddingPluginManagerInterface $embedding_plugin_manager,
     TextExtractorPluginManagerInterface $text_extractor_plugin_manager,
     TextSplitterPluginManagerInterface $text_splitter_plugin_manager,
-    VectorStorePluginManagerInterface $vector_store_plugin_manager
+    VectorStorePluginManagerInterface $vector_store_plugin_manager,
   ) {
     $this->setConfigFactory($config_factory);
     $this->state = $state;

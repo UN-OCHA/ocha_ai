@@ -75,7 +75,7 @@ class OchaAiChatLogsForm extends FormBase {
     AccountProxyInterface $current_user,
     EntityTypeManagerInterface $entity_type_manager,
     FileSystemInterface $file_system,
-    OchaAiChat $ocha_ai_chat
+    OchaAiChat $ocha_ai_chat,
   ) {
     $this->database = $database;
     $this->currentUser = $current_user;
@@ -200,6 +200,9 @@ class OchaAiChatLogsForm extends FormBase {
       'thumbs' => [
         'data' => $this->t('Thumbs'),
       ],
+      'copied' => [
+        'data' => $this->t('Copied'),
+      ],
       'stats' => [
         'data' => $this->t('Stats'),
       ],
@@ -269,6 +272,7 @@ class OchaAiChatLogsForm extends FormBase {
           ],
         ],
         'thumbs' => $record->thumbs ?? '',
+        'copied' => $record->copied ?? '',
         'stats' => [
           'data' => [
             '#type' => 'details',

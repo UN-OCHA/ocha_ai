@@ -92,7 +92,7 @@ class OchaAiConfigForm extends ConfigFormBase {
     SourcePluginManagerInterface $source_plugin_manager,
     TextExtractorPluginManagerInterface $text_extractor_plugin_manager,
     TextSplitterPluginManagerInterface $text_splitter_plugin_manager,
-    VectorStorePluginManagerInterface $vector_store_plugin_manager
+    VectorStorePluginManagerInterface $vector_store_plugin_manager,
   ) {
     parent::__construct($config_factory);
 

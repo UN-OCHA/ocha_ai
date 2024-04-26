@@ -44,7 +44,7 @@ class ChatPopup extends BlockBase implements ContainerFactoryPluginInterface {
     array $configuration,
     $plugin_id,
     $plugin_definition,
-    RequestStack $request_stack
+    RequestStack $request_stack,
   ) {
     parent::__construct(
       $configuration,

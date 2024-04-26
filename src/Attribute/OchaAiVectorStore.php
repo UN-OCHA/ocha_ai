@@ -35,7 +35,7 @@ class OchaAiVectorStore extends Plugin {
   public function __construct(
     public readonly string $id,
     public readonly TranslatableMarkup $label,
-    public readonly TranslatableMarkup $description
+    public readonly TranslatableMarkup $description,
   ) {}
 
 }

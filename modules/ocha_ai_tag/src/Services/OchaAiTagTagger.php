@@ -63,7 +63,7 @@ class OchaAiTagTagger extends OchaAiChat {
     CacheBackendInterface $cache_backend,
     EmbeddingPluginManagerInterface $embedding_plugin_manager,
     TextSplitterPluginManagerInterface $text_splitter_plugin_manager,
-    VectorStorePluginManagerInterface $vector_store_plugin_manager
+    VectorStorePluginManagerInterface $vector_store_plugin_manager,
   ) {
     $this->config = $config_factory->get('ocha_ai_tag.settings');
     $this->logger = $logger_factory->get('ocha_ai_tag');

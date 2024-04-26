@@ -161,7 +161,7 @@ class OchaAiChat {
     SourcePluginManagerInterface $source_plugin_manager,
     TextExtractorPluginManagerInterface $text_extractor_plugin_manager,
     TextSplitterPluginManagerInterface $text_splitter_plugin_manager,
-    VectorStorePluginManagerInterface $vector_store_plugin_manager
+    VectorStorePluginManagerInterface $vector_store_plugin_manager,
   ) {
     $this->config = $config_factory->get('ocha_ai_chat.settings');
     $this->logger = $logger_factory->get('ocha_ai_chat');
@@ -390,6 +390,29 @@ class OchaAiChat {
       ->update('ocha_ai_chat_logs')
       ->fields([
         'thumbs' => $value,
+      ])
+      ->condition('id', $id, '=')
+      ->execute();
+
+    return !empty($updated);
+  }
+
+  /**
+   * Record that a copy-to-clipboard button was used.
+   *
+   * @param int $id
+   *   The ID of the answer log.
+   * @param string $value
+   *   Copied or not.
+   *
+   * @return bool
+   *   TRUE if a record was updated.
+   */
+  public function addAnswerCopy(int $id, string $value): bool {
+    $updated = $this->database
+      ->update('ocha_ai_chat_logs')
+      ->fields([
+        'copied' => $value,
       ])
       ->condition('id', $id, '=')
       ->execute();
