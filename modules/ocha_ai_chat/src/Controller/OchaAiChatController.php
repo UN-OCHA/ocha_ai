@@ -4,7 +4,13 @@ namespace Drupal\ocha_ai_chat\Controller;
 
 use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Controller\ControllerBase;
+use Drupal\Core\Database\Connection;
+use Drupal\Core\Logger\LoggerChannelTrait;
+use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\Core\Session\AccountInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * Class OchaAiChat Controller.
@@ -12,6 +18,34 @@ use Symfony\Component\HttpFoundation\JsonResponse;
  * @package Drupal\ocha_ai_chat\Controller
  */
 class OchaAiChatController extends ControllerBase {
+  use LoggerChannelTrait;
+
+  /**
+   * The database connection.
+   *
+   * @var \Drupal\Core\Database\Connection
+   */
+  protected $connection;
+
+  /**
+   * The current request.
+   *
+   * @var \Symfony\Component\HttpFoundation\RequestStack
+   */
+  protected $requestStack;
+
+  /**
+   * Constructs controller.
+   *
+   * @param \Drupal\Core\Database\Connection $connection
+   *   The Connection object.
+   * @param \Symfony\Component\HttpFoundation\RequestStack $request_stack
+   *   The RequestStack object.
+   */
+  public function __construct(Connection $connection, RequestStack $request_stack) {
+    $this->connection = $connection;
+    $this->requestStack = $request_stack;
+  }
 
   /**
    * Generate chat log statistics.
@@ -23,14 +57,14 @@ class OchaAiChatController extends ControllerBase {
     $response = [];
 
     // @codingStandardsIgnoreLine
-    $database = \Drupal::database();
+    $database = $this->connection;
 
     // Number of interactions.
     $query = $database->query("SELECT FROM_UNIXTIME(timestamp, '%Y-%m - Week %V') AS week, COUNT(id) AS interactions FROM ocha_ai_chat_logs GROUP BY week ORDER BY week ASC");
     $result = $query->fetchAll();
     $response['interactions'] = $result;
 
-    // Number of interactions.
+    // Average satisfaction.
     $query = $database->query("SELECT FROM_UNIXTIME(timestamp, '%Y-%m - Week %V') AS week, AVG(satisfaction) AS average_satisfaction FROM ocha_ai_chat_logs GROUP BY week ORDER BY week ASC");
     $result = $query->fetchAll();
     $response['average_satisfaction'] = $result;
@@ -55,18 +89,22 @@ class OchaAiChatController extends ControllerBase {
     $result = $query->fetchAll();
     $response['thumbs'] = $result;
 
+    // Users asking less than five questions.
     $query = $database->query("SELECT week, COUNT(uid) AS users_under_five_questions FROM (SELECT FROM_UNIXTIME(timestamp, '%Y-%m - Week %V') AS week, uid, count(id) as conversations FROM ocha_ai_chat_logs GROUP BY week, uid HAVING conversations < 5) A GROUP BY week ORDER BY week ASC");
     $result = $query->fetchAll();
     $response['users_under_five_questions'] = $result;
 
+    // Users asking between five and ten questions.
     $query = $database->query("SELECT week, COUNT(uid) AS users_five_to_ten_questions FROM (SELECT FROM_UNIXTIME(timestamp, '%Y-%m - Week %V') AS week, uid, count(id) as conversations FROM ocha_ai_chat_logs GROUP BY week, uid HAVING conversations >= 5 AND conversations <= 10) A GROUP BY week ORDER BY week ASC");
     $result = $query->fetchAll();
     $response['users_five_to_ten_questions'] = $result;
 
+    // Users asking between ten and twenty questions.
     $query = $database->query("SELECT week, COUNT(uid) AS users_ten_to_twenty_questions FROM (SELECT FROM_UNIXTIME(timestamp, '%Y-%m - Week %V') AS week, uid, count(id) as conversations FROM ocha_ai_chat_logs GROUP BY week, uid HAVING conversations > 10 AND conversations <= 20) A GROUP BY week ORDER BY week ASC");
     $result = $query->fetchAll();
     $response['users_ten_to_twenty_questions'] = $result;
 
+    // Users asking more than twenty questions.
     $query = $database->query("SELECT week, COUNT(uid) AS users_over_twenty_questions FROM (SELECT FROM_UNIXTIME(timestamp, '%Y-%m - Week %V') AS week, uid, count(id) as conversations FROM ocha_ai_chat_logs GROUP BY week, uid HAVING conversations > 20) A GROUP BY week ORDER BY week ASC");
     $result = $query->fetchAll();
     $response['users_over_twenty_questions'] = $result;
@@ -89,7 +127,8 @@ class OchaAiChatController extends ControllerBase {
     }
     else {
       $access_result = AccessResult::forbidden();
-      $this->logger->warning('Unauthorized access to statistics denied.');
+      $logger = $this->getLogger('ocha_ai');
+      $logger->warning('Unauthorized access to statistics denied');
     }
     $access_result
       ->setCacheMaxAge(0)
