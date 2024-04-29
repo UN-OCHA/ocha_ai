@@ -21,35 +21,37 @@ class OchaAiChatController extends ControllerBase {
    */
   public function statistics(RouteMatchInterface $route_match, Request $request) {
     $response = [];
+
+    // @codingStandardsIgnoreLine
     $database = \Drupal::database();
 
     // Number of interactions.
-    $query  = $database->query("SELECT FROM_UNIXTIME(timestamp, '%Y-%m - Week %V') AS week, COUNT(id) AS interactions FROM ocha_ai_chat_logs GROUP BY week ORDER BY week ASC");
+    $query = $database->query("SELECT FROM_UNIXTIME(timestamp, '%Y-%m - Week %V') AS week, COUNT(id) AS interactions FROM ocha_ai_chat_logs GROUP BY week ORDER BY week ASC");
     $result = $query->fetchAll();
     $response['interactions'] = $result;
 
     // Number of interactions.
-    $query  = $database->query("SELECT FROM_UNIXTIME(timestamp, '%Y-%m - Week %V') AS week, AVG(satisfaction) AS average_satisfaction FROM ocha_ai_chat_logs GROUP BY week ORDER BY week ASC");
+    $query = $database->query("SELECT FROM_UNIXTIME(timestamp, '%Y-%m - Week %V') AS week, AVG(satisfaction) AS average_satisfaction FROM ocha_ai_chat_logs GROUP BY week ORDER BY week ASC");
     $result = $query->fetchAll();
     $response['average_satisfaction'] = $result;
 
     // Number of questions per user.
-    $query  = $database->query("SELECT FROM_UNIXTIME(timestamp, '%Y-%m - Week %V') AS week, COUNT(id) / COUNT(DISTINCT uid) AS questions_per_user FROM ocha_ai_chat_logs GROUP BY week ORDER BY week ASC");
+    $query = $database->query("SELECT FROM_UNIXTIME(timestamp, '%Y-%m - Week %V') AS week, COUNT(id) / COUNT(DISTINCT uid) AS questions_per_user FROM ocha_ai_chat_logs GROUP BY week ORDER BY week ASC");
     $result = $query->fetchAll();
     $response['questions_per_user'] = $result;
 
     // Number of questions per user per document.
-    $query  = $database->query("SELECT FROM_UNIXTIME(timestamp, '%Y-%m - Week %V') AS week, COUNT(id) / COUNT(DISTINCT source_document_ids, uid) AS questions_per_user_per_document FROM ocha_ai_chat_logs GROUP BY week ORDER BY week ASC");
+    $query = $database->query("SELECT FROM_UNIXTIME(timestamp, '%Y-%m - Week %V') AS week, COUNT(id) / COUNT(DISTINCT source_document_ids, uid) AS questions_per_user_per_document FROM ocha_ai_chat_logs GROUP BY week ORDER BY week ASC");
     $result = $query->fetchAll();
     $response['questions_per_user_per_document'] = $result;
 
     // Average response time in seconds.
-    $query  = $database->query("SELECT FROM_UNIXTIME(timestamp, '%Y-%m - Week %V') AS week, AVG(SUBSTRING(stats, LOCATE('Get answer', stats) + 12, 8)) AS average_response_time_in_seconds FROM ocha_ai_chat_logs GROUP BY week ORDER BY week ASC");
+    $query = $database->query("SELECT FROM_UNIXTIME(timestamp, '%Y-%m - Week %V') AS week, AVG(SUBSTRING(stats, LOCATE('Get answer', stats) + 12, 8)) AS average_response_time_in_seconds FROM ocha_ai_chat_logs GROUP BY week ORDER BY week ASC");
     $result = $query->fetchAll();
     $response['average_response_time_in_seconds'] = $result;
 
     // Thumbs.
-    $query  = $database->query("SELECT FROM_UNIXTIME(timestamp, '%Y-%m - Week %V') AS week, SUM(CASE thumbs WHEN 'up' THEN 1 END) AS thumbs_up, SUM(CASE thumbs WHEN 'down' THEN 1 END) AS thumbs_down FROM ocha_ai_chat_logs GROUP BY week");
+    $query = $database->query("SELECT FROM_UNIXTIME(timestamp, '%Y-%m - Week %V') AS week, SUM(CASE thumbs WHEN 'up' THEN 1 END) AS thumbs_up, SUM(CASE thumbs WHEN 'down' THEN 1 END) AS thumbs_down FROM ocha_ai_chat_logs GROUP BY week");
     $result = $query->fetchAll();
     $response['thumbs'] = $result;
 

@@ -43,4 +43,5 @@ ocha_ai_chat.statistics.json:
   options:
     no_cache: TRUE
   requirements:
+    # This line exists to stop PHPCS complaining about a lack of access check.
     _access: 'TRUE'
