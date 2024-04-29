@@ -55,8 +55,6 @@ class OchaAiChatController extends ControllerBase {
    */
   public function statistics(RouteMatchInterface $route_match, Request $request) {
     $response = [];
-
-    // @codingStandardsIgnoreLine
     $database = $this->connection;
 
     // Number of interactions.
