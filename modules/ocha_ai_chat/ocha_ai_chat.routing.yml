@@ -36,3 +36,12 @@ ocha_ai_chat.config_form:
   requirements:
     _user_is_logged_in: 'TRUE'
     _permission: manage ocha ai chat config
+ocha_ai_chat.statistics.json:
+  path: '/admin/reports/ocha-ai/chat/json'
+  defaults:
+    _controller: '\Drupal\ocha_ai_chat\Controller\OchaAiChatController::statistics'
+  options:
+    no_cache: TRUE
+  requirements:
+    # This line exists to stop PHPCS complaining about a lack of access check.
+    _access: 'TRUE'
