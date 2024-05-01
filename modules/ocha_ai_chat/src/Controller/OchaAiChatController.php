@@ -55,6 +55,12 @@ class OchaAiChatController extends ControllerBase {
    */
   public function statistics(RouteMatchInterface $route_match, Request $request) {
     $response = [];
+
+    if ($this->access($this->currentUser())->isForbidden()) {
+      $response = '{"error": "Access denied!"}';
+      return new JsonResponse($response, 403);
+    }
+
     $database = $this->connection;
 
     // Number of interactions.
@@ -119,7 +125,7 @@ class OchaAiChatController extends ControllerBase {
   public function access(AccountInterface $account) {
     $header_secret = $this->requestStack->getCurrentRequest()->headers->get('ocha-ai-chat-statistics') ?? NULL;
     $config_secret = $this->config('ocha_ai')->get('statistics.key');
-    if (($header_secret && $header_secret === $config_secret)
+    if ((!empty($header_secret) && $header_secret === $config_secret)
       || $account->hasPermission('view ocha ai chat logs')) {
       $access_result = AccessResult::allowed();
     }
