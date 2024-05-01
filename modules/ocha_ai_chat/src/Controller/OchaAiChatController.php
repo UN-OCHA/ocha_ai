@@ -124,7 +124,7 @@ class OchaAiChatController extends ControllerBase {
    */
   public function access(AccountInterface $account) {
     $header_secret = $this->requestStack->getCurrentRequest()->headers->get('ocha-ai-chat-statistics') ?? NULL;
-    $config_secret = $this->config('ocha_ai')->get('statistics.key');
+    $config_secret = $this->config('ocha_ai.settings')->get('statistics.key');
     if ((!empty($header_secret) && $header_secret === $config_secret)
       || $account->hasPermission('view ocha ai chat logs')) {
       $access_result = AccessResult::allowed();
