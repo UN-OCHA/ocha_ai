@@ -57,7 +57,7 @@ class OchaAiChatController extends ControllerBase {
     $response = [];
 
     if ($this->access($this->currentUser())->isForbidden()) {
-      $response = '{"error": "Access denied!"}';
+      $response = ["error" => "Access denied!"];
       return new JsonResponse($response, 403);
     }
 
