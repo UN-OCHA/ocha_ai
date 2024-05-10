@@ -93,6 +93,11 @@ class OchaAiChatController extends ControllerBase {
     $result = $query->fetchAll();
     $response['thumbs'] = $result;
 
+    // Copied.
+    $query = $database->query("SELECT FROM_UNIXTIME(timestamp, '%Y-%m - Week %V') AS week, COUNT(copied) AS copied FROM ocha_ai_chat_logs WHERE copied = 'copied' GROUP BY week");
+    $result = $query->fetchAll();
+    $response['copied'] = $result;
+
     // Users asking less than five questions.
     $query = $database->query("SELECT week, COUNT(uid) AS users_under_five_questions FROM (SELECT FROM_UNIXTIME(timestamp, '%Y-%m - Week %V') AS week, uid, count(id) as conversations FROM ocha_ai_chat_logs GROUP BY week, uid HAVING conversations < 5) A GROUP BY week ORDER BY week ASC");
     $result = $query->fetchAll();
