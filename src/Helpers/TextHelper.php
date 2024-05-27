@@ -109,8 +109,6 @@ class TextHelper {
    *   Max lenght.
    * @param string $unit
    *   Unit for length.
-   * @param string $overlap
-   *   Overlap in number of characters.
    * @param string $pattern_id
    *   Pattern to use.
    *
@@ -165,7 +163,7 @@ class TextHelper {
   }
 
   /**
-   * Split a text based in lines of <length> characters with an optional overlap.
+   * Split a text based in lines of n characters with an optional overlap.
    *
    * @param string $text
    *   Text.
@@ -242,7 +240,7 @@ class TextHelper {
       if ($overlap_length > 0) {
         $str_overlap = trim(strrev(self::truncate(strrev($line['text']), $overlap_length)));
       }
-      
+
       $line_text = $str_overlap . ' ' . trim(mb_substr($sentence['text'], mb_strlen($part)));
       $line = [
         'text' => $line_text,
@@ -261,7 +259,7 @@ class TextHelper {
   /**
    * Return length from meta data.
    */
-  static protected function getLength(array $input, string $unit) : int {
+  protected static function getLength(array $input, string $unit) : int {
     switch ($unit) {
       case self::UNIT_TOKEN:
         return $input['token_count'] ?? 0;
@@ -294,4 +292,5 @@ class TextHelper {
 
     return implode(' ', $parts);
   }
+
 }
