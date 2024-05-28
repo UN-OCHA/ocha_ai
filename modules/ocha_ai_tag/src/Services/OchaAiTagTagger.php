@@ -375,4 +375,14 @@ class OchaAiTagTagger extends OchaAiChat {
     return min($cutoff, max($similarity_scores));
   }
 
+  /**
+   * Clear the cache.
+   */
+  public function clearCache(): self {
+    $cid = $this->getSetting(['plugins', 'embedding', 'plugin_id']);
+    $this->cacheBackend->delete($cid);
+
+    return $this;
+  }
+
 }
