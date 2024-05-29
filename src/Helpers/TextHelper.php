@@ -197,11 +197,6 @@ class TextHelper {
       $overlap_length = self::estimateStringLength($overlap);
     }
 
-    $str_length = $length;
-    if ($unit == self::UNIT_TOKEN) {
-      $str_length = self::estimateStringLength($length);
-    }
-
     // Split in multiple lines, respecting max length.
     $sentences = self::splitInLines($text, $length - $overlap, $unit, $pattern_id);
 
@@ -214,6 +209,7 @@ class TextHelper {
           'token_count' => self::estimateTokenCount($line_text),
           'char_count' => mb_strlen($line_text),
         ];
+
         continue;
       }
 
@@ -228,35 +224,29 @@ class TextHelper {
         continue;
       }
 
-      // Adding sentence will make a too long string, start new one.
+      // Adding sentence will make the line too long.
       $output[] = trim($line['text']);
 
-      $line_text = $sentence['text'];
-      $line = [
-        'text' => $line_text,
-        'token_count' => self::estimateTokenCount($line_text),
-        'char_count' => mb_strlen($line_text),
-      ];
-      continue;
+      // No overlap, start a new one.
+      if ($overlap == 0) {
+        $line_text = $sentence['text'];
+        $line = [
+          'text' => $line_text,
+          'token_count' => self::estimateTokenCount($line_text),
+          'char_count' => mb_strlen($line_text),
+        ];
 
-
-
-      $part = trim(self::truncate($sentence['text'], $str_length - $line['char_count']));
-      $line_text = trim($line['text']) . ' ' . $part;
-      $line = [
-        'text' => $line_text,
-        'token_count' => self::estimateTokenCount($line_text),
-        'char_count' => mb_strlen($line_text),
-      ];
-
-      $output[] = trim($line['text']);
-
-      $str_overlap = '';
-      if ($overlap_length > 0) {
-        $str_overlap = trim(strrev(self::truncate(strrev($line['text']), $overlap_length)));
+        continue;
       }
 
-      $line_text = $str_overlap . ' ' . trim(mb_substr($sentence['text'], mb_strlen($part)));
+      // We need overlap, grab end of previous output.
+      $str_overlap = '';
+      $previous_line = end($output);
+      if ($previous_line && $overlap_length > 0) {
+        $str_overlap = trim(strrev(self::truncate(strrev($previous_line), $overlap_length)));
+      }
+
+      $line_text = $str_overlap . ' ' . $sentence['text'];
       $line = [
         'text' => $line_text,
         'token_count' => self::estimateTokenCount($line_text),
