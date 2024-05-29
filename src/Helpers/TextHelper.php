@@ -127,14 +127,14 @@ class TextHelper {
       return $output;
     }
 
-    $paragraphs = self::splitTextInParagraphs($text);
-    if (empty($paragraphs)) {
-      return $output;
-    }
-
     $str_length = $length;
     if ($unit == self::UNIT_TOKEN) {
       $str_length = self::estimateStringLength($length);
+    }
+
+    $paragraphs = self::splitTextInParagraphs($text);
+    if (empty($paragraphs)) {
+      return $output;
     }
 
     foreach ($paragraphs as $paragraph) {
@@ -147,14 +147,14 @@ class TextHelper {
         }
 
         // Line is too long.
-        while (mb_strlen($sentence) > 0) {
-          $line = trim(Unicode::truncate($sentence, $str_length));
+        while (mb_strlen($sentence['text']) > 0) {
+          $line = trim(Unicode::truncate($sentence['text'], $str_length));
           $output[] = [
             'text' => $line,
             'token_count' => self::estimateTokenCount($line),
             'char_count' => mb_strlen($line),
           ];
-          $sentence = trim(mb_substr($sentence, mb_strlen($line)));
+          $sentence['text'] = trim(mb_substr($sentence['text'], mb_strlen($line)));
         }
       }
     }
@@ -192,8 +192,6 @@ class TextHelper {
       return $output;
     }
 
-    $sentences = self::splitInLines($text, $length - $overlap, $unit, $pattern_id);
-
     $overlap_length = $overlap;
     if ($unit == self::UNIT_TOKEN) {
       $overlap_length = self::estimateStringLength($overlap);
@@ -203,6 +201,9 @@ class TextHelper {
     if ($unit == self::UNIT_TOKEN) {
       $str_length = self::estimateStringLength($length);
     }
+
+    // Split in multiple lines, respecting max length.
+    $sentences = self::splitInLines($text, $length - $overlap, $unit, $pattern_id);
 
     $line = [];
     foreach ($sentences as $sentence) {
@@ -217,14 +218,28 @@ class TextHelper {
       }
 
       if ((self::getLength($line, $unit) + self::getLength($sentence, $unit)) < $length) {
-        $line_text = trim($line['text']) . ' ' . $sentence['text'];
+        $line_text = trim($line['text']) . ' ' . trim($sentence['text']);
         $line = [
           'text' => $line_text,
           'token_count' => self::estimateTokenCount($line_text),
           'char_count' => mb_strlen($line_text),
         ];
+
         continue;
       }
+
+      // Adding sentence will make a too long string, start new one.
+      $output[] = trim($line['text']);
+
+      $line_text = $sentence['text'];
+      $line = [
+        'text' => $line_text,
+        'token_count' => self::estimateTokenCount($line_text),
+        'char_count' => mb_strlen($line_text),
+      ];
+      continue;
+
+
 
       $part = trim(self::truncate($sentence['text'], $str_length - $line['char_count']));
       $line_text = trim($line['text']) . ' ' . $part;
