@@ -148,7 +148,7 @@ class TextHelper {
 
         // Line is too long.
         while (mb_strlen($sentence['text']) > 0) {
-          $line = trim(Unicode::truncate($sentence['text'], $str_length));
+          $line = trim(self::truncate($sentence['text'], $str_length));
           $output[] = [
             'text' => $line,
             'token_count' => self::estimateTokenCount($line),
