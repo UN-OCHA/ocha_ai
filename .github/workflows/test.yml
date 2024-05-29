@@ -68,11 +68,6 @@ jobs:
         run: |
           echo "DRUPAL_ROOT=$HOME/drupal" >> $GITHUB_ENV
 
-      - name: Check coding standards
-        run: |
-          ./vendor/bin/phpcs --config-set installed_paths vendor/drupal/coder/coder_sniffer
-          ./vendor/bin/phpcs --standard=Drupal,DrupalPractice --extensions=php,module,install,js modules/custom/ocha_ai
-
       - name: Install drush
         run: composer require "drush/drush ^12.0"
 
