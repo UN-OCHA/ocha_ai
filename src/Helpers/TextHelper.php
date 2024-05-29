@@ -2,8 +2,6 @@
 
 namespace Drupal\ocha_ai\Helpers;
 
-use Drupal\Component\Utility\Unicode;
-
 /**
  * Helper to manipulate text.
  */

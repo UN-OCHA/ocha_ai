@@ -12,7 +12,14 @@ use Drupal\Tests\UnitTestCase;
  */
 class TextSplitterOverlapTest extends UnitTestCase {
 
+  /**
+   * Length.
+   */
   protected int $length = 384;
+
+  /**
+   * Overlap.
+   */
   protected int $overlap = 40;
 
   /**

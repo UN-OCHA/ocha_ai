@@ -12,6 +12,9 @@ use Drupal\Tests\UnitTestCase;
  */
 class TextSplitterTest extends UnitTestCase {
 
+  /**
+   * Length.
+   */
   protected int $length = 384;
 
   /**
