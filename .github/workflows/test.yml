@@ -1,0 +1,101 @@
+name: Test
+on: [pull_request]
+env:
+  MYSQL_USER: root
+  MYSQL_PASSWORD: root
+  MYSQL_DATABASE: drupal
+  MYSQL_ROOT_PASSWORD: root
+  SIMPLETEST_DB: "mysql://root:root@localhost:3306/drupal"
+  SIMPLETEST_BASE_URL: "http://127.0.0.1:8080"
+
+jobs:
+  testing:
+    name: Drupal ${{ matrix.drupal-core }} - PHP ${{ matrix.php-versions }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        drupal-core: ['10.2.x', '10.3.x']
+        php-versions: ['8.2', '8.3']
+    steps:
+      - name: Checkout Drupal core
+        uses: actions/checkout@v2
+        with:
+          repository: drupal/drupal
+          ref: ${{ matrix.drupal-core }}
+
+      - name: Checkout module
+        uses: actions/checkout@v2
+        with:
+          path: modules/custom/ocha_ai
+
+      - name: Setup PHP, with composer and extensions
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-versions }}
+          coverage: xdebug
+
+      - name: Get composer cache directory
+        id: composercache
+        run: echo "::set-output name=dir::$(composer config cache-files-dir)"
+
+      - name: Cache composer dependencies
+        uses: actions/cache@v2
+        with:
+          path: ${{ steps.composercache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: ${{ runner.os }}-composer-
+
+      - name: Install Drupal core dependencies
+        run: |
+          composer --no-interaction --no-progress --prefer-dist --optimize-autoloader install
+
+      - name: Install module dependencies
+        run: |
+          composer --no-interaction --no-progress require \
+            drupal/datetime_range_timezone drupal/date_recur
+
+      - name: Patch Drupal - https://www.drupal.org/project/drupal/issues/3004425
+        run: |
+          curl https://www.drupal.org/files/issues/2021-12-25/3004425-41.patch | patch -p1
+
+      - name: Install Coder module
+        run: |
+          composer --dev --no-interaction --no-progress require \
+            drupal/coder:8.3.13 phpunit/phpunit
+
+      - name: Define DRUPAL_ROOT env variable
+        run: |
+          echo "DRUPAL_ROOT=$HOME/drupal" >> $GITHUB_ENV
+
+      - name: Install drush
+        run: composer require "drush/drush ^12.0"
+
+      - name: Start MySql service
+        run: |
+          sudo /etc/init.d/mysql start
+
+      - name: Install Drupal
+        run: |
+          php -d sendmail_path=$(which true); vendor/bin/drush --yes -v \
+            site-install minimal --db-url="$SIMPLETEST_DB"
+          vendor/bin/drush en $DRUPAL_MODULE_NAME -y
+
+      - name: Run tests
+        run: |
+          vendor/bin/phpunit --bootstrap core/tests/bootstrap.php \
+            --coverage-clover ./clover.xml \
+            -c modules/custom/ocha_ai/phpunit.xml modules/custom/ocha_ai
+
+      - name: Monitor coverage for Drupal ${{ matrix.drupal-core }} - PHP ${{ matrix.php-versions }}
+        id: coveralls
+        uses: slavcodev/coverage-monitor-action@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          status_context: Monitor coverage for Drupal ${{ matrix.drupal-core }} - PHP ${{ matrix.php-versions }}
+          comment_context: Monitor coverage for Drupal ${{ matrix.drupal-core }} - PHP ${{ matrix.php-versions }}
+          coverage_path: "./clover.xml"
+          threshold_alert: 0
+          threshold_warning: 50
+          threshold_metric: "lines"
+          comment_footer: false

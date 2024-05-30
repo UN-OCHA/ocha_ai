@@ -7,6 +7,7 @@ namespace Drupal\ocha_ai\Plugin\ocha_ai\TextSplitter;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\ocha_ai\Attribute\OchaAiTextSplitter;
+use Drupal\ocha_ai\Helpers\TextHelper;
 use Drupal\ocha_ai\Plugin\TextSplitterPluginBase;
 
 /**
@@ -23,47 +24,15 @@ class Sentence extends TextSplitterPluginBase {
    * {@inheritdoc}
    */
   public function splitText(string $text, ?int $length = NULL, ?int $overlap = NULL): array {
-    $length = $this->getPluginSetting('length');
-    $overlap = $this->getPluginSetting('overlap');
+    $length = $length ?? $this->getPluginSetting('length');
+    $overlap = $overlap ?? $this->getPluginSetting('overlap');
 
-    // Split the text into paragraphs and setences.
-    $paragraphs = [];
-
-    // @todo review how to better split paragraphs.
-    foreach (preg_split('/\n{2,}/u', $text, -1, \PREG_SPLIT_NO_EMPTY) as $paragraph) {
-      $paragraph = preg_replace('/\s+/u', ' ', $paragraph);
-      $paragraph = trim(preg_replace('/([;.!?。؟]+)\s+/u', "$1\n", $paragraph));
-
-      $sentences = [];
-      foreach (preg_split('/\n+/u', $paragraph, -1, \PREG_SPLIT_NO_EMPTY) as $sentence) {
-        $sentence = trim($sentence);
-        if (!empty($sentence)) {
-          $sentences[] = $sentence;
-        }
-      }
-
-      $paragraphs[] = $sentences;
+    if (mb_strlen($text) <= $length) {
+      return [$text];
     }
 
-    // Generate groups of sentences.
-    $groups = [];
-    foreach ($paragraphs as $sentences) {
-      $count = count($sentences);
-      for ($i = 0; $i < $count; $i += $length) {
-        $group = [];
-        // Include $overlap previous sentences to the group to try to
-        // preserve some context.
-        // @todo Include  following sentences as well?
-        for ($j = max(0, $i - $overlap); $j < $i + $length; $j++) {
-          if (isset($sentences[$j])) {
-            $group[] = $sentences[$j];
-          }
-        }
-        $groups[] = implode(' ', $group);
-      }
-    }
-
-    return $groups;
+    // Split the text into paragraphs and sentences.
+    return TextHelper::splitInLinesOptimalLength($text, $length, TextHelper::UNIT_CHAR, $overlap);
   }
 
   /**
