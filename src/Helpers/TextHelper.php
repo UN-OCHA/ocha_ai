@@ -136,6 +136,16 @@ class TextHelper {
     }
 
     foreach ($paragraphs as $paragraph) {
+      // Try to keep paragrahs together.
+      if (mb_strlen($paragraph) < $str_length) {
+        $output[] = [
+          'text' => $paragraph,
+          'token_count' => self::estimateTokenCount($paragraph),
+          'char_count' => mb_strlen($paragraph),
+        ];
+        continue;
+      }
+
       $sentences = self::splitParagraphsInSentences($paragraph, $pattern_id);
 
       foreach ($sentences as $sentence) {
@@ -201,7 +211,7 @@ class TextHelper {
     $line = [];
     foreach ($sentences as $sentence) {
       if (empty($line)) {
-        $line_text = $sentence['text'];
+        $line_text = trim($sentence['text']);
         $line = [
           'text' => $line_text,
           'token_count' => self::estimateTokenCount($line_text),
@@ -227,7 +237,7 @@ class TextHelper {
 
       // No overlap, start a new one.
       if ($overlap == 0) {
-        $line_text = $sentence['text'];
+        $line_text = trim($sentence['text']);
         $line = [
           'text' => $line_text,
           'token_count' => self::estimateTokenCount($line_text),
@@ -244,7 +254,7 @@ class TextHelper {
         $str_overlap = trim(strrev(self::truncate(strrev($previous_line), $overlap_length)));
       }
 
-      $line_text = $str_overlap . ' ' . $sentence['text'];
+      $line_text = $str_overlap . ' ' . trim($sentence['text']);
       $line = [
         'text' => $line_text,
         'token_count' => self::estimateTokenCount($line_text),
