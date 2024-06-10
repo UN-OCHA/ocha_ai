@@ -249,46 +249,61 @@ class OchaAiTagTagger extends OchaAiChat {
       ];
     };
 
-    $vocabularies = [];
-    foreach ($this->getTermEmbeddings() as $vocabulary => $term_embeddings) {
-      $results = [];
-      foreach ($term_embeddings as $term => $term_embedding) {
+    $results = [];
+    foreach ($this->getTermEmbeddings() as $vocabulary => $terms) {
+      // Initialize the results for the given types and vocabularies.
+      foreach ($types as $type) {
+        $results[$type][$vocabulary] = [];
+      }
+
+      // Compute the similarity for each term.
+      foreach ($terms as $term => $term_embeddings) {
         $similarities = [];
 
-        foreach ($embeddings as $item) {
-          $similarities[] = VectorHelper::cosineSimilarity($term_embedding, $item);
+        // Accumulate the cosine similarities of all the term embeddings
+        // compared to the text embeddings.
+        foreach ($term_embeddings as $term_embedding) {
+          foreach ($embeddings as $embedding) {
+            // @todo if the embeddings are normalized, we coul simply use
+            // the VectorHelper::dotProdut() method which a bit faster.
+            $similarities[] = VectorHelper::cosineSimilarity($term_embedding, $embedding);
+          }
         }
 
+        // Reduce to one similarity score with different formulas.
         foreach ($types as $type) {
           switch ($type) {
-            case 'max':
-              $results[$type][$term] = max($similarities);
+            case static::CALCULATION_METHOD_MAX:
+              $results[$type][$vocabulary][$term] = max($similarities);
               break;
 
-            case 'mean':
-              $results[$type][$term] = array_sum($similarities) / count($similarities);
+            case static::CALCULATION_METHOD_MEAN:
+              $results[$type][$vocabulary][$term] = array_sum($similarities) / count($similarities);
               break;
 
-            case 'mean_with_cutoff':
+            case static::CALCULATION_METHOD_MEAN_WITH_CUTOFF:
               $similarities = $this->filterSimilarities($similarities, $alpha);
-              $results[$type][$term] = array_sum($similarities) / count($similarities);
+              $results[$type][$vocabulary][$term] = array_sum($similarities) / count($similarities);
               break;
 
-            // Max x mean.
-            default:
-              // Max x mean.
-              $results[$type][$term] = max($similarities) * array_sum($similarities) / count($similarities);
+            case static::CALCULATION_METHOD_MAX_MEAN:
+              $results[$type][$vocabulary][$term] = max($similarities) * array_sum($similarities) / count($similarities);
+              break;
           }
         }
       }
+    }
 
-      // Sort by similarity score descending.
-      foreach ($types as $type) {
-        arsort($results[$type]);
-        $vocabularies[$type][$vocabulary] = $results[$type];
+    // Sort by similarity score descending.
+    foreach ($types as $type) {
+      foreach ($results[$type] as $vocabulary => $terms) {
+        if (!empty($terms)) {
+          arsort($results[$type][$vocabulary]);
+        }
       }
     }
-    return $vocabularies;
+
+    return $results;
   }
 
   /**
@@ -296,19 +311,17 @@ class OchaAiTagTagger extends OchaAiChat {
    */
   protected function getTermEmbeddings(): array {
     $cid = $this->getSetting(['plugins', 'embedding', 'plugin_id']);
-    $embeddings = $this->cacheBackend->get($cid);
+    $cache = $this->cacheBackend->get($cid);
 
-    if ($embeddings) {
-      return $embeddings->data;
+    if ($cache) {
+      return $cache->data;
     }
 
-    $vocabularies = $this->getVocabularies();
     $embeddings = [];
+    $vocabularies = $this->getVocabularies();
     foreach ($vocabularies as $vocabulary => $terms) {
-      $data = $this->getEmbeddings($terms, FALSE);
-
-      foreach (array_keys($terms) as $index => $term) {
-        $embeddings[$vocabulary][$term] = $data[$index];
+      foreach ($terms as $term => $description) {
+        $embeddings[$vocabulary][$term] = $this->getEmbeddings($description, FALSE);
       }
     }
 
