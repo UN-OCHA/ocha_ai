@@ -16,5 +16,6 @@ services:
       - '@datetime.time'
       - '@cache.ocha_ai_cache'
       - '@plugin.manager.ocha_ai.embedding'
+      - '@plugin.manager.ocha_ai.source'
       - '@plugin.manager.ocha_ai.text_splitter'
       - '@plugin.manager.ocha_ai.vector_store'

@@ -12,6 +12,7 @@ use Drupal\Core\Session\AccountProxyInterface;
 use Drupal\Core\State\StateInterface;
 use Drupal\ocha_ai\Helpers\VectorHelper;
 use Drupal\ocha_ai\Plugin\EmbeddingPluginManagerInterface;
+use Drupal\ocha_ai\Plugin\SourcePluginManagerInterface;
 use Drupal\ocha_ai\Plugin\TextSplitterPluginManagerInterface;
 use Drupal\ocha_ai\Plugin\VectorStorePluginManagerInterface;
 use Drupal\ocha_ai_chat\Services\OchaAiChat;
@@ -62,6 +63,7 @@ class OchaAiTagTagger extends OchaAiChat {
     TimeInterface $time,
     CacheBackendInterface $cache_backend,
     EmbeddingPluginManagerInterface $embedding_plugin_manager,
+    SourcePluginManagerInterface $source_plugin_manager,
     TextSplitterPluginManagerInterface $text_splitter_plugin_manager,
     VectorStorePluginManagerInterface $vector_store_plugin_manager,
   ) {
@@ -73,6 +75,7 @@ class OchaAiTagTagger extends OchaAiChat {
     $this->time = $time;
     $this->cacheBackend = $cache_backend;
     $this->embeddingPluginManager = $embedding_plugin_manager;
+    $this->sourcePluginManager = $source_plugin_manager;
     $this->textSplitterPluginManager = $text_splitter_plugin_manager;
     $this->vectorStorePluginManager = $vector_store_plugin_manager;
   }
@@ -396,6 +399,56 @@ class OchaAiTagTagger extends OchaAiChat {
     $this->cacheBackend->delete($cid);
 
     return $this;
+  }
+
+  /**
+   * Embed a document.
+   */
+  public function embedDocument(int $id): bool {
+    $data = $this->getSourcePlugin()->getDocument('jobs', $id);
+    $job = reset($data['jobs']);
+    $job = $this->processDocument($job);
+    return $this->getVectorStorePlugin()->indexDocuments('jobs', [$id => $job], $this->getEmbeddingPlugin()->getDimensions());
+  }
+
+  /**
+   * Get similar documents from vector store.
+   */
+  public function getSimilarDocuments($id) {
+    $doc = $this->getVectorStorePlugin()->getDocument('jobs', $id);
+    if (empty($doc)) {
+      return [];
+    }
+
+    $doc = $doc['_source'];
+    $query_embedding = $doc['contents']['embedding'];
+    $relevant = $this->getVectorStorePlugin()->getRelevantContents('jobs', [], '', $query_embedding);
+
+    return $relevant;
+  }
+
+  /**
+   * Process (download, extract text, split) a document's contents.
+   *
+   * @param array $document
+   *   Document.
+   *
+   * @return array
+   *   Document with updated contents.
+   */
+  protected function processDocument(array $document): array {
+    foreach ($document['contents'] as $content) {
+      switch ($content['type']) {
+        case 'markdown':
+          $text = $content['content'];
+          $embeddings = $this->getEmbeddings($text);
+          $document['contents']['embedding'] = reset($embeddings);
+
+          return $document;
+      }
+    }
+
+    return $document;
   }
 
 }

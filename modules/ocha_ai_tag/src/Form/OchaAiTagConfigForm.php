@@ -7,6 +7,7 @@ use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\State\StateInterface;
 use Drupal\ocha_ai\Plugin\EmbeddingPluginManagerInterface;
+use Drupal\ocha_ai\Plugin\SourcePluginManagerInterface;
 use Drupal\ocha_ai\Plugin\TextExtractorPluginManagerInterface;
 use Drupal\ocha_ai\Plugin\TextSplitterPluginManagerInterface;
 use Drupal\ocha_ai\Plugin\VectorStorePluginManagerInterface;
@@ -30,6 +31,13 @@ class OchaAiTagConfigForm extends FormBase {
    * @var \Drupal\ocha_ai\Plugin\EmbeddingPluginManagerInterface
    */
   protected EmbeddingPluginManagerInterface $embeddingPluginManager;
+
+  /**
+   * Source plugin manager.
+   *
+   * @var \Drupal\ocha_ai\Plugin\SourcePluginManagerInterface
+   */
+  protected SourcePluginManagerInterface $sourcePluginManager;
 
   /**
    * Text extractor plugin manager.
@@ -61,6 +69,8 @@ class OchaAiTagConfigForm extends FormBase {
    *   The state service.
    * @param \Drupal\ocha_ai\Plugin\EmbeddingPluginManagerInterface $embedding_plugin_manager
    *   The embedding plugin manager.
+   * @param \Drupal\ocha_ai\Plugin\SourcePluginManagerInterface $source_plugin_manager
+   *   The source plugin manager.
    * @param \Drupal\ocha_ai\Plugin\TextExtractorPluginManagerInterface $text_extractor_plugin_manager
    *   The text extractor plugin manager.
    * @param \Drupal\ocha_ai\Plugin\TextSplitterPluginManagerInterface $text_splitter_plugin_manager
@@ -72,6 +82,7 @@ class OchaAiTagConfigForm extends FormBase {
     ConfigFactoryInterface $config_factory,
     StateInterface $state,
     EmbeddingPluginManagerInterface $embedding_plugin_manager,
+    SourcePluginManagerInterface $source_plugin_manager,
     TextExtractorPluginManagerInterface $text_extractor_plugin_manager,
     TextSplitterPluginManagerInterface $text_splitter_plugin_manager,
     VectorStorePluginManagerInterface $vector_store_plugin_manager,
@@ -79,6 +90,7 @@ class OchaAiTagConfigForm extends FormBase {
     $this->setConfigFactory($config_factory);
     $this->state = $state;
     $this->embeddingPluginManager = $embedding_plugin_manager;
+    $this->sourcePluginManager = $source_plugin_manager;
     $this->textExtractorPluginManager = $text_extractor_plugin_manager;
     $this->textSplitterPluginManager = $text_splitter_plugin_manager;
     $this->vectorStorePluginManager = $vector_store_plugin_manager;
@@ -92,6 +104,7 @@ class OchaAiTagConfigForm extends FormBase {
       $container->get('config.factory'),
       $container->get('state'),
       $container->get('plugin.manager.ocha_ai.embedding'),
+      $container->get('plugin.manager.ocha_ai.source'),
       $container->get('plugin.manager.ocha_ai.text_extractor'),
       $container->get('plugin.manager.ocha_ai.text_splitter'),
       $container->get('plugin.manager.ocha_ai.vector_store')
@@ -132,6 +145,10 @@ class OchaAiTagConfigForm extends FormBase {
       'embedding' => [
         'label' => $this->t('Embedding'),
         'manager' => $this->embeddingPluginManager,
+      ],
+      'source' => [
+        'label' => $this->t('Document source'),
+        'manager' => $this->sourcePluginManager,
       ],
       'text_splitter' => [
         'label' => $this->t('Text splitter'),
@@ -185,6 +202,45 @@ class OchaAiTagConfigForm extends FormBase {
         }
         $form['defaults']['plugins']['text_extractor'][$mimetype]['plugin_id']['#options'][$plugin->getPluginId()] = $plugin->getPluginLabel();
       }
+    }
+
+    // @todo This is for the demo. Review what to do with that.
+    if (isset($form['defaults']['plugins']['source']['plugin_id']['#options']['reliefweb'])) {
+      $form['defaults']['plugins']['source']['reliefweb'] = [
+        '#type' => 'fieldset',
+        '#title' => $this->t('ReliefWeb demo settings'),
+      ];
+      $form['defaults']['plugins']['source']['reliefweb']['url'] = [
+        '#type' => 'url',
+        '#title' => $this->t('Document source URL'),
+        '#description' => $this->t('Optional document source URL, if relevant.'),
+        '#default_value' => $defaults['plugins']['source']['reliefweb']['url'] ?? NULL,
+        '#maxlength' => 2048,
+      ];
+      $form['defaults']['plugins']['source']['reliefweb']['limit'] = [
+        '#type' => 'number',
+        '#title' => $this->t('Document limit'),
+        '#description' => $this->t('Maximum number of source documents to retrieve.'),
+        '#default_value' => $defaults['plugins']['source']['reliefweb']['limit'] ?? 1,
+        '#min' => 1,
+        // @todo retrieve that from the configuration.
+        '#max' => 10,
+      ];
+      $form['defaults']['plugins']['source']['reliefweb']['editable'] = [
+        '#type' => 'checkbox',
+        '#title' => $this->t('Allow editing the source'),
+        '#default_value' => !empty($defaults['plugins']['source']['reliefweb']['editable']),
+      ];
+      $form['defaults']['plugins']['source']['reliefweb']['open'] = [
+        '#type' => 'checkbox',
+        '#title' => $this->t('Always open the widget'),
+        '#default_value' => !empty($defaults['plugins']['source']['reliefweb']['open']),
+      ];
+      $form['defaults']['plugins']['source']['reliefweb']['display'] = [
+        '#type' => 'checkbox',
+        '#title' => $this->t('Display the source widget'),
+        '#default_value' => !empty($defaults['plugins']['source']['reliefweb']['display']),
+      ];
     }
 
     $form['actions']['#type'] = 'actions';

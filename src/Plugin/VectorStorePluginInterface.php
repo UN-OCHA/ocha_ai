@@ -75,6 +75,19 @@ interface VectorStorePluginInterface {
    *
    * @param string $index
    *   Index name.
+   * @param array $id
+   *   List of document ids.
+   *
+   * @return array
+   *   Document.
+   */
+  public function getDocument(string $index, string $id): array;
+
+  /**
+   * Get the indexed documents for the given ids.
+   *
+   * @param string $index
+   *   Index name.
    * @param array $ids
    *   List of document ids.
    * @param array $fields
@@ -103,5 +116,22 @@ interface VectorStorePluginInterface {
    *   List of documents and their text passages relevant to the query.
    */
   public function getRelevantPassages(string $index, array $ids, string $query_text, array $query_embedding, int $limit = 5): array;
+
+  /**
+   * Get the contents relevant to a query.
+   *
+   * @param string $index
+   *   Index name.
+   * @param array $ids
+   *   List of document ids to query.
+   * @param string $query_text
+   *   Text of the query.
+   * @param array $query_embedding
+   *   Embedding for the text query.
+   *
+   * @return array
+   *   List of the IDs of the relevant contents.
+   */
+  public function getRelevantContents(string $index, array $ids, string $query_text, array $query_embedding): array;
 
 }

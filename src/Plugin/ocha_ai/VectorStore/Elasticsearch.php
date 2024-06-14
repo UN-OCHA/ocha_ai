@@ -273,7 +273,7 @@ class Elasticsearch extends VectorStorePluginBase {
     }
 
     // Bulk index the documents.
-    foreach (array_chunk($documents, $this->getPluginSetting('indexing_batch_size', 1), TRUE) as $chunks) {
+    foreach (array_chunk($documents, (int) $this->getPluginSetting('indexing_batch_size', 1), TRUE) as $chunks) {
       $payload = [];
       foreach ($chunks as $id => $document) {
         // Do not store raw data.
@@ -329,6 +329,28 @@ class Elasticsearch extends VectorStorePluginBase {
     }
 
     return TRUE;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getDocument(string $index, string $id): array {
+    if (!$this->indexExists($index)) {
+      return [];
+    }
+
+    try {
+      $response = $this->request('GET', $index . '/_doc/' . $id);
+
+      if (!is_null($response)) {
+        return json_decode($response->getBody()->getContents(), TRUE);
+      }
+    }
+    catch (\Exception $e) {
+
+    }
+
+    return [];
   }
 
   /**
@@ -587,7 +609,7 @@ class Elasticsearch extends VectorStorePluginBase {
    * @return array
    *   List of the IDs of the relevant contents.
    */
-  protected function getRelevantContents(string $index, array $ids, string $query_text, array $query_embedding): array {
+  public function getRelevantContents(string $index, array $ids, string $query_text, array $query_embedding): array {
     if (!$this->indexExists($index)) {
       return [];
     }
