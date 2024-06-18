@@ -402,27 +402,53 @@ class OchaAiTagTagger extends OchaAiChat {
   }
 
   /**
+   * Clear the index.
+   */
+  public function clearIndex(): self {
+    $this->getVectorStorePlugin()->deleteIndex('vector_jobs');
+
+    return $this;
+  }
+
+  /**
    * Embed a document.
    */
   public function embedDocument(int $id): bool {
     $data = $this->getSourcePlugin()->getDocument('jobs', $id);
+    if (empty($data)) {
+      return FALSE;
+    }
+
     $job = reset($data['jobs']);
     $job = $this->processDocument($job);
-    return $this->getVectorStorePlugin()->indexDocuments('jobs', [$id => $job], $this->getEmbeddingPlugin()->getDimensions());
+    return $this->getVectorStorePlugin()->indexDocuments('vector_jobs', [$id => $job], $this->getEmbeddingPlugin()->getDimensions());
   }
 
   /**
    * Get similar documents from vector store.
    */
-  public function getSimilarDocuments($id) {
-    $doc = $this->getVectorStorePlugin()->getDocument('jobs', $id);
+  public function getSimilarDocuments($id, string $text = '') {
+    $query_embedding = [];
+    $doc = $this->getVectorStorePlugin()->getDocument('vector_jobs', $id);
+
     if (empty($doc)) {
-      return [];
+      // Doc doesn't exist in vector store.
+      $data = $this->getSourcePlugin()->getDocument('jobs', $id);
+      if (empty($data)) {
+        $query_embedding = $this->getEmbeddings($text);
+      }
+      else {
+        $job = reset($data['jobs']);
+        $job = $this->processDocument($job);
+        $query_embedding = $job['contents']['embedding'];
+      }
+    }
+    else {
+      $doc = $doc['_source'];
+      $query_embedding = $doc['contents']['embedding'];
     }
 
-    $doc = $doc['_source'];
-    $query_embedding = $doc['contents']['embedding'];
-    $relevant = $this->getVectorStorePlugin()->getRelevantContents('jobs', [], '', $query_embedding);
+    $relevant = $this->getVectorStorePlugin()->getRelevantContents('vector_jobs', [], '', $query_embedding);
 
     return $relevant;
   }
