@@ -71,7 +71,7 @@ interface VectorStorePluginInterface {
   public function indexDocuments(string $index, array $documents, int $dimensions): bool;
 
   /**
-   * Get the indexed documents for the given ids.
+   * Get the indexed document for the given id.
    *
    * @param string $index
    *   Index name.
