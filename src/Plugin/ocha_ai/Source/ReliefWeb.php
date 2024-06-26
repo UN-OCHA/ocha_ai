@@ -542,6 +542,49 @@ class ReliefWeb extends SourcePluginBase {
   /**
    * {@inheritdoc}
    */
+  public function getDocument(string $resource, int $id): array {
+    $timeout = 5;
+    $url = $this->getApiUrl() . '/' . trim($resource, '/') . '/' . $id;
+    try {
+      $response = $this->httpClient->get($url, [
+        'query' => [
+          'appname' => $this->getAppName(),
+        ],
+        'timeout' => $timeout,
+        'connect_timeout' => $timeout,
+      ]);
+    }
+    catch (BadResponseException $exception) {
+      // @todo handle timeouts and skip caching the result in that case?
+      $this->getLogger()->error(strtr('Error @code while requesting the ReliefWeb API with @url: @exception', [
+        '@code' => $exception->getResponse()?->getStatusCode(),
+        '@url' => $url,
+        '@exception' => $exception->getMessage(),
+      ]));
+
+      return [];
+    }
+
+    $body = (string) $response->getBody()?->getContents();
+    if (!empty($body)) {
+      try {
+        // Decode the JSON response.
+        $data = json_decode($body, TRUE, 512, JSON_THROW_ON_ERROR);
+
+        // Prepare the documents.
+        return $this->parseApiData($resource, $data);
+      }
+      catch (\Exception $exception) {
+        $this->getLogger()->error(strtr('Unable to decode ReliefWeb API data for @url', [
+          '@url' => $url,
+        ]));
+      }
+    }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function getDocuments(array $data, int $limit = 10): array {
     if (!isset($data['url'])) {
       return [];

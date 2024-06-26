@@ -51,6 +51,19 @@ interface SourcePluginInterface {
   public function renderSourceData(array $data): array;
 
   /**
+   * Get document from source.
+   *
+   * @param string $resource
+   *   The resource, ex 'jobs'.
+   * @param int $id
+   *   Id of document.
+   *
+   * @return array
+   *   Document data.
+   */
+  public function getDocument(string $resource, int $id): array;
+
+  /**
    * Generate Sources for the given text.
    *
    * @param array $data

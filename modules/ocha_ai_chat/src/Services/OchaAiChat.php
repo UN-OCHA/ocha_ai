@@ -495,7 +495,7 @@ class OchaAiChat {
    * @param string $index
    *   Index name.
    * @param array|null $documents
-   *   Optional documents to embed. If not defined it uses the give river URL.
+   *   Optional documents to embed. If not defined it uses the given river URL.
    *
    * @return bool
    *   TRUE if the embedding succeeded.
