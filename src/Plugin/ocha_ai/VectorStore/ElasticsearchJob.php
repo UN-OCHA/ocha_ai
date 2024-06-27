@@ -90,7 +90,7 @@ class ElasticsearchJob extends Elasticsearch {
       ],
       '_source' => [
         'excludes' => [
-           'embedding',
+          'embedding',
         ],
       ],
     ];
