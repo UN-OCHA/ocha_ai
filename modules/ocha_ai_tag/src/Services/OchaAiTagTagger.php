@@ -440,15 +440,15 @@ class OchaAiTagTagger extends OchaAiChat {
       else {
         $job = reset($data['jobs']);
         $job = $this->processDocument($job);
-        $query_embedding = $job['contents']['embedding'];
+        $query_embedding = $job['embedding'];
       }
     }
     else {
       $doc = $doc['_source'];
-      $query_embedding = $doc['contents']['embedding'];
+      $query_embedding = $doc['embedding'];
     }
 
-    $relevant = $this->getVectorStorePlugin()->getRelevantContents('vector_jobs', [], '', $query_embedding);
+    $relevant = $this->getVectorStorePlugin()->getRelevantContents('vector_jobs', [$id], '', $query_embedding);
 
     return $relevant;
   }
