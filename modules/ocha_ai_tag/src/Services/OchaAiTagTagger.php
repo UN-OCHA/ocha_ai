@@ -426,6 +426,8 @@ class OchaAiTagTagger extends OchaAiChat {
 
   /**
    * Get similar documents from vector store.
+   *
+   * Returns an array with keys being node ids and score.
    */
   public function getSimilarDocuments($id, string $text = '') {
     $query_embedding = [];
@@ -440,12 +442,16 @@ class OchaAiTagTagger extends OchaAiChat {
       else {
         $job = reset($data['jobs']);
         $job = $this->processDocument($job);
-        $query_embedding = $job['embedding'];
+        $query_embedding = $job['embedding'] ?? [];
       }
     }
     else {
       $doc = $doc['_source'];
-      $query_embedding = $doc['embedding'];
+      $query_embedding = $doc['embedding'] ?? [];
+    }
+
+    if (!is_array($query_embedding) || empty($query_embedding)) {
+      return [];
     }
 
     $relevant = $this->getVectorStorePlugin()->getRelevantContents('vector_jobs', [$id], '', $query_embedding);

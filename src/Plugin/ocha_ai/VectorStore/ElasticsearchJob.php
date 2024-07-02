@@ -118,9 +118,9 @@ class ElasticsearchJob extends Elasticsearch {
         $cutoff = $this->getSimilarityScoreCutOff($contents, .20);
 
         // Exclude irrelevant contents.
-        return array_keys(array_filter($contents, function ($score) use ($cutoff) {
+        return array_filter($contents, function ($score) use ($cutoff) {
           return $score >= $cutoff;
-        }));
+        });
       }
     }
     catch (GuzzleException $exception) {
