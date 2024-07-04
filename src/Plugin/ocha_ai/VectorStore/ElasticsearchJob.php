@@ -46,42 +46,6 @@ class ElasticsearchJob extends Elasticsearch {
     }
 
     $query = [
-      'size' => 50,
-      'query' => [
-        'nested' => [
-          'path' => 'contents',
-          'query' => [
-            'script_score' => [
-              'query' => [
-                'bool' => [
-                  'filter' => [
-                    'exists' => [
-                      'field' => 'contents.embedding',
-                    ],
-                  ],
-                ],
-              ],
-              'script' => [
-                'source' => 'cosineSimilarity(params.queryVector, "contents.embedding") + 1.0',
-                'params' => [
-                  'queryVector' => $query_embedding,
-                ],
-              ],
-              'min_score' => (float) $this->getPluginSetting('min_similarity') + 1.0,
-            ],
-          ],
-          'inner_hits' => [
-            '_source' => [
-              'contents.id',
-            ],
-            'size' => (int) $this->getPluginSetting('topk'),
-          ],
-          'score_mode' => 'max',
-        ],
-      ],
-    ];
-
-    $query = [
       'knn' => [
         'field' => 'embedding',
         'query_vector' => $query_embedding,
@@ -199,26 +163,6 @@ class ElasticsearchJob extends Elasticsearch {
             'dims' => $dimensions,
             'index' => TRUE,
             'similarity' => 'dot_product',
-          ],
-          'contents' => [
-            'type' => 'nested',
-            'properties' => [
-              'id' => [
-                'type' => 'keyword',
-              ],
-              'type' => [
-                'type' => 'text',
-                'index' => FALSE,
-              ],
-              'url' => [
-                'type' => 'text',
-                'index' => FALSE,
-              ],
-              'title' => [
-                'type' => 'text',
-                'index' => FALSE,
-              ],
-            ],
           ],
         ],
       ],
