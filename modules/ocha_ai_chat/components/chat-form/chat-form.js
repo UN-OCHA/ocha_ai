@@ -15,6 +15,7 @@
       once('ocha-ai-chat-form', '[data-drupal-selector="edit-chat"]', context).forEach(element => {
         var chatContainer = document.querySelector('[data-drupal-selector="edit-chat"] .fieldset-wrapper');
         var submitButton = document.querySelector('[data-drupal-selector="edit-submit"]');
+        var questionTextarea = document.querySelector('[data-drupal-selector="edit-question"]');
         var chatHeight = this.padChatWindow();
 
         // Do some calculations to decide where to start our smooth scroll.
@@ -108,6 +109,17 @@
           // First check that the [Enter] key is being pressed.
           if (ev.keyCode === 13) {
             chatSend(ev);
+          }
+        });
+
+        // Initialize the event so that pressing enter in the input textarea
+        // submits the form.
+        questionTextarea.addEventListener('keydown', function (event) {
+          if (event.keyCode == 13 && !event.shiftKey) {
+            event.preventDefault();
+            // We don't call chatSend directly because this will not trigger
+            // the ajax event attached to the submit button.
+            submitButton.dispatchEvent(new Event('mousedown'));
           }
         });
 
