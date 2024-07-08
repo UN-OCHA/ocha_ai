@@ -6,6 +6,7 @@ use Drupal\Component\Utility\Html;
 use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Ajax\MessageCommand;
 use Drupal\Core\Database\Connection;
+use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Session\AccountProxyInterface;
@@ -42,6 +43,13 @@ class OchaAiChatChatForm extends FormBase {
   protected StateInterface $state;
 
   /**
+   * The module handler.
+   *
+   * @var \Drupal\Core\Extension\ModuleHandlerInterface
+   */
+  protected $moduleHandler;
+
+  /**
    * The OCHA AI chat service.
    *
    * @var Drupal\ocha_ai_chat\Services\OchaAiChat
@@ -57,6 +65,8 @@ class OchaAiChatChatForm extends FormBase {
    *   The database connection.
    * @param \Drupal\Core\State\StateInterface $state
    *   The state service.
+   * @param \Drupal\Core\Extension\ModuleHandlerInterface $module_handler
+   *   The module handler.
    * @param \Drupal\ocha_ai_chat\Services\OchaAiChat $ocha_ai_chat
    *   The OCHA AI chat service.
    */
@@ -64,11 +74,13 @@ class OchaAiChatChatForm extends FormBase {
     AccountProxyInterface $current_user,
     Connection $database,
     StateInterface $state,
+    ModuleHandlerInterface $module_handler,
     OchaAiChat $ocha_ai_chat,
   ) {
     $this->currentUser = $current_user;
     $this->database = $database;
     $this->state = $state;
+    $this->moduleHandler = $module_handler;
     $this->ochaAiChat = $ocha_ai_chat;
   }
 
@@ -80,6 +92,7 @@ class OchaAiChatChatForm extends FormBase {
       $container->get('current_user'),
       $container->get('database'),
       $container->get('state'),
+      $container->get('module_handler'),
       $container->get('ocha_ai_chat.chat')
     );
   }
@@ -362,6 +375,11 @@ class OchaAiChatChatForm extends FormBase {
       'wrapper' => $id,
       'disable-refocus' => TRUE,
     ];
+
+    if ($this->moduleHandler->moduleExists('honeypot')) {
+      $honeypot_options = ['honeypot', 'time_restriction'];
+      honeypot_add_form_protection($form, $form_state, $honeypot_options);
+    }
 
     // @todo check if we need a theme.
     return $form;
