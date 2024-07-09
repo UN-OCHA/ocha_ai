@@ -176,6 +176,7 @@ button doesn't overlay any text */
  *
  * Each Q/A results in a chat-like set of bubbles. Think of SMS or WhatsApp.
  */
+.ocha-ai-chat-chat-form__instructions,
 .ocha-ai-chat-chat-form .ocha-ai-chat-result .chat {
   display: flex;
   flex-flow: column nowrap;
@@ -183,10 +184,12 @@ button doesn't overlay any text */
   margin-block-end: 0;
 }
 
+.ocha-ai-chat-chat-form__instructions,
 .ocha-ai-chat-chat-form .ocha-ai-chat-result dd {
   margin: 0;
 }
 
+.ocha-ai-chat-chat-form__instructions,
 .ocha-ai-chat-chat-form .ocha-ai-chat-result .chat__q,
 .ocha-ai-chat-chat-form .ocha-ai-chat-result .chat__a,
 .ocha-ai-chat-chat-form .ocha-ai-chat-result .chat__refs {
@@ -196,6 +199,7 @@ button doesn't overlay any text */
   border-radius: 5px;
 }
 
+.ocha-ai-chat-chat-form__instructions,
 .ocha-ai-chat-chat-form .ocha-ai-chat-result .chat__q,
 .ocha-ai-chat-chat-form .ocha-ai-chat-result .chat__a {
   text-wrap: balance;
@@ -227,6 +231,7 @@ button doesn't overlay any text */
   margin-block-end: 2rem;
 }
 
+.ocha-ai-chat-chat-form__instructions,
 .ocha-ai-chat-chat-form .ocha-ai-chat-result .chat__a,
 .ocha-ai-chat-chat-form .ocha-ai-chat-result .chat__refs {
   align-self: flex-start;

@@ -142,10 +142,10 @@ class OchaAiChatConfigForm extends FormBase {
       '#open' => TRUE,
     ];
     $form['defaults']['form']['instructions'] = [
-      '#type' => 'text_format',
+      '#type' => 'textarea',
       '#title' => $this->t('Instructions'),
-      '#format' => $defaults['form']['instructions']['format'] ?? 'text_editor_simple',
-      '#default_value' => $defaults['form']['instructions']['value'] ?? NULL,
+      '#default_value' => $defaults['form']['instructions'] ?? NULL,
+      '#description' => $this->t("Welcome message shown when chat popup opens. New lines will be shown as separate message 'bubbles'."),
     ];
     $form['defaults']['form']['feedback'] = [
       '#type' => 'select',

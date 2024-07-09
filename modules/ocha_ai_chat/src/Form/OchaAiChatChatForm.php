@@ -159,14 +159,18 @@ class OchaAiChatChatForm extends FormBase {
     ];
 
     // Output instructions as part of scrollable chat history.
-    if (!empty($defaults['form']['instructions']['value'])) {
-      $form['chat']['content'] = [
-        '#type' => 'processed_text',
-        '#prefix' => '<div id="ocha-ai-chat-instructions" class="ocha-ai-chat-chat-form__instructions">',
-        '#suffix' => '</div>',
-        '#text' => $defaults['form']['instructions']['value'],
-        '#format' => $defaults['form']['instructions']['format'] ?? 'text_editor_simple',
-      ];
+    if (!empty($defaults['form']['instructions'])) {
+      // Split text into paragraphs.
+      $instructions = preg_split("/\R/", $defaults['form']['instructions']);
+      foreach ($instructions as $index => $instruction) {
+        $form['chat']['instruction_' . $index] = [
+          '#type' => 'inline_template',
+          '#template' => '<dl class="ocha-ai-chat-chat-form__instructions"><dd><dt class="visually-hidden">Instruction</dt>{{ instruction|raw }}</dd></dl>',
+          '#context' => [
+            'instruction' => $instruction,
+          ],
+        ];
+      }
     }
 
     // Get the feedback type to use for each history entry.
