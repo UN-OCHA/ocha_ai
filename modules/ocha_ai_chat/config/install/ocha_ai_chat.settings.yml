@@ -1,8 +1,6 @@
 defaults:
   form:
-    instructions:
-      value: ''
-      format: 'plain_text'
+    instructions: "Hi! I'm the ReliefWeb chat bot.\nI can provide information about the document you're viewing.\nFeel free to ask any questions!"
     feedback: ''
     formatting: 'basic'
   plugins:
