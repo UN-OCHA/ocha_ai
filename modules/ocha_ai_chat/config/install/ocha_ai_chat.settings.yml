@@ -1,5 +1,7 @@
 defaults:
   form:
+    form_title: 'Ask ReliefWeb'
+    popup_title: 'Ask about this document'
     instructions:
       value: ''
       format: 'plain_text'

@@ -141,6 +141,16 @@ class OchaAiChatConfigForm extends FormBase {
       '#title' => $this->t('Form settings'),
       '#open' => TRUE,
     ];
+    $form['defaults']['form']['form_title'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Form title'),
+      '#default_value' => $defaults['form']['form_title'] ?? NULL,
+    ];
+    $form['defaults']['form']['popup_title'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Popup title'),
+      '#default_value' => $defaults['form']['popup_title'] ?? NULL,
+    ];
     $form['defaults']['form']['instructions'] = [
       '#type' => 'text_format',
       '#title' => $this->t('Instructions'),

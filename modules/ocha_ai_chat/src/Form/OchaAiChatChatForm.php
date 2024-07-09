@@ -94,9 +94,12 @@ class OchaAiChatChatForm extends FormBase {
    *   The page title.
    */
   public function getPageTitle(?bool $popup = NULL): TranslatableMarkup {
-    $limit = $this->getRequest()?->query?->get('limit');
-    if (isset($limit) && $limit == 1) {
-      return $this->t('Ask about this document');
+    $settings = $this->ochaAiChat->getSettings();
+    if (!empty($popup) && !empty($settings['form']['popup_title'])) {
+      return $this->t('@title', ['@title' => $settings['form']['popup_title']]);
+    }
+    elseif (!empty($settings['form']['form_title'])) {
+      return $this->t('@title', ['@title' => $settings['form']['form_title']]);
     }
     return $this->t('Ask about this document');
   }
