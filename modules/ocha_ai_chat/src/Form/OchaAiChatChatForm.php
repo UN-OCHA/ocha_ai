@@ -361,6 +361,10 @@ class OchaAiChatChatForm extends FormBase {
     $form['actions']['submit']['#ajax'] = [
       'wrapper' => $id,
       'disable-refocus' => TRUE,
+      'progress' => [
+        'type' => 'throbber',
+        'message' => $this->t('Analyzing the document...'),
+      ],
     ];
 
     // @todo check if we need a theme.
