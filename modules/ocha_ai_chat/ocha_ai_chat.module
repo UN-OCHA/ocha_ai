@@ -19,7 +19,7 @@ function ocha_ai_chat_theme(): array {
         // Section attributes.
         'attributes' => NULL,
         // Section title.
-        'title' => t('Ask ReliefWeb'),
+        'title' => t('Ask about this document'),
         // Title attributes.
         'title_attributes' => NULL,
         // Link to the chat form.

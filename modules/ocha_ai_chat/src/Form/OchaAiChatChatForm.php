@@ -96,9 +96,9 @@ class OchaAiChatChatForm extends FormBase {
   public function getPageTitle(?bool $popup = NULL): TranslatableMarkup {
     $limit = $this->getRequest()?->query?->get('limit');
     if (isset($limit) && $limit == 1) {
-      return $this->t('Ask ReliefWeb');
+      return $this->t('Ask about this document');
     }
-    return $this->t('Ask ReliefWeb');
+    return $this->t('Ask about this document');
   }
 
   /**
