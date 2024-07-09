@@ -288,6 +288,14 @@ button doesn't overlay any text */
   gap: 0.5rem;
 }
 
+.ocha-ai-chat-result-feedback {
+  padding-left: 0.5rem;
+}
+
+.ocha-ai-chat-result .ocha-ai-chat-result-feedback .form-type-textarea + .form-submit {
+  margin-block-start: 0.5rem;
+}
+
 button.feedback-button.feedback-button.feedback-button.feedback-button {
   width: 1rem;
   height: 1rem;
