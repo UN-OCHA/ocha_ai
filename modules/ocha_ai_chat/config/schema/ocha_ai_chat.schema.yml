@@ -50,6 +50,12 @@ ocha_ai_chat.settings:
           type: mapping
           label: 'Default form settings.'
           mapping:
+            form_title:
+              type: string
+              label: 'Title of the chat form'
+            popup_title:
+              type: string
+              label: 'Title of the chat popup'
             instructions:
               type: mapping
               label: 'Instructions.'

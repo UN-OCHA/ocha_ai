@@ -2,10 +2,12 @@
   'use strict';
 
   function processPopup(popup) {
+    const title = document.querySelector('.ocha-ai-chat-chat-popup__title');
+
     // Mark the popup as processed so the following code runs only once.
     popup.setAttribute('data-ocha-ai-chat-chat-popup-processed', '');
     popup.setAttribute('aria-modal', true);
-    popup.setAttribute('aria-label', Drupal.t('Ask about this document'));
+    popup.setAttribute('aria-label', title.innerText);
     popup.setAttribute('role', 'dialog');
     popup.setAttribute('hidden', '');
 
