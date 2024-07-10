@@ -189,7 +189,8 @@ button doesn't overlay any text */
 
 .ocha-ai-chat-chat-form .ocha-ai-chat-result .chat__q,
 .ocha-ai-chat-chat-form .ocha-ai-chat-result .chat__a,
-.ocha-ai-chat-chat-form .ocha-ai-chat-result .chat__refs {
+.ocha-ai-chat-chat-form .ocha-ai-chat-result .chat__refs,
+.ocha-ai-chat-chat-form__instructions > * {
   position: relative;
   width: fit-content;
   padding: 6px 12px;
@@ -197,7 +198,8 @@ button doesn't overlay any text */
 }
 
 .ocha-ai-chat-chat-form .ocha-ai-chat-result .chat__q,
-.ocha-ai-chat-chat-form .ocha-ai-chat-result .chat__a {
+.ocha-ai-chat-chat-form .ocha-ai-chat-result .chat__a,
+.ocha-ai-chat-chat-form__instructions > * {
   text-wrap: balance;
 }
 
@@ -228,7 +230,8 @@ button doesn't overlay any text */
 }
 
 .ocha-ai-chat-chat-form .ocha-ai-chat-result .chat__a,
-.ocha-ai-chat-chat-form .ocha-ai-chat-result .chat__refs {
+.ocha-ai-chat-chat-form .ocha-ai-chat-result .chat__refs,
+.ocha-ai-chat-chat-form__instructions > * {
   align-self: flex-start;
   margin-block-start: 0.5rem;
   margin-inline-end: 2rem;
@@ -249,6 +252,11 @@ button doesn't overlay any text */
     border-right: 10px solid var(--brand-grey);
     border-bottom: 4px solid transparent;
   }
+}
+
+.ocha-ai-chat-chat-form__instructions > ul,
+.ocha-ai-chat-chat-form__instructions > ol {
+  padding-left: 2rem;
 }
 
 .ocha-ai-chat-chat-form .ocha-ai-chat-result .chat__refs dt {
