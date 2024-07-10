@@ -299,7 +299,7 @@ class OchaAiChatChatForm extends FormBase {
           '#type' => 'select',
           '#title' => $this->t('Rate the answer'),
           '#options' => [
-            0 => $this->t('- Select -'),
+            0 => $this->t('- Choose a rating -'),
             1 => $this->t('Very bad'),
             2 => $this->t('Bad'),
             3 => $this->t('Passable'),
