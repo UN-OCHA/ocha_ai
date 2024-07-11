@@ -9,6 +9,12 @@
             "role": ""
         }
     ],
+    "repositories": [
+        {
+            "type": "composer",
+            "url": "https://packages.drupal.org/8"
+        }
+    ],
     "require": {
         "php": ">=8.2",
         "aws/aws-sdk-php": "^3.283",
