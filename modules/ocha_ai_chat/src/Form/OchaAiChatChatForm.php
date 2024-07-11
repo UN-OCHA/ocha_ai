@@ -12,6 +12,7 @@ use Drupal\Core\Session\AccountProxyInterface;
 use Drupal\Core\State\StateInterface;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\Core\Url;
+use Drupal\honeypot\HoneypotService;
 use Drupal\ocha_ai_chat\Services\OchaAiChat;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -49,6 +50,13 @@ class OchaAiChatChatForm extends FormBase {
   protected OchaAiChat $ochaAiChat;
 
   /**
+   * The Honeypot service.
+   *
+   * @var Drupal\honeypot\HoneypotService
+   */
+  protected HoneypotService $honeypotService;
+
+  /**
    * Constructor.
    *
    * @param \Drupal\Core\Session\AccountProxyInterface $current_user
@@ -59,17 +67,21 @@ class OchaAiChatChatForm extends FormBase {
    *   The state service.
    * @param \Drupal\ocha_ai_chat\Services\OchaAiChat $ocha_ai_chat
    *   The OCHA AI chat service.
+   * @param \Drupal\honeypot\HoneypotService $honeypot_service
+   *   The Honeypot service.
    */
   public function __construct(
     AccountProxyInterface $current_user,
     Connection $database,
     StateInterface $state,
     OchaAiChat $ocha_ai_chat,
+    HoneypotService $honeypot_service,
   ) {
     $this->currentUser = $current_user;
     $this->database = $database;
     $this->state = $state;
     $this->ochaAiChat = $ocha_ai_chat;
+    $this->honeypotService = $honeypot_service;
   }
 
   /**
@@ -364,7 +376,7 @@ class OchaAiChatChatForm extends FormBase {
     ];
 
     $honeypot_options = ['honeypot', 'time_restriction'];
-    \Drupal::service('honeypot')->addFormProtection($form, $form_state, $honeypot_options);
+    $this->honeypotService->addFormProtection($form, $form_state, $honeypot_options);
 
     // @todo check if we need a theme.
     return $form;
