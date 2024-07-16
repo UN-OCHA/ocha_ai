@@ -38,12 +38,10 @@ class AzureOpenAi extends CompletionPluginBase {
       return '';
     }
 
-    $template = strtr($this->getPluginSetting('prompt_template'), ["\r" => '']);
-
-    $prompt = strtr($template, [
-      '{{ context }}' => $context,
-      '{{ question }}' => $question,
-    ]);
+    $prompt = $this->generatePrompt($question, $context);
+    if (empty($prompt)) {
+      return '';
+    }
 
     $messages = [
       [
