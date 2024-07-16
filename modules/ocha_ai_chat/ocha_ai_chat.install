@@ -75,6 +75,13 @@ function ocha_ai_chat_schema() {
         'not null' => TRUE,
         'default' => '',
       ],
+      'original_answer' => [
+        'description' => 'Original answer.',
+        'type' => 'text',
+        'size' => 'normal',
+        'not null' => TRUE,
+        'default' => '',
+      ],
       'passages' => [
         'description' => 'Text passages relevant to the question.',
         'type' => 'text',
@@ -248,4 +255,18 @@ function ocha_ai_chat_update_10005(array &$sandbox) {
   ];
 
   $schema->addField('ocha_ai_chat_logs', 'copied', $copied);
+}
+
+/**
+ * Implements hook_update_N().
+ *
+ * Add 'original_answer' field to the OCHA AI chat logs table.
+ */
+function ocha_ai_chat_update_10006(array &$sandbox) {
+  $ocha_ai_chat_schema = ocha_ai_chat_schema();
+  if (isset($ocha_ai_chat_schema['ocha_ai_chat_logs']['fields']['original_answer'])) {
+    $field = $ocha_ai_chat_schema['ocha_ai_chat_logs']['fields']['original_answer'];
+    $schema = \Drupal::database()->schema();
+    $schema->addField('ocha_ai_chat_logs', 'original_answer', $field);
+  }
 }
