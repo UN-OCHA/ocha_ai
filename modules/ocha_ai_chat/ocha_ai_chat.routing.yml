@@ -3,8 +3,8 @@ ocha_ai_chat.chat_form:
   defaults:
     _form: '\Drupal\ocha_ai_chat\Form\OchaAiChatChatForm'
     _title: 'Chat with documents'
+    _title_callback: '\Drupal\ocha_ai_chat\Form\OchaAiChatChatForm::getPageTitle'
   requirements:
-    _user_is_logged_in: 'TRUE'
     _permission: access ocha ai chat
 ocha_ai_chat.chat_form.popup:
   path: '/ai/chat/popup'
@@ -14,7 +14,6 @@ ocha_ai_chat.chat_form.popup:
     _title_callback: '\Drupal\ocha_ai_chat\Form\OchaAiChatChatForm::getPageTitle'
     popup: true
   requirements:
-    _user_is_logged_in: 'TRUE'
     _permission: access ocha ai chat
 ocha_ai_chat.logs_form:
   path: '/admin/config/ocha-ai/chat/logs'

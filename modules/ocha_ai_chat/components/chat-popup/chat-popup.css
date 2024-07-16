@@ -31,8 +31,8 @@
   right: 24px;
   bottom: 24px;
   display: block;
-  width: 80px;
-  height: 80px;
+  width: 64px;
+  height: 64px;
   border: 0;
   border-radius: 50%;
   background-color: var(--brand-grey);
@@ -41,17 +41,17 @@
 .data-ocha-ai-chat-chat-popup__button-open-icon {
   display: inline-block;
   overflow: hidden;
-  width: 48px;
-  height: 48px;
+  width: 40px;
+  height: 40px;
   margin-top: 12px;
   border: none;
-  background: var(--rw-icons--chat--chat--48--dark-blue);
+  background: var(--rw-icons--chat--chat--40--dark-blue);
 }
 
 .data-ocha-ai-chat-chat-popup__button-open:active .data-ocha-ai-chat-chat-popup__button-open-icon,
 .data-ocha-ai-chat-chat-popup__button-open:focus .data-ocha-ai-chat-chat-popup__button-open-icon,
 .data-ocha-ai-chat-chat-popup__button-open:hover .data-ocha-ai-chat-chat-popup__button-open-icon {
-  background: var(--rw-icons--chat--chat--48--dark-red);
+  background: var(--rw-icons--chat--chat--40--dark-red);
 }
 
 /* Close button */

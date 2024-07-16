@@ -7,6 +7,7 @@ use Drupal\Core\Link;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\Url;
+use Drupal\ocha_ai_chat\Services\OchaAiChat;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 
@@ -22,13 +23,6 @@ use Symfony\Component\HttpFoundation\RequestStack;
 class ChatPopup extends BlockBase implements ContainerFactoryPluginInterface {
 
   /**
-   * The request stack.
-   *
-   * @var \Symfony\Component\HttpFoundation\RequestStack
-   */
-  protected RequestStack $requestStack;
-
-  /**
    * Constructs a \Drupal\Component\Plugin\PluginBase object.
    *
    * @param array $configuration
@@ -37,22 +31,23 @@ class ChatPopup extends BlockBase implements ContainerFactoryPluginInterface {
    *   The plugin_id for the plugin instance.
    * @param mixed $plugin_definition
    *   The plugin implementation definition.
-   * @param \Symfony\Component\HttpFoundation\RequestStack $request_stack
+   * @param \Symfony\Component\HttpFoundation\RequestStack $requestStack
    *   The request stack.
+   * @param \Drupal\ocha_ai_chat\Services\OchaAiChat $ochaAiChat
+   *   The OCHA AI chat service.
    */
   public function __construct(
     array $configuration,
     $plugin_id,
     $plugin_definition,
-    RequestStack $request_stack,
+    protected RequestStack $requestStack,
+    protected OchaAiChat $ochaAiChat,
   ) {
     parent::__construct(
       $configuration,
       $plugin_id,
       $plugin_definition,
     );
-
-    $this->requestStack = $request_stack;
   }
 
   /**
@@ -63,7 +58,8 @@ class ChatPopup extends BlockBase implements ContainerFactoryPluginInterface {
       $configuration,
       $plugin_id,
       $plugin_definition,
-      $container->get('request_stack')
+      $container->get('request_stack'),
+      $container->get('ocha_ai_chat.chat')
     );
   }
 
@@ -101,9 +97,19 @@ class ChatPopup extends BlockBase implements ContainerFactoryPluginInterface {
       'query' => $query,
     ]);
 
+    $settings = $this->ochaAiChat->getSettings();
+    if (!empty($settings['form']['popup_title'])) {
+      $title = $this->t('@title', [
+        '@title' => $settings['form']['popup_title'],
+      ]);
+    }
+    else {
+      $title = $this->t('Ask ReliefWeb');
+    }
+
     return [
       '#theme' => 'ocha_ai_chat_chat_popup',
-      '#title' => $this->t('Ask the documents'),
+      '#title' => $title,
       '#link' => Link::fromTextAndUrl($this->t('Go to chat page'), $url),
       '#cache' => [
         'max-age' => 0,

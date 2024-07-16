@@ -189,7 +189,8 @@ button doesn't overlay any text */
 
 .ocha-ai-chat-chat-form .ocha-ai-chat-result .chat__q,
 .ocha-ai-chat-chat-form .ocha-ai-chat-result .chat__a,
-.ocha-ai-chat-chat-form .ocha-ai-chat-result .chat__refs {
+.ocha-ai-chat-chat-form .ocha-ai-chat-result .chat__refs,
+.ocha-ai-chat-chat-form__instructions > * {
   position: relative;
   width: fit-content;
   padding: 6px 12px;
@@ -197,7 +198,8 @@ button doesn't overlay any text */
 }
 
 .ocha-ai-chat-chat-form .ocha-ai-chat-result .chat__q,
-.ocha-ai-chat-chat-form .ocha-ai-chat-result .chat__a {
+.ocha-ai-chat-chat-form .ocha-ai-chat-result .chat__a,
+.ocha-ai-chat-chat-form__instructions > * {
   text-wrap: balance;
 }
 
@@ -228,7 +230,8 @@ button doesn't overlay any text */
 }
 
 .ocha-ai-chat-chat-form .ocha-ai-chat-result .chat__a,
-.ocha-ai-chat-chat-form .ocha-ai-chat-result .chat__refs {
+.ocha-ai-chat-chat-form .ocha-ai-chat-result .chat__refs,
+.ocha-ai-chat-chat-form__instructions > * {
   align-self: flex-start;
   margin-block-start: 0.5rem;
   margin-inline-end: 2rem;
@@ -249,6 +252,11 @@ button doesn't overlay any text */
     border-right: 10px solid var(--brand-grey);
     border-bottom: 4px solid transparent;
   }
+}
+
+.ocha-ai-chat-chat-form__instructions > ul,
+.ocha-ai-chat-chat-form__instructions > ol {
+  padding-left: 2rem;
 }
 
 .ocha-ai-chat-chat-form .ocha-ai-chat-result .chat__refs dt {
@@ -286,6 +294,14 @@ button doesn't overlay any text */
   flex-flow: row nowrap;
   justify-content: flex-start;
   gap: 0.5rem;
+}
+
+.ocha-ai-chat-result-feedback {
+  padding-left: 0.5rem;
+}
+
+.ocha-ai-chat-result .ocha-ai-chat-result-feedback .form-type-textarea + .form-submit {
+  margin-block-start: 0.5rem;
 }
 
 button.feedback-button.feedback-button.feedback-button.feedback-button {
@@ -450,9 +466,10 @@ button.feedback-button.feedback-button.feedback-button.feedback-button:focus {
 .ocha-ai-chat-chat-form .ajax-progress {
   position: absolute;
   top: -2.5rem;
-  right: 21px;
+  right: 12px;
+  white-space: nowrap;
   border-radius: 3px;
-  background: rgba(255, 255, 255, 0.5);
+  background: rgba(230, 236, 239, 0.4);
 
   [dir="rtl"] & {
     right: initial;
