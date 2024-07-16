@@ -324,7 +324,7 @@ class OchaAiChat {
   /**
    * Get a predetermined answer.
    *
-   * @param string $type
+   * @param string $key
    *   The answer key in the config.
    * @param string $default
    *   The default answer if none was found in the settings.
@@ -339,6 +339,8 @@ class OchaAiChat {
   /**
    * Get the fallback passages for the documents.
    *
+   * @param stirng $index
+   *   The vector store index.
    * @param array $documents
    *   Documents.
    *
