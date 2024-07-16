@@ -61,6 +61,10 @@ class ElasticsearchJob extends Elasticsearch {
 
     try {
       $response = $this->request('POST', $index . '/_knn_search', json_encode($query), 'application/json');
+      if (!$response) {
+        return [];
+      }
+
       $data = json_decode($response->getBody()->getContents(), TRUE);
 
       if (!is_null($data)) {
