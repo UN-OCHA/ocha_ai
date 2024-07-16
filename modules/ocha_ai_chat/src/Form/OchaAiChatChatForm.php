@@ -424,7 +424,7 @@ class OchaAiChatChatForm extends FormBase {
           'id' => $data['id'],
           'question' => $question,
           'answer' => $data['answer'],
-          'references' => $references,
+          'references' => $data['status'] === 'success' ? $references : [],
         ];
 
         $form_state->setValue('history', json_encode($history));
