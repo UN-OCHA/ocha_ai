@@ -1277,7 +1277,7 @@ class ReliefWeb extends SourcePluginBase {
    *   Cached documents.
    */
   protected function cacheDocuments(string $cache_id, array $documents): array {
-    if ($this->isCacheEnabled()) {
+    if ($this->isCacheEnabled() && !empty($documents)) {
       $tags = ['reliefweb:documents'];
       $this->cacheBackend->set($cache_id, $documents, $this->getCacheExpiration(), $tags);
     }
