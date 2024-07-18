@@ -112,6 +112,13 @@ function ocha_ai_chat_schema() {
         'not null' => TRUE,
         'default' => '',
       ],
+      'error' => [
+        'description' => 'Error identifier',
+        'type' => 'varchar_ascii',
+        'length' => 128,
+        'not null' => TRUE,
+        'default' => '',
+      ],
       'uid' => [
         'description' => 'The ID of the user who asked the question.',
         'type' => 'int',
@@ -268,5 +275,19 @@ function ocha_ai_chat_update_10006(array &$sandbox) {
     $field = $ocha_ai_chat_schema['ocha_ai_chat_logs']['fields']['original_answer'];
     $schema = \Drupal::database()->schema();
     $schema->addField('ocha_ai_chat_logs', 'original_answer', $field);
+  }
+}
+
+/**
+ * Implements hook_update_N().
+ *
+ * Add 'error' field to the OCHA AI chat logs table.
+ */
+function ocha_ai_chat_update_10007(array &$sandbox) {
+  $ocha_ai_chat_schema = ocha_ai_chat_schema();
+  if (isset($ocha_ai_chat_schema['ocha_ai_chat_logs']['fields']['error'])) {
+    $field = $ocha_ai_chat_schema['ocha_ai_chat_logs']['fields']['error'];
+    $schema = \Drupal::database()->schema();
+    $schema->addField('ocha_ai_chat_logs', 'error', $field);
   }
 }
