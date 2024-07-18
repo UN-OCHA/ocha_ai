@@ -180,6 +180,55 @@ class OchaAiChatConfigForm extends FormBase {
       ],
       '#description' => $this->t('Basic formatting means that the module takes the answer from the LLM and restores line breaks within HTML.'),
     ];
+    $form['defaults']['form']['answer_min_similarity'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Answer min similarity'),
+      '#default_value' => $defaults['form']['answer_min_similarity'] ?? 1.35,
+      '#description' => $this->t('Minimum similarity between the answer and the context passages to be considered valid.'),
+    ];
+
+    $form['defaults']['form']['answers'] = [
+      '#type' => 'details',
+      '#title' => $this->t('Answers'),
+      '#open' => TRUE,
+    ];
+
+    $form['defaults']['form']['answers']['no_document'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('No document'),
+      '#default_value' => $defaults['form']['answers']['no_document'] ?? '',
+      '#description' => $this->t('No document found.'),
+    ];
+    $form['defaults']['form']['answers']['no_passage'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('No passage'),
+      '#default_value' => $defaults['form']['answers']['no_passage'] ?? '',
+      '#description' => $this->t('No information relevant to the question found.'),
+    ];
+    $form['defaults']['form']['answers']['no_answer'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('No answer'),
+      '#default_value' => $defaults['form']['answers']['no_answer'] ?? '',
+      '#description' => $this->t('No answer from the AI.'),
+    ];
+    $form['defaults']['form']['answers']['invalid_answer'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Invalid answer'),
+      '#default_value' => $defaults['form']['answers']['invalid_answer'] ?? '',
+      '#description' => $this->t('Answer not matching relevant passages.'),
+    ];
+    $form['defaults']['form']['answers']['document_embedding_error'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Document embedding error'),
+      '#default_value' => $defaults['form']['answers']['document_embedding_error'] ?? '',
+      '#description' => $this->t('Error while generating embedding for the documents.'),
+    ];
+    $form['defaults']['form']['answers']['question_embedding_error'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Question embedding error'),
+      '#default_value' => $defaults['form']['answers']['question_embedding_error'] ?? '',
+      '#description' => $this->t('Error while generating embedding for the question.'),
+    ];
 
     $form['defaults']['plugins'] = [
       '#type' => 'details',
@@ -252,6 +301,25 @@ class OchaAiChatConfigForm extends FormBase {
         }
         $form['defaults']['plugins']['text_extractor'][$mimetype]['plugin_id']['#options'][$plugin->getPluginId()] = $plugin->getPluginLabel();
       }
+    }
+
+    // Override settings for the text splitter.
+    if (isset($form['defaults']['plugins']['text_splitter'])) {
+      $form['defaults']['plugins']['text_splitter']['length'] = [
+        '#type' => 'number',
+        '#title' => $this->t('Length'),
+        '#description' => $this->t('Maximum number of characters, sentences, tokens etc. for one text passage.'),
+        '#default_value' => $defaults['plugins']['text_splitter']['length'] ?? NULL,
+        '#required' => FALSE,
+      ];
+
+      $form['defaults']['plugins']['text_splitter']['overlap'] = [
+        '#type' => 'number',
+        '#title' => $this->t('overlap'),
+        '#description' => $this->t('Maximum number of previous characters, sentences, tokens etc. to include in the passage to preserve context.'),
+        '#default_value' => $defaults['plugins']['text_splitter']['overlap'] ?? NULL,
+        '#required' => FALSE,
+      ];
     }
 
     // @todo This is for the demo. Review what to do with that.

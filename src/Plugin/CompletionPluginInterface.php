@@ -21,6 +21,27 @@ interface CompletionPluginInterface {
   public function answer(string $question, string $context): string;
 
   /**
+   * Get the prompt template.
+   *
+   * @return string
+   *   The prompt template.
+   */
+  public function getPromptTemplate(): string;
+
+  /**
+   * Generate the prompt.
+   *
+   * @param string $question
+   *   The question.
+   * @param string $context
+   *   The context.
+   *
+   * @return string
+   *   The prompt.
+   */
+  public function generatePrompt(string $question, string $context): string;
+
+  /**
    * Generate a context for the question based on a list of text passages.
    *
    * @param string $question

@@ -217,6 +217,7 @@ class OchaAiChat {
       'source_document_ids' => [],
       'question' => $question,
       'answer' => '',
+      'original_answer' => '',
       'passages' => [],
       'status' => 'error',
       'timestamp' => $this->time->getRequestTime(),
@@ -240,7 +241,7 @@ class OchaAiChat {
 
     // If there are no documents to query, then no need to ask the AI.
     if (empty($documents)) {
-      $data['answer'] = 'Sorry, no source documents were found.';
+      $data['answer'] = $this->getAnswer('no_document', 'Sorry, no source documents were found.');
       return $this->logAnswerData($data);
     }
 
@@ -252,7 +253,7 @@ class OchaAiChat {
     // Abort if we were unable to process the source documents.
     // @todo maybe still proceed if some of the document could be processed?
     if (!$result) {
-      $data['answer'] = 'Sorry, there was an error trying to retrieve the documents to the answer to your question.';
+      $data['answer'] = $this->getAnswer('document_embedding_error', 'Sorry, there was an error trying to retrieve the documents to the answer to your question.');
       return $this->logAnswerData($data);
     }
 
@@ -263,7 +264,7 @@ class OchaAiChat {
     // Abort if we were unable to generate the embedding for the question as
     // we cannot retrieve the relevant passages in that case.
     if (empty($embedding)) {
-      $data['answer'] = 'Sorry, there was an error trying to process the qestion.';
+      $data['answer'] = $this->getAnswer('question_embedding_error', 'Sorry, there was an error trying to process the qestion.');
       return $this->logAnswerData($data);
     }
 
@@ -275,11 +276,11 @@ class OchaAiChat {
     // the documents. It helps for questions such as "What are those documents
     // about?".
     if (empty($passages)) {
-      $passages = $source_plugin->describeDocuments($documents);
+      $passages = $this->getFallbackPassages($index, $documents);
     }
     else {
       // Generate inline references for the passages.
-      foreach ($passages as $key => $passage) {
+      foreach ($passages ?? [] as $key => $passage) {
         $source_document = $documents[$passage['source']['id']];
         $passages[$key]['reference'] = $source_plugin->generateInlineReference($source_document);
       }
@@ -293,16 +294,24 @@ class OchaAiChat {
 
     // @todo parse the answer and try to detect "failure" to propose
     // alternatives or instructions to clarify the question.
-    $answer = $completion_plugin->answer($question, $context);
+    $answer = trim($completion_plugin->answer($question, $context) ?? '');
     $data['stats']['Get answer'] = 0 - $time + ($time = microtime(TRUE));
+    $data['original_answer'] = $answer;
+
+    $answer_min_similarity = (float) $this->getSetting(['form', 'answer_min_similarity'], 1.35, FALSE);
 
     // The answer is empty for example if there was an error during the request.
-    if (empty($answer)) {
-      $data['answer'] = 'Sorry, I was unable to answer your question. Please try again in a short moment.';
+    if ($answer === '') {
+      $data['answer'] = $this->getAnswer('no_answer', 'Sorry, I was unable to answer your question. Please try again in a short moment.');
+      return $this->logAnswerData($data);
+    }
+    // Validate the answer.
+    elseif (!$this->validateAnswer($answer, $passages, $answer_min_similarity)) {
+      $data['answer'] = $this->getAnswer('invalid_answer', 'Sorry, I was unable to answer your question.');
       return $this->logAnswerData($data);
     }
     else {
-      $data['answer'] = trim($answer);
+      $data['answer'] = $answer;
     }
 
     // Arrived at this point we have a valid answer so we consider the request
@@ -310,6 +319,93 @@ class OchaAiChat {
     $data['status'] = 'success';
 
     return $this->logAnswerData($data);
+  }
+
+  /**
+   * Get a predetermined answer.
+   *
+   * @param string $key
+   *   The answer key in the config.
+   * @param string $default
+   *   The default answer if none was found in the settings.
+   *
+   * @return string
+   *   The answer.
+   */
+  public function getAnswer(string $key, string $default): string {
+    return $this->getSetting(['form', 'answers', $key], $default, FALSE);
+  }
+
+  /**
+   * Get the fallback passages for the documents.
+   *
+   * @param stirng $index
+   *   The vector store index.
+   * @param array $documents
+   *   Documents.
+   *
+   * @return array
+   *   Passages generated from the document descriptions.
+   */
+  public function getFallbackPassages(string $index, array $documents): array {
+    // Retrieve the descriptions of the documents.
+    $data = $this->getVectorStorePlugin()->getDocuments($index, array_keys($documents), [
+      'id',
+      'description',
+    ]);
+
+    foreach ($documents as $id => $document) {
+      if (isset($data[$id]['description'])) {
+        $documents[$id]['description'] = $data[$id]['description'];
+      }
+    }
+
+    return $this->getSourcePlugin()->describeDocuments($documents);
+  }
+
+  /**
+   * Validate the answer against the context to ensure validity.
+   *
+   * @param string $answer
+   *   The answer.
+   * @param array $passages
+   *   The text passages used as context for the answer.
+   * @param float $min_similarity
+   *   The minimum similarity for the answer to be considered valid.
+   *
+   * @return bool
+   *   TRUE if the answer seems valid.
+   *
+   * @todo adjust the min similarity so that it's high enough to prevent
+   *   invalid answers but still pass for valid answers that use only small
+   *   parts of the context, for which, the similarity can be low.
+   */
+  public function validateAnswer(string $answer, array $passages, float $min_similarity = 1.35): bool {
+    // Skip directly if the model considered it was a prompt attack.
+    // @todo instead of that here, have the ::answer() method of the model
+    // throw an exception for example so we are not tied to the what the prompt
+    // tells the model to return.
+    if (mb_stripos($answer, 'Prompt Attack Detected') !== FALSE) {
+      return FALSE;
+    }
+
+    $embedding_plugin = $this->getEmbeddingPlugin();
+
+    $answer_embedding = $embedding_plugin->generateEmbedding($answer, TRUE);
+    if (empty($answer_embedding)) {
+      return FALSE;
+    }
+
+    $max_similarity = 0.0;
+    foreach ($passages as $passage) {
+      $embedding = $passage['embedding'] ?? $embedding_plugin->generateEmbedding($passage['text']);
+      if (!empty($embedding)) {
+        $similarity = VectorHelper::cosineSimilarity($embedding, $answer_embedding) + 1.0;
+        $max_similarity = max($max_similarity, $similarity);
+      }
+    }
+
+    return $max_similarity > $min_similarity;
   }
 
   /**
@@ -446,7 +542,7 @@ class OchaAiChat {
 
     if (empty($documents)) {
       $this->logger->notice(strtr('No documents found for the source: @source', [
-        '@source' => print_r($source, TRUE),
+        '@source' => strtr(print_r($source, TRUE), "\n", ' '),
       ]));
     }
 
@@ -553,6 +649,12 @@ class OchaAiChat {
    *   Document with updated contents.
    */
   protected function processDocument(array $document): array {
+    if (isset($document['description']['text'])) {
+      if (!isset($document['description']['embedding'])) {
+        $document['description']['embedding'] = $this->getEmbeddingPlugin()->generateEmbedding($document['description']['text']);
+      }
+    }
+
     foreach ($document['contents'] as $key => $content) {
       switch ($content['type']) {
         case 'markdown':
@@ -565,7 +667,7 @@ class OchaAiChat {
       }
 
       // Remove empty pages.
-      $content['pages'] = array_filter($content['pages'], function ($page) {
+      $content['pages'] = array_filter($content['pages'] ?? [], function ($page) {
         return !empty($page['passages']);
       });
 
@@ -681,7 +783,7 @@ class OchaAiChat {
       }
 
       // @todo better logging.
-      $this->logger->info(print_r($stats, TRUE));
+      $this->logger->info(strtr(print_r($stats, TRUE), "\n", ' '));
     }
 
     return [];
@@ -716,8 +818,17 @@ class OchaAiChat {
       return [];
     }
 
+    // Retrieve the text splitter setting overrides for the chat.
+    $length = $this->getSetting(['plugins', 'text_splitter', 'length'], NULL, FALSE);
+    $overlap = $this->getSetting(['plugins', 'text_splitter', 'overlap'], NULL, FALSE);
+
+    // Ensure we don't have an invalid value and that we can use the default
+    // settings for the plugin.
+    $length = $length === '' ? NULL : $length;
+    $overlap = $overlap === '' ? NULL : $overlap;
+
     // Split the content into passages.
-    $texts = $this->getTextSplitterPlugin()->splitText($content);
+    $texts = $this->getTextSplitterPlugin()->splitText($content, $length, $overlap);
 
     // Generate an embedding for each passage.
     $embeddings = $this->getEmbeddingPlugin()->generateEmbeddings($texts);

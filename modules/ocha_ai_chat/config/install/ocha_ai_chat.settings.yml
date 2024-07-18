@@ -7,6 +7,14 @@ defaults:
       format: 'plain_text'
     feedback: ''
     formatting: 'basic'
+    answer_min_similarity: 1.25
+    answers:
+      no_document: 'Sorry, no source documents were found.'
+      no_passage: 'Sorry, I could not find information to answer the question.'
+      no_answer: 'Sorry, I was unable to answer your question. Please try again in a short moment.'
+      invalid_answer: 'Sorry, I was unable to answer your question.'
+      document_embedding_error: 'Sorry, there was an error trying to retrieve the documents to the answer to your question.'
+      question_embedding_error: 'Sorry, there was an error trying to process the qestion.'
   plugins:
     completion:
       plugin_id: aws_bedrock
@@ -19,5 +27,7 @@ defaults:
         plugin_id: 'mupdf'
     text_splitter:
       plugin_id: token
+      length: NULL
+      overlap: NULL
     vector_store:
       plugin_id: elasticsearch

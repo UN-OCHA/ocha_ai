@@ -54,6 +54,14 @@ class Elasticsearch extends VectorStorePluginBase {
       '#required' => TRUE,
     ];
 
+    $form['plugins'][$plugin_type][$plugin_id]['base_index_name'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Base index name'),
+      '#description' => $this->t('The base name for the indices.'),
+      '#default_value' => $config['base_index_name'] ?? NULL,
+      '#required' => TRUE,
+    ];
+
     $form['plugins'][$plugin_type][$plugin_id]['indexing_batch_size'] = [
       '#type' => 'number',
       '#title' => $this->t('Indexing batch size'),
@@ -96,6 +104,7 @@ class Elasticsearch extends VectorStorePluginBase {
    */
   public function defaultConfiguration(): array {
     return [
+      'base_index_name' => 'ocha_ai',
       'indexing_batch_size' => 10,
       'topk' => 5,
       'min_similarity' => 0.3,
@@ -407,8 +416,6 @@ class Elasticsearch extends VectorStorePluginBase {
       foreach ($page['passages'] as $key => $passage) {
         $similarity_scores[$key] = VectorHelper::cosineSimilarity($passage['embedding'], $query_embedding) + 1.0;
         $page['passages'][$key]['similarity'] = $similarity_scores[$key];
-        // Remove the embedding to reduce memory usage.
-        unset($page['passages'][$key]['embedding']);
       }
 
       // Retrieve the minimum similarity to be considered relevant.
