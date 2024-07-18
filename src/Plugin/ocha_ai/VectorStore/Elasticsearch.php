@@ -732,6 +732,7 @@ class Elasticsearch extends VectorStorePluginBase {
     try {
       /** @var \Psr\Http\Message\ResponseInterface $response */
       $response = $this->httpClient->request($method, $url, $options);
+      return $response;
     }
     catch (BadResponseException $exception) {
       $response = $exception->getResponse();
@@ -744,10 +745,17 @@ class Elasticsearch extends VectorStorePluginBase {
           '@error' => $exception->getMessage(),
         ]));
       }
-      return NULL;
+    }
+    catch (\Exception $exception) {
+      $this->getLogger()->error(strtr('@method request to @endpoint failed with @status error: @error', [
+        '@method' => $method,
+        '@endpoint' => $endpoint,
+        '@status' => $exception->getCode(),
+        '@error' => $exception->getMessage(),
+      ]));
     }
 
-    return $response;
+    return NULL;
   }
 
   /**
