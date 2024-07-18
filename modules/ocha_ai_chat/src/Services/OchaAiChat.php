@@ -220,6 +220,7 @@ class OchaAiChat {
       'original_answer' => '',
       'passages' => [],
       'status' => 'error',
+      'error' => '',
       'timestamp' => $this->time->getRequestTime(),
       'duration' => 0,
       'uid' => $this->currentUser->id(),
@@ -242,6 +243,7 @@ class OchaAiChat {
     // If there are no documents to query, then no need to ask the AI.
     if (empty($documents)) {
       $data['answer'] = $this->getAnswer('no_document', 'Sorry, no source documents were found.');
+      $data['error'] = 'no_document';
       return $this->logAnswerData($data);
     }
 
@@ -254,6 +256,7 @@ class OchaAiChat {
     // @todo maybe still proceed if some of the document could be processed?
     if (!$result) {
       $data['answer'] = $this->getAnswer('document_embedding_error', 'Sorry, there was an error trying to retrieve the documents to the answer to your question.');
+      $data['error'] = 'document_embedding_error';
       return $this->logAnswerData($data);
     }
 
@@ -265,6 +268,7 @@ class OchaAiChat {
     // we cannot retrieve the relevant passages in that case.
     if (empty($embedding)) {
       $data['answer'] = $this->getAnswer('question_embedding_error', 'Sorry, there was an error trying to process the qestion.');
+      $data['error'] = 'question_embedding_error';
       return $this->logAnswerData($data);
     }
 
@@ -276,6 +280,7 @@ class OchaAiChat {
     // the documents. It helps for questions such as "What are those documents
     // about?".
     if (empty($passages)) {
+      $data['error'] = 'no_passage';
       $passages = $this->getFallbackPassages($index, $documents);
     }
     else {
@@ -303,11 +308,13 @@ class OchaAiChat {
     // The answer is empty for example if there was an error during the request.
     if ($answer === '') {
       $data['answer'] = $this->getAnswer('no_answer', 'Sorry, I was unable to answer your question. Please try again in a short moment.');
+      $data['error'] = 'no_answer';
       return $this->logAnswerData($data);
     }
     // Validate the answer.
     elseif (!$this->validateAnswer($answer, $passages, $answer_min_similarity)) {
       $data['answer'] = $this->getAnswer('invalid_answer', 'Sorry, I was unable to answer your question.');
+      $data['error'] = 'invalid_answer';
       return $this->logAnswerData($data);
     }
     else {
@@ -422,8 +429,12 @@ class OchaAiChat {
   protected function logAnswerData(array $data): array {
     // Remove the embedding of the passages as they are not really useful
     // to have in the result or logs.
+    // Also remove unnecessary source information.
     foreach ($data['passages'] as $index => $passage) {
       unset($data['passages'][$index]['embedding']);
+      unset($data['passages'][$index]['source']['contents']);
+      unset($data['passages'][$index]['source']['description']);
+      unset($data['passages'][$index]['source']['raw']);
     }
 
     // Set the duration.
@@ -440,6 +451,9 @@ class OchaAiChat {
       ->insert('ocha_ai_chat_logs')
       ->fields($fields)
       ->execute();
+
+    // Log the entry as well.
+    $this->logger->info(json_encode($data));
 
     return $data;
   }
