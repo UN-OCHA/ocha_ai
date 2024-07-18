@@ -90,6 +90,55 @@ abstract class CompletionPluginBase extends PluginBase implements CompletionPlug
   /**
    * {@inheritdoc}
    */
+  public function getPromptTemplate(): string {
+    $template = $this->getPluginSetting('prompt_template');
+    if (empty($template)) {
+      return '';
+    }
+
+    // Fix issue from prompt loaded from the config.
+    $template = strtr($template, ["\r" => '']);
+
+    return trim($template);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function generatePrompt(string $question, string $context): string {
+    if (empty($question) || empty($context)) {
+      return '';
+    }
+
+    // Remove tags and control characters to prevent some types of prompt
+    // polluting or jailbreaking.
+    $question = trim(preg_replace('/[^\PC\s]/u', '', strip_tags($question)));
+    $context = trim(preg_replace('/[^\PC\s]/u', '', strip_tags($context)));
+
+    if (empty($question) || empty($context)) {
+      return '';
+    }
+
+    $template = $this->getPromptTemplate();
+    if (empty($template)) {
+      return '';
+    }
+
+    // Fix issue from prompt loaded from the config.
+    $template = strtr($template, ["\r" => '']);
+
+    // @todo review what is a good template for AWS titan model.
+    $prompt = strtr($template, [
+      '{{ context }}' => $context,
+      '{{ question }}' => $question,
+    ]);
+
+    return $prompt;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function generateContext(string $question, array $passages): string {
     $context = [];
 

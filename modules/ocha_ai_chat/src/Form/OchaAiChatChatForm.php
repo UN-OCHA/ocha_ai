@@ -12,6 +12,7 @@ use Drupal\Core\Session\AccountProxyInterface;
 use Drupal\Core\State\StateInterface;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\Core\Url;
+use Drupal\honeypot\HoneypotService;
 use Drupal\ocha_ai_chat\Services\OchaAiChat;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -49,6 +50,13 @@ class OchaAiChatChatForm extends FormBase {
   protected OchaAiChat $ochaAiChat;
 
   /**
+   * The Honeypot service.
+   *
+   * @var Drupal\honeypot\HoneypotService
+   */
+  protected HoneypotService $honeypotService;
+
+  /**
    * Constructor.
    *
    * @param \Drupal\Core\Session\AccountProxyInterface $current_user
@@ -59,17 +67,21 @@ class OchaAiChatChatForm extends FormBase {
    *   The state service.
    * @param \Drupal\ocha_ai_chat\Services\OchaAiChat $ocha_ai_chat
    *   The OCHA AI chat service.
+   * @param \Drupal\honeypot\HoneypotService $honeypot_service
+   *   The Honeypot service.
    */
   public function __construct(
     AccountProxyInterface $current_user,
     Connection $database,
     StateInterface $state,
     OchaAiChat $ocha_ai_chat,
+    HoneypotService $honeypot_service,
   ) {
     $this->currentUser = $current_user;
     $this->database = $database;
     $this->state = $state;
     $this->ochaAiChat = $ocha_ai_chat;
+    $this->honeypotService = $honeypot_service;
   }
 
   /**
@@ -80,7 +92,8 @@ class OchaAiChatChatForm extends FormBase {
       $container->get('current_user'),
       $container->get('database'),
       $container->get('state'),
-      $container->get('ocha_ai_chat.chat')
+      $container->get('ocha_ai_chat.chat'),
+      $container->get('honeypot')
     );
   }
 
@@ -94,11 +107,14 @@ class OchaAiChatChatForm extends FormBase {
    *   The page title.
    */
   public function getPageTitle(?bool $popup = NULL): TranslatableMarkup {
-    $limit = $this->getRequest()?->query?->get('limit');
-    if (isset($limit) && $limit == 1) {
-      return $this->t('Ask ReliefWeb');
+    $settings = $this->ochaAiChat->getSettings();
+    if (!empty($popup) && !empty($settings['form']['popup_title'])) {
+      return $this->t('@title', ['@title' => $settings['form']['popup_title']]);
     }
-    return $this->t('Ask ReliefWeb');
+    elseif (!empty($settings['form']['form_title'])) {
+      return $this->t('@title', ['@title' => $settings['form']['form_title']]);
+    }
+    return $this->t('Ask about this document');
   }
 
   /**
@@ -171,7 +187,6 @@ class OchaAiChatChatForm extends FormBase {
 
     // Get the feedback type to use for each history entry.
     $feedback_type = $defaults['form']['feedback'] ?? 'detailed';
-    $formatting = $defaults['form']['formatting'] ?? 'none';
 
     foreach (json_decode($history, TRUE) ?? [] as $index => $record) {
       // Used on two different form elements; they must match to function.
@@ -185,10 +200,10 @@ class OchaAiChatChatForm extends FormBase {
       ];
       $form['chat'][$index]['result'] = [
         '#type' => 'inline_template',
-        '#template' => '<dl class="chat"><div class="chat__q"><dt class="visually-hidden">Question</dt><dd>{{ question }}</dd></div><div class="chat__a"><dt class="visually-hidden">Answer</dt><dd id="{{ answer_id }}">{{ answer|raw }}</dd></div>{% if references %}<div class="chat__refs"><dt>References</dt><dd>{{ references }}</dd></div>{% endif %}</dl>',
+        '#template' => '<dl class="chat"><div class="chat__q"><dt class="visually-hidden">Question</dt><dd>{{ question }}</dd></div><div class="chat__a"><dt class="visually-hidden">Answer</dt><dd id="{{ answer_id }}">{{ answer|trim|nl2br }}</dd></div>{% if references %}<div class="chat__refs"><dt>References</dt><dd>{{ references }}</dd></div>{% endif %}</dl>',
         '#context' => [
           'question' => $record['question'],
-          'answer' => $formatting !== 'none' ? $this->formatAnswer($record['answer'], $formatting) : $record['answer'],
+          'answer' => $record['answer'],
           'answer_id' => $answer_id,
           'references' => $this->formatReferences($record['references']),
         ],
@@ -296,7 +311,7 @@ class OchaAiChatChatForm extends FormBase {
           '#type' => 'select',
           '#title' => $this->t('Rate the answer'),
           '#options' => [
-            0 => $this->t('- Select -'),
+            0 => $this->t('- Choose a rating -'),
             1 => $this->t('Very bad'),
             2 => $this->t('Bad'),
             3 => $this->t('Passable'),
@@ -361,7 +376,14 @@ class OchaAiChatChatForm extends FormBase {
     $form['actions']['submit']['#ajax'] = [
       'wrapper' => $id,
       'disable-refocus' => TRUE,
+      'progress' => [
+        'type' => 'throbber',
+        'message' => $this->t('Analyzing the document...'),
+      ],
     ];
+
+    $honeypot_options = ['honeypot', 'time_restriction'];
+    $this->honeypotService->addFormProtection($form, $form_state, $honeypot_options);
 
     // @todo check if we need a theme.
     return $form;
@@ -418,7 +440,7 @@ class OchaAiChatChatForm extends FormBase {
           'id' => $data['id'],
           'question' => $question,
           'answer' => $data['answer'],
-          'references' => $references,
+          'references' => $data['status'] === 'success' ? $references : [],
         ];
 
         $form_state->setValue('history', json_encode($history));

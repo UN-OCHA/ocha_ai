@@ -50,6 +50,12 @@ ocha_ai_chat.settings:
           type: mapping
           label: 'Default form settings.'
           mapping:
+            form_title:
+              type: string
+              label: 'Title of the chat form'
+            popup_title:
+              type: string
+              label: 'Title of the chat popup'
             instructions:
               type: mapping
               label: 'Instructions.'
@@ -66,6 +72,30 @@ ocha_ai_chat.settings:
             formatting:
               type: string
               label: 'Formatting mode.'
+            answer_min_similarity:
+              type: float
+              label: 'Minimum similarity between the answer and the context passages to be considered valid.'
+            answers:
+              type: mapping
+              mapping:
+                no_document:
+                  type: string
+                  description: 'No document found.'
+                no_passage:
+                  type: string
+                  description: 'No information relevant to the question found.'
+                no_answer:
+                  type: string
+                  description: 'No answer from the AI.'
+                invalid_answer:
+                  type: string
+                  description: 'Answer not matching relevant passages.'
+                document_embedding_error:
+                  type: string
+                  description: 'Error while generating embedding for the documents.'
+                question_embedding_error:
+                  type: string
+                  description: 'Error while generating embedding for the question.'
         plugins:
           type: mapping
           label: 'Default plugins.'
@@ -108,6 +138,12 @@ ocha_ai_chat.settings:
                 plugin_id:
                   type: string
                   label: 'Plugin ID.'
+                length:
+                  type: integer
+                  label: 'Maximum length of a text passage.'
+                overlap:
+                  type: integer
+                  label: 'Number of previous characters, sentences etc. to include to preserve context.'
             vector_store:
               type: mapping
               label: 'Default vector store plugin settings.'

@@ -637,47 +637,66 @@ class ReliefWeb extends SourcePluginBase {
   public function describeDocuments(array $documents): array {
     $descriptions = [];
     foreach ($documents as $document) {
-      $raw = $document['raw'];
+      if (isset($document['description']['text'])) {
+        $description = $document['description'];
+      }
+      else {
+        $description['text'] = $document['description'];
+      }
 
-      $description = '"' . $raw['title'] . '"';
-
-      // Description in the form:
-      //
-      // "Type in Language on Country about Tags; published on Date by Sources"
-      //
-      // Note: for countries we don't use 'reliefweb_meta_description_term_list'
-      // to ensure the primary country is the first in the list.
-      //
-      // Content format.
-      $description .= $this->getDescriptionTermList($raw, [
-        'format' => 1,
-      ], "; a ", lowercase: TRUE);
-      // Language.
-      $description .= $this->getDescriptionTermList($raw, [
-        'language' => -1,
-      ], ' in ');
-      // Countries.
-      $description .= $this->getDescriptionTermList($raw, [
-        'country' => 3,
-      ], ' on ', '', '1 other country', '@count other countries');
-      // Tags.
-      $description .= $this->getDescriptionTermList($raw, [
-        'theme' => 2,
-        'disaster_type' => 2,
-      ], ' about ', '', 'more', lowercase: TRUE);
-      // Date.
-      $description .= $this->getDescriptionDate($raw, 'original', '; published on ');
-      // Sources.
-      $description .= $this->getDescriptionTermList($raw, [
-        'source' => 2,
-      ], ' by ', '', '1 other organization', '@count other organizations');
-
-      $descriptions[] = [
-        'text' => $description,
+      $descriptions[] = $description + [
         'source' => $document,
       ];
     }
     return $descriptions;
+  }
+
+  /**
+   * Describe a document.
+   *
+   * @param array $document
+   *   Document.
+   *
+   * @return string
+   *   Document description.
+   */
+  protected function describeDocument(array $document): string {
+    $raw = $document['raw'];
+
+    $description = '"' . $raw['title'] . '"';
+
+    // Description in the form:
+    //
+    // "Type in Language on Country about Tags; published on Date by Sources"
+    //
+    // Note: for countries we don't use 'reliefweb_meta_description_term_list'
+    // to ensure the primary country is the first in the list.
+    //
+    // Content format.
+    $description .= $this->getDescriptionTermList($raw, [
+      'format' => 1,
+    ], "; a ", lowercase: TRUE);
+    // Language.
+    $description .= $this->getDescriptionTermList($raw, [
+      'language' => -1,
+    ], ' in ');
+    // Countries.
+    $description .= $this->getDescriptionTermList($raw, [
+      'country' => 3,
+    ], ' on ', '', '1 other country', '@count other countries');
+    // Tags.
+    $description .= $this->getDescriptionTermList($raw, [
+      'theme' => 2,
+      'disaster_type' => 2,
+    ], ' about ', '', 'more', lowercase: TRUE);
+    // Date.
+    $description .= $this->getDescriptionDate($raw, 'original', '; published on ');
+    // Sources.
+    $description .= $this->getDescriptionTermList($raw, [
+      'source' => 2,
+    ], ' by ', '', '1 other organization', '@count other organizations');
+
+    return $description;
   }
 
   /**
@@ -1079,6 +1098,12 @@ class ReliefWeb extends SourcePluginBase {
         ];
       }
 
+      // Add an automated description of the document to help with some
+      // generic questions about the document.
+      $document['description'] = [
+        'text' => $this->describeDocument($document),
+      ];
+
       $documents[$resource][$id] = $document;
     }
     return $documents;
@@ -1277,7 +1302,7 @@ class ReliefWeb extends SourcePluginBase {
    *   Cached documents.
    */
   protected function cacheDocuments(string $cache_id, array $documents): array {
-    if ($this->isCacheEnabled()) {
+    if ($this->isCacheEnabled() && !empty($documents)) {
       $tags = ['reliefweb:documents'];
       $this->cacheBackend->set($cache_id, $documents, $this->getCacheExpiration(), $tags);
     }
