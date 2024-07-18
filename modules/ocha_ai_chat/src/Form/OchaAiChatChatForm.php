@@ -92,7 +92,8 @@ class OchaAiChatChatForm extends FormBase {
       $container->get('current_user'),
       $container->get('database'),
       $container->get('state'),
-      $container->get('ocha_ai_chat.chat')
+      $container->get('ocha_ai_chat.chat'),
+      $container->get('honeypot')
     );
   }
 
