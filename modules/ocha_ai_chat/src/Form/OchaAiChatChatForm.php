@@ -47,14 +47,14 @@ class OchaAiChatChatForm extends FormBase {
   /**
    * The OCHA AI chat service.
    *
-   * @var Drupal\ocha_ai_chat\Services\OchaAiChat
+   * @var \Drupal\ocha_ai_chat\Services\OchaAiChat
    */
   protected OchaAiChat $ochaAiChat;
 
   /**
    * The Honeypot service.
    *
-   * @var Drupal\honeypot\HoneypotService
+   * @var \Drupal\honeypot\HoneypotService
    */
   protected HoneypotService $honeypotService;
 
