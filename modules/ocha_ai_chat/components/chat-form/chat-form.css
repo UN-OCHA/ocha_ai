@@ -299,6 +299,12 @@ button doesn't overlay any text */
   margin-block-start: 0.5rem;
   scroll-margin-bottom: 1rem;
 }
+.ocha-ai-chat-result-feedback.ocha-ai-chat-result-feedback--simple {
+  padding: 0;
+}
+.ocha-ai-chat-result-feedback.ocha-ai-chat-result-feedback--simple .fieldset-wrapper {
+  margin-left: 3.5rem;
+}
 
 .ocha-ai-chat-result-feedback .fieldset-wrapper {
   display: flex;
