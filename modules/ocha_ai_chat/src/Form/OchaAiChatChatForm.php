@@ -4,6 +4,8 @@ namespace Drupal\ocha_ai_chat\Form;
 
 use Drupal\Component\Utility\Html;
 use Drupal\Core\Ajax\AjaxResponse;
+use Drupal\Core\Ajax\HtmlCommand;
+use Drupal\Core\Ajax\InvokeCommand;
 use Drupal\Core\Ajax\MessageCommand;
 use Drupal\Core\Database\Connection;
 use Drupal\Core\Form\FormBase;
@@ -188,9 +190,18 @@ class OchaAiChatChatForm extends FormBase {
     // Get the feedback type to use for each history entry.
     $feedback_type = $defaults['form']['feedback'] ?? 'detailed';
 
-    foreach (json_decode($history, TRUE) ?? [] as $index => $record) {
+    $previous_questions = json_decode($history, TRUE) ?? [];
+    $last_index = '';
+    if (!empty($previous_questions)) {
+      $last_index = array_pop(array_keys($previous_questions));
+    }
+
+    foreach ($previous_questions as $index => $record) {
       // Used on two different form elements; they must match to function.
       $answer_id = 'chat__a--' . $index;
+
+      // Get thumbs state.
+      $thumbs_state = $this->ochaAiChat->getAnswerThumbs($record['id']);
 
       $form['chat'][$index] = [
         '#type' => 'container',
@@ -223,20 +234,30 @@ class OchaAiChatChatForm extends FormBase {
           ],
         ];
 
+        $ajax_buttons = [];
+        if ($index == $last_index) {
+          $ajax_buttons = [
+            'callback' => [$this, 'submitSimpleFeedback'],
+            'wrapper' => 'chat-result-' . $index . '-simple-feedback',
+            'disable-refocus' => TRUE,
+          ];
+        }
+
         // Thumbs up.
         $form['chat'][$index]['feedback_simple']['good'] = [
           '#type' => 'submit',
           '#name' => 'chat-result-' . $index . '-simple-feedback-good',
           '#value' => $this->t('Like'),
           '#attributes' => [
-            'class' => ['feedback-button', 'feedback-button--good'],
+            'class' => [
+              'feedback-button',
+              'feedback-button--good',
+              ($thumbs_state == 'up') ? 'feedback-button--pressed' : '',
+            ],
             'data-result-id' => $record['id'],
           ],
-          '#ajax' => [
-            'callback' => [$this, 'submitSimpleFeedback'],
-            'wrapper' => 'chat-result-' . $index . '-simple-feedback',
-            'disable-refocus' => TRUE,
-          ],
+          '#ajax' => $ajax_buttons,
+          '#disabled' => $index != $last_index,
         ];
 
         // Thumbs down.
@@ -245,14 +266,15 @@ class OchaAiChatChatForm extends FormBase {
           '#name' => 'chat-result-' . $index . '-simple-feedback-bad',
           '#value' => $this->t('Dislike'),
           '#attributes' => [
-            'class' => ['feedback-button', 'feedback-button--bad'],
+            'class' => [
+              'feedback-button',
+              'feedback-button--bad',
+              ($thumbs_state == 'down') ? 'feedback-button--pressed' : '',
+            ],
             'data-result-id' => $record['id'],
           ],
-          '#ajax' => [
-            'callback' => [$this, 'submitSimpleFeedback'],
-            'wrapper' => 'chat-result-' . $index . '-simple-feedback',
-            'disable-refocus' => TRUE,
-          ],
+          '#ajax' => $ajax_buttons,
+          '#disabled' => $index != $last_index,
         ];
 
         // Copy button.
@@ -321,6 +343,7 @@ class OchaAiChatChatForm extends FormBase {
           '#default_value' => $form_state->getValue([
             'chat', $index, 'feedback', 'satisfaction',
           ]),
+          '#disabled' => $index != $last_index,
         ];
         $form['chat'][$index]['feedback']['comment'] = [
           '#type' => 'textarea',
@@ -328,23 +351,29 @@ class OchaAiChatChatForm extends FormBase {
           '#default_value' => $form_state->getValue([
             'chat', $index, 'feedback', 'comment',
           ]),
+          '#disabled' => $index != $last_index,
         ];
-        $form['chat'][$index]['feedback']['submit'] = [
-          '#type' => 'submit',
-          '#name' => 'chat-result-' . $index . '-feedback-submit',
-          '#value' => $this->t('Submit feedback'),
-          '#limit_validation_errors' => [
-            ['chat', $index, 'feedback'],
-          ],
-          '#attributes' => [
-            'data-result-id' => $record['id'],
-          ],
-          '#ajax' => [
-            'callback' => [$this, 'submitFeedback'],
-            'wrapper' => 'chat-result-' . $index . '-feedback',
-            'disable-refocus' => TRUE,
-          ],
-        ];
+
+        if ($index == $last_index) {
+          $has_value = !empty($form_state->getValue(['chat', $index, 'feedback', 'comment']));
+          $form['chat'][$index]['feedback']['submit'] = [
+            '#type' => 'submit',
+            '#name' => 'chat-result-' . $index . '-feedback-submit',
+            '#value' => $has_value ? $this->t('Edit feedback') : $this->t('Submit feedback'),
+            '#limit_validation_errors' => [
+              ['chat', $index, 'feedback'],
+            ],
+            '#attributes' => [
+              'data-result-id' => $record['id'],
+            ],
+            '#ajax' => [
+              'callback' => [$this, 'submitFeedback'],
+              'wrapper' => 'chat-result-' . $index . '-feedback',
+              'disable-refocus' => TRUE,
+            ],
+            '#disabled' => $index != $last_index,
+          ];
+        }
       }
     }
 
@@ -480,6 +509,7 @@ class OchaAiChatChatForm extends FormBase {
     $this->ochaAiChat->addAnswerFeedback($id, $feedback['satisfaction'], $feedback['comment']);
 
     $response = new AjaxResponse();
+    $response->addCommand(new HtmlCommand($selector . ' > .form-submit', $this->t('Edit feedback')));
     $response->addCommand(new MessageCommand($this->t('Feedback submitted, thank you.'), $selector));
     return $response;
   }
@@ -502,21 +532,28 @@ class OchaAiChatChatForm extends FormBase {
     $selector = '#' . $triggering_element['#ajax']['wrapper'];
     $feedback = $triggering_element['#array_parents'][3];
 
+    $response = new AjaxResponse();
+
     // Convert the thumbs up/down to a string.
     if ($feedback === 'good') {
       $feedback_val = 'up';
       $feedback_msg = $this->t('Glad you liked this answer.');
+      $response->addCommand(new InvokeCommand('.feedback-button.feedback-button--good', 'addClass', ['feedback-button--pressed']));
+      $response->addCommand(new InvokeCommand('.feedback-button.feedback-button--bad', 'removeClass', ['feedback-button--pressed']));
     }
     else {
       $feedback_val = 'down';
       $feedback_msg = $this->t('Thank you for your feedback.');
+      $response->addCommand(new InvokeCommand('.feedback-button.feedback-button--bad', 'addClass', ['feedback-button--pressed']));
+      $response->addCommand(new InvokeCommand('.feedback-button.feedback-button--good', 'removeClass', ['feedback-button--pressed']));
     }
 
     // Record the feedback.
     $this->ochaAiChat->addAnswerThumbs($id, $feedback_val);
 
-    $response = new AjaxResponse();
+    // Add message.
     $response->addCommand(new MessageCommand($feedback_msg, $selector));
+
     return $response;
   }
 

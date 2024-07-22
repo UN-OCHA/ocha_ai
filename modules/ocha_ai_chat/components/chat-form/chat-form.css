@@ -337,6 +337,9 @@ button.feedback-button.feedback-button.feedback-button.feedback-button:focus {
 .feedback-button--bad:focus::before { background: var(--rw-icons--chat--thumbs-down--16--dark-red); }
 .feedback-button--copy:focus::before { background: var(--rw-icons--chat--copy--16--dark-red); }
 
+.feedback-button--pressed.feedback-button--good::before { background: var(--rw-icons--chat--thumbs-up--16--dark-grey); }
+.feedback-button--pressed.feedback-button--bad::before { background: var(--rw-icons--chat--thumbs-down--16--dark-grey); }
+
 .feedback-button--copy {
   /* this icon looks misaligned when the boxes are flush */
   position: relative;

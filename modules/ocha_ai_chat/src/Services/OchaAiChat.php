@@ -508,6 +508,28 @@ class OchaAiChat {
   }
 
   /**
+   * Get thumbs up/down from an answer's log entry.
+   *
+   * @param int $id
+   *   The ID of the answer log.
+   *
+   * @return string
+   *   Blank, up or down.
+   */
+  public function getAnswerThumbs(int $id): string {
+    $value = $this->database
+      ->select('ocha_ai_chat_logs')
+      ->fields('ocha_ai_chat_logs', [
+        'thumbs',
+      ])
+      ->condition('id', $id, '=')
+      ->execute()
+      ->fetchField();
+
+    return $value ?? '';
+  }
+
+  /**
    * Record that a copy-to-clipboard button was used.
    *
    * @param int $id
