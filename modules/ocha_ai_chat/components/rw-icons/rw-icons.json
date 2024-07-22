@@ -86,6 +86,17 @@
         ]
       }
     },
+    "avatar": {
+      "source": "img/icons/avatar",
+      "include": [
+        "avatar"
+      ],
+      "sizes": {
+        "48": [
+          "dark-grey"
+        ]
+      }
+    },
     "datepicker": {
       "source": "img/icons/datepicker",
       "include": [
