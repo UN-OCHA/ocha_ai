@@ -39,6 +39,12 @@
          * temporarily inject whatever we like; it will get cleaned up for us.
          */
         function chatSend(ev) {
+          // Ignore right clicks.
+          if (ev.button && ev.button == 2) {
+            ev.preventDefault();
+            return;
+          }
+
           // First check the question textarea for a value. We don't want to act
           // unless we have a value to send.
           var questionValue = document.querySelector('[data-drupal-selector="edit-question"]').value;
