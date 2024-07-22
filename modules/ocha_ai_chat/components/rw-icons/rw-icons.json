@@ -109,19 +109,23 @@
       "sizes": {
         "16": [
           "dark-blue",
-          "dark-red"
+          "dark-red",
+          "dark-grey"
         ],
         "40": [
           "dark-blue",
-          "dark-red"
+          "dark-red",
+          "dark-grey"
         ],
         "48": [
           "dark-blue",
-          "dark-red"
+          "dark-red",
+          "dark-grey"
         ],
         "64": [
           "dark-blue",
-          "dark-red"
+          "dark-red",
+          "dark-grey"
         ]
       }
     }

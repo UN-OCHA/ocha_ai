@@ -359,7 +359,7 @@ class OchaAiChatChatForm extends FormBase {
           $form['chat'][$index]['feedback']['submit'] = [
             '#type' => 'submit',
             '#name' => 'chat-result-' . $index . '-feedback-submit',
-            '#value' =>  $has_value ? $this->t('Edit feedback') : $this->t('Submit feedback'),
+            '#value' => $has_value ? $this->t('Edit feedback') : $this->t('Submit feedback'),
             '#limit_validation_errors' => [
               ['chat', $index, 'feedback'],
             ],
