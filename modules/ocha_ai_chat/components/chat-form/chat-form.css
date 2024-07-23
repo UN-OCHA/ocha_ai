@@ -233,14 +233,25 @@ button doesn't overlay any text */
 .ocha-ai-chat-chat-form .ocha-ai-chat-result .chat__refs,
 .ocha-ai-chat-chat-form__instructions > * {
   align-self: flex-start;
-  margin-block-start: 0.5rem;
+  margin-block-start: 1.5rem;
   margin-inline-end: 2rem;
+  margin-left: 52px;
   text-align: start;
   color: #333;
   background: var(--brand-grey);
 
   /* TODO: RTL */
   &::before {
+    position: absolute;
+    bottom: -4px;
+    left: -64px;
+    display: block;
+    width: 48px;
+    height: 48px;
+    background: var(--rw-icons--avatar--avatar--48--dark-grey);
+    content: '';
+  }
+  &::after {
     position: absolute;
     bottom: 6px;
     left: -8px;
@@ -288,12 +299,19 @@ button doesn't overlay any text */
   margin-block-start: 0.5rem;
   scroll-margin-bottom: 1rem;
 }
+.ocha-ai-chat-result-feedback.ocha-ai-chat-result-feedback--simple {
+  padding: 0;
+}
+.ocha-ai-chat-result-feedback.ocha-ai-chat-result-feedback--simple .fieldset-wrapper {
+  margin-left: 3.5rem;
+}
 
 .ocha-ai-chat-result-feedback .fieldset-wrapper {
   display: flex;
   flex-flow: row nowrap;
   justify-content: flex-start;
   gap: 0.5rem;
+  align-items: center;
 }
 
 .ocha-ai-chat-result-feedback {
@@ -337,6 +355,23 @@ button.feedback-button.feedback-button.feedback-button.feedback-button:focus {
 .feedback-button--bad:focus::before { background: var(--rw-icons--chat--thumbs-down--16--dark-red); }
 .feedback-button--copy:focus::before { background: var(--rw-icons--chat--copy--16--dark-red); }
 
+button.feedback-button.feedback-button.feedback-button--pressed.feedback-button--good,
+button.feedback-button.feedback-button.feedback-button--pressed.feedback-button--bad {
+  width: 1.5rem;
+  height: 1.5rem;
+  border: solid 1px #2e3436;
+  border-radius: 50%;
+  position: relative;
+}
+
+.feedback-button--pressed.feedback-button--good::before,
+.feedback-button--pressed.feedback-button--bad::before {
+  position: absolute;
+  left: 0;
+  right: 0;
+  margin: auto;
+}
+
 .feedback-button--pressed.feedback-button--good::before { background: var(--rw-icons--chat--thumbs-up--16--dark-grey); }
 .feedback-button--pressed.feedback-button--bad::before { background: var(--rw-icons--chat--thumbs-down--16--dark-grey); }
 
@@ -352,7 +387,6 @@ button.feedback-button.feedback-button.feedback-button.feedback-button:focus {
   background: transparent;
   color: var(--brand-primary);
   position: relative;
-  top: -4px;
 }
 
 .feedback-button--show-detailed:hover {
