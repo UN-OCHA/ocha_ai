@@ -311,6 +311,7 @@ button doesn't overlay any text */
   flex-flow: row nowrap;
   justify-content: flex-start;
   gap: 0.5rem;
+  align-items: center;
 }
 
 .ocha-ai-chat-result-feedback {
@@ -354,6 +355,23 @@ button.feedback-button.feedback-button.feedback-button.feedback-button:focus {
 .feedback-button--bad:focus::before { background: var(--rw-icons--chat--thumbs-down--16--dark-red); }
 .feedback-button--copy:focus::before { background: var(--rw-icons--chat--copy--16--dark-red); }
 
+button.feedback-button.feedback-button.feedback-button--pressed.feedback-button--good,
+button.feedback-button.feedback-button.feedback-button--pressed.feedback-button--bad {
+  width: 1.5rem;
+  height: 1.5rem;
+  border: solid 1px #2e3436;
+  border-radius: 50%;
+  position: relative;
+}
+
+.feedback-button--pressed.feedback-button--good::before,
+.feedback-button--pressed.feedback-button--bad::before {
+  position: absolute;
+  left: 0;
+  right: 0;
+  margin: auto;
+}
+
 .feedback-button--pressed.feedback-button--good::before { background: var(--rw-icons--chat--thumbs-up--16--dark-grey); }
 .feedback-button--pressed.feedback-button--bad::before { background: var(--rw-icons--chat--thumbs-down--16--dark-grey); }
 
@@ -369,7 +387,6 @@ button.feedback-button.feedback-button.feedback-button.feedback-button:focus {
   background: transparent;
   color: var(--brand-primary);
   position: relative;
-  top: -4px;
 }
 
 .feedback-button--show-detailed:hover {
