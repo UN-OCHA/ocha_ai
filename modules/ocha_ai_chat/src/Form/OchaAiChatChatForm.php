@@ -538,14 +538,14 @@ class OchaAiChatChatForm extends FormBase {
     if ($feedback === 'good') {
       $feedback_val = 'up';
       $feedback_msg = $this->t('Glad you liked this answer.');
-      $response->addCommand(new InvokeCommand('.feedback-button.feedback-button--good', 'addClass', ['feedback-button--pressed']));
-      $response->addCommand(new InvokeCommand('.feedback-button.feedback-button--bad', 'removeClass', ['feedback-button--pressed']));
+      $response->addCommand(new InvokeCommand($selector . ' .feedback-button.feedback-button--good', 'addClass', ['feedback-button--pressed']));
+      $response->addCommand(new InvokeCommand($selector . ' .feedback-button.feedback-button--bad', 'removeClass', ['feedback-button--pressed']));
     }
     else {
       $feedback_val = 'down';
       $feedback_msg = $this->t('Thank you for your feedback.');
-      $response->addCommand(new InvokeCommand('.feedback-button.feedback-button--bad', 'addClass', ['feedback-button--pressed']));
-      $response->addCommand(new InvokeCommand('.feedback-button.feedback-button--good', 'removeClass', ['feedback-button--pressed']));
+      $response->addCommand(new InvokeCommand($selector . ' .feedback-button.feedback-button--bad', 'addClass', ['feedback-button--pressed']));
+      $response->addCommand(new InvokeCommand($selector . ' .feedback-button.feedback-button--good', 'removeClass', ['feedback-button--pressed']));
     }
 
     // Record the feedback.
