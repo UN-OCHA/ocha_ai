@@ -299,6 +299,10 @@ class OchaAiTagTagger extends OchaAiChat {
 
     // Sort by similarity score descending.
     foreach ($types as $type) {
+      if (!isset($results[$type])) {
+        continue;
+      }
+
       foreach ($results[$type] as $vocabulary => $terms) {
         if (!empty($terms)) {
           arsort($results[$type][$vocabulary]);
@@ -431,23 +435,19 @@ class OchaAiTagTagger extends OchaAiChat {
    */
   public function getSimilarDocuments($id, string $text = '') {
     $query_embedding = [];
-    $doc = $this->getVectorStorePlugin()->getDocument('vector_jobs', $id);
+
+    // Will fail for unpublished documents.
+    $doc = NULL;
+    try {
+      $doc = $this->getVectorStorePlugin()->getDocument('vector_jobs', $id);
+    }
+    catch (\Throwable $e) {
+      $doc = NULL;
+    }
 
     if (empty($doc)) {
-      // Doc doesn't exist in vector store.
-      $data = $this->getSourcePlugin()->getDocument('jobs', $id);
-      if (empty($data)) {
-        $query_embedding = $this->getEmbeddings($text);
-      }
-      else {
-        $job = reset($data['jobs']);
-        $job = $this->processDocument($job);
-        $query_embedding = $job['embedding'] ?? [];
-      }
-    }
-    else {
-      $doc = $doc['_source'];
-      $query_embedding = $doc['embedding'] ?? [];
+      $query_embedding = $this->getEmbeddings($text);
+      $query_embedding = reset($query_embedding);
     }
 
     if (!is_array($query_embedding) || empty($query_embedding)) {
