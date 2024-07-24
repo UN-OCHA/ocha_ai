@@ -11,6 +11,7 @@ use Drupal\Core\Session\AccountInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
  * Class OchaAiChat Controller.
@@ -57,8 +58,7 @@ class OchaAiChatController extends ControllerBase {
     $response = [];
 
     if ($this->access($this->currentUser())->isForbidden()) {
-      $response = ["error" => "Access denied!"];
-      return new JsonResponse($response, 403);
+      throw new NotFoundHttpException();
     }
 
     $database = $this->connection;
