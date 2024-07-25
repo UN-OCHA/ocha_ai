@@ -178,11 +178,17 @@ class OchaAiChatLogsForm extends FormBase {
       'answer' => [
         'data' => $this->t('Answer'),
       ],
+      'original_answer' => [
+        'data' => $this->t('Original answer'),
+      ],
       'context' => [
         'data' => $this->t('Context'),
       ],
       'status' => [
         'data' => $this->t('Status'),
+      ],
+      'error' => [
+        'data' => $this->t('Error type'),
       ],
       'duration' => [
         'data' => $this->t('Duration'),
@@ -249,6 +255,7 @@ class OchaAiChatLogsForm extends FormBase {
         ],
         'question' => $record->question,
         'answer' => $record->answer,
+        'original_answer' => $record->original_answer,
         'context' => [
           'data' => [
             '#type' => 'details',
@@ -258,6 +265,7 @@ class OchaAiChatLogsForm extends FormBase {
           ],
         ],
         'status' => $record->status,
+        'error' => $record->error,
         'duration' => $record->duration,
         'user' => isset($users[$record->uid]) ? $users[$record->uid]->toLink(options: $link_options) : '',
         'rate' => $record->satisfaction ?? 0,
@@ -292,12 +300,12 @@ class OchaAiChatLogsForm extends FormBase {
     $form['download']['submit'] = [
       '#type' => 'submit',
       '#name' => 'download',
-      '#value' => $this->t('Download as CSV'),
+      '#value' => $this->t('Download as TSV'),
       '#limit_validation_errors' => [
         ['download'],
       ],
       '#ajax' => [
-        'callback' => [$this, 'downloadCsv'],
+        'callback' => [$this, 'downloadTsv'],
         'wrapper' => 'download',
         'disable-refocus' => TRUE,
       ],
@@ -402,7 +410,7 @@ class OchaAiChatLogsForm extends FormBase {
   public function submitForm(array &$form, FormStateInterface $form_state): void {}
 
   /**
-   * Remove elements from being submitted as GET variables.
+   * Download the logs as a TSV file.
    *
    * @param array $form
    *   From.
@@ -414,15 +422,15 @@ class OchaAiChatLogsForm extends FormBase {
    *
    * @todo see if can just send a response to download the file.
    */
-  public function downloadCsv(array &$form, FormStateInterface $form_state): AjaxResponse {
+  public function downloadTsv(array &$form, FormStateInterface $form_state): AjaxResponse {
     $response = new AjaxResponse();
     $selector = '#download';
     $directory = 'private://ocha_ai_chat_logs/';
 
     // Create a temporary managed file so it can be deleted on cron.
     $file = $this->entityTypeManager->getStorage('file')->create();
-    $file->setFileName($file->uuid() . '.csv');
-    $file->setFileUri($directory . $file->uuid() . '.csv');
+    $file->setFileName($file->uuid() . '.tsv');
+    $file->setFileUri($directory . $file->uuid() . '.tsv');
     $file->setTemporary();
     $file->setOwnerId($this->currentUser->id());
     $file->save();
@@ -472,13 +480,13 @@ class OchaAiChatLogsForm extends FormBase {
         }
 
         if (!isset($last_id)) {
-          if (fputcsv($handle, array_keys(reset($results))) === FALSE) {
+          if (fputcsv($handle, array_keys(reset($results)), "\t") === FALSE) {
             throw new \Exception('Unable to write headers to file for the log export');
           }
         }
 
         foreach ($results as $result) {
-          if (fputcsv($handle, $result) === FALSE) {
+          if (fputcsv($handle, $result, "\t") === FALSE) {
             throw new \Exception('Unable to write rows to file for the log export');
           }
         }
