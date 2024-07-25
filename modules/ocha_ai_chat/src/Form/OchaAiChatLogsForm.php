@@ -178,11 +178,17 @@ class OchaAiChatLogsForm extends FormBase {
       'answer' => [
         'data' => $this->t('Answer'),
       ],
+      'original_answer' => [
+        'data' => $this->t('Original answer'),
+      ],
       'context' => [
         'data' => $this->t('Context'),
       ],
       'status' => [
         'data' => $this->t('Status'),
+      ],
+      'error' => [
+        'data' => $this->t('Error type'),
       ],
       'duration' => [
         'data' => $this->t('Duration'),
@@ -249,6 +255,7 @@ class OchaAiChatLogsForm extends FormBase {
         ],
         'question' => $record->question,
         'answer' => $record->answer,
+        'original_answer' => $record->original_answer,
         'context' => [
           'data' => [
             '#type' => 'details',
@@ -258,6 +265,7 @@ class OchaAiChatLogsForm extends FormBase {
           ],
         ],
         'status' => $record->status,
+        'error' => $record->error,
         'duration' => $record->duration,
         'user' => isset($users[$record->uid]) ? $users[$record->uid]->toLink(options: $link_options) : '',
         'rate' => $record->satisfaction ?? 0,
