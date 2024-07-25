@@ -191,10 +191,7 @@ class OchaAiChatChatForm extends FormBase {
     $feedback_type = $defaults['form']['feedback'] ?? 'detailed';
 
     $previous_questions = json_decode($history, TRUE) ?? [];
-    $last_index = '';
-    if (!empty($previous_questions)) {
-      $last_index = array_pop(array_keys($previous_questions));
-    }
+    $last_index = array_key_last($previous_questions);
 
     foreach ($previous_questions as $index => $record) {
       // Used on two different form elements; they must match to function.
