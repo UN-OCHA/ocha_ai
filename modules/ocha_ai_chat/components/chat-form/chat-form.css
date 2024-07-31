@@ -233,9 +233,9 @@ button doesn't overlay any text */
 .ocha-ai-chat-chat-form .ocha-ai-chat-result .chat__refs,
 .ocha-ai-chat-chat-form__instructions > * {
   align-self: flex-start;
+  margin-left: 52px;
   margin-block-start: 1.5rem;
   margin-inline-end: 2rem;
-  margin-left: 52px;
   text-align: start;
   color: #333;
   background: var(--brand-grey);
@@ -248,9 +248,10 @@ button doesn't overlay any text */
     display: block;
     width: 48px;
     height: 48px;
-    background: var(--rw-icons--avatar--avatar--48--dark-grey);
     content: '';
+    background: var(--rw-icons--avatar--avatar--48--dark-grey);
   }
+
   &::after {
     position: absolute;
     bottom: 6px;
@@ -309,9 +310,9 @@ button doesn't overlay any text */
 .ocha-ai-chat-result-feedback .fieldset-wrapper {
   display: flex;
   flex-flow: row nowrap;
+  align-items: center;
   justify-content: flex-start;
   gap: 0.5rem;
-  align-items: center;
 }
 
 .ocha-ai-chat-result-feedback {
@@ -323,14 +324,14 @@ button doesn't overlay any text */
 }
 
 button.feedback-button.feedback-button.feedback-button.feedback-button {
+  overflow: hidden;
   width: 1rem;
   height: 1rem;
-  border: 0;
-  padding: 0;
   margin: 0;
-  background: none;
+  padding: 0;
   color: transparent;
-  overflow: hidden;
+  border: 0;
+  background: none;
 }
 
 .feedback-button::before {
@@ -346,9 +347,9 @@ button.feedback-button.feedback-button.feedback-button.feedback-button {
 
 button.feedback-button.feedback-button.feedback-button.feedback-button:hover,
 button.feedback-button.feedback-button.feedback-button.feedback-button:focus {
-  background: none;
-  outline: none;
   border: none;
+  outline: none;
+  background: none;
 }
 
 .feedback-button--good:focus::before { background: var(--rw-icons--chat--thumbs-up--16--dark-red); }
@@ -357,18 +358,18 @@ button.feedback-button.feedback-button.feedback-button.feedback-button:focus {
 
 button.feedback-button.feedback-button.feedback-button--pressed.feedback-button--good,
 button.feedback-button.feedback-button.feedback-button--pressed.feedback-button--bad {
+  position: relative;
   width: 1.5rem;
   height: 1.5rem;
   border: solid 1px #2e3436;
   border-radius: 50%;
-  position: relative;
 }
 
 .feedback-button--pressed.feedback-button--good::before,
 .feedback-button--pressed.feedback-button--bad::before {
   position: absolute;
-  left: 0;
   right: 0;
+  left: 0;
   margin: auto;
 }
 
@@ -381,12 +382,23 @@ button.feedback-button.feedback-button.feedback-button--pressed.feedback-button-
   top: -1px;
 }
 
+.feedback-button--bad.feedback-button--pressed::before {
+  /* Align the thumb down icon when circled. */
+  top: 4px;
+}
+
+button.feedback-button.feedback-button.feedback-button.feedback-button:focus {
+  border: none;
+  outline: none;
+  background: none;
+}
+
 .feedback-button--show-detailed {
-  font-size: 0.8em;
-  padding: 0 .25rem;
-  background: transparent;
-  color: var(--brand-primary);
   position: relative;
+  padding: 0 .25rem;
+  color: var(--brand-primary);
+  background: transparent;
+  font-size: 0.8em;
 }
 
 .feedback-button--show-detailed:hover {
@@ -423,28 +435,28 @@ button.feedback-button.feedback-button.feedback-button--pressed.feedback-button-
 }
 
 .clipboard-feedback {
-  font-size: .75em;
   position: absolute;
-  top: -4px;
   z-index: 100;
-  background: var(--cd-black);
-  color: var(--cd-white);
-  border-radius: 3px;
+  top: -4px;
   margin-inline-start: 0.5rem;
   padding: 0.2rem 0.25rem;
   white-space: nowrap;
+  color: var(--cd-white);
+  border-radius: 3px;
+  background: var(--cd-black);
+  font-size: .75em;
 }
 
 .clipboard-feedback::before {
   --clipboard-arrow: 7px;
 
-  content: '';
-  border-inline-end: var(--clipboard-arrow) solid black;
-  border-block: 5px solid transparent;
-  display: block;
   position: absolute;
   top: 50%;
+  display: block;
+  content: '';
   transform: translateY(-50%);
+  border-inline-end: var(--clipboard-arrow) solid black;
+  border-block: 5px solid transparent;
 }
 
 [dir="ltr"] .clipboard-feedback {
