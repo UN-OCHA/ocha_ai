@@ -248,6 +248,8 @@ class OchaAiChatChatForm extends FormBase {
           '#attributes' => [
             'class' => [
               'feedback-button',
+              'feedback-button--icon',
+              'feedback-button--thumb',
               'feedback-button--good',
               ($thumbs_state == 'up') ? 'feedback-button--pressed' : '',
             ],
@@ -265,6 +267,8 @@ class OchaAiChatChatForm extends FormBase {
           '#attributes' => [
             'class' => [
               'feedback-button',
+              'feedback-button--icon',
+              'feedback-button--thumb',
               'feedback-button--bad',
               ($thumbs_state == 'down') ? 'feedback-button--pressed' : '',
             ],
@@ -280,7 +284,11 @@ class OchaAiChatChatForm extends FormBase {
           '#name' => 'chat-result-' . $index . '-copy-clipboard',
           '#value' => $this->t('Copy to clipboard'),
           '#attributes' => [
-            'class' => ['feedback-button', 'feedback-button--copy'],
+            'class' => [
+              'feedback-button',
+              'feedback-button--icon',
+              'feedback-button--copy',
+            ],
             'data-result-id' => $record['id'],
             'data-for' => $answer_id,
           ],
@@ -305,7 +313,7 @@ class OchaAiChatChatForm extends FormBase {
         if ($feedback_type === 'both') {
           $form['chat'][$index]['feedback_simple']['show_detailed'] = [
             '#type' => 'inline_template',
-            '#template' => '<button data-for="{{ target }}" class="feedback-button--show-detailed">{{ button_text }}</button>',
+            '#template' => '<button data-for="{{ target }}" class="feedback-button feedback-button--show-detailed">{{ button_text }}</button>',
             '#context' => [
               'target' => 'chat-result-' . $index . '-feedback',
               'button_text' => $this->t('Give detailed feedback'),
