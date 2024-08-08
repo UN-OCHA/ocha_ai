@@ -391,7 +391,7 @@ class OchaAiChatLogsForm extends FormBase {
         '#type' => 'inline_template',
         '#template' => '{{ text }}<br><small>Source: {{ sources }}, {{ title }}, {{ date }}</small>',
         '#context' => [
-          'text' => $passage['text'],
+          'text' => $passage['expanded_text'] ?? $passage['text'],
           'sources' => $sources,
           'title' => Link::fromTextAndUrl($source_title, $source_url),
           'date' => $date,
