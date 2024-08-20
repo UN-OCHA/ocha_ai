@@ -59,7 +59,6 @@
           if (scrollToPrevious) {
             const top = chatContainer.lastElementChild.offsetTop;
             chatContainer.scrollTo({top: top, behavior: 'instant'});
-
           }
 
           // Delay a bit the smooth scrolling to give a less instant effect.
@@ -96,12 +95,24 @@
           }
         };
 
+        // Observe DOM changes to the chat form.
         const scrollObserver = new MutationObserver(scrollObserverCallback);
         scrollObserver.observe(parent, {childList: true, subtree: true});
 
-        // Scroll to the bottom of the container initially. This allows to
-        // reveal the chat instructions smoothly as if given by the bot.
-        scrollChatContainer(false);
+        // Scroll to the bottom of the chat when the window is resized.
+        const resizeCallback = (elements) => {
+          console.log('resize');
+          scrollChatContainer(false);
+        };
+
+        // Observe resizing events of the chat form and scroll ot the bottom
+        // of the chat when that happens.
+        //
+        // There is an initial resizing when this behavior is attached. This
+        // allows to reveal the chat instructions smoothly as if given by the
+        // bot.
+        const resizeObserver = new ResizeObserver(resizeCallback);
+        resizeObserver.observe(parent);
       });
 
       // Handle chat interaction: sending, copying, rating.
