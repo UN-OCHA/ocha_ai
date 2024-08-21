@@ -1,7 +1,7 @@
 :root {
   --oaic-outline: 2px; /* CD dependency */
   --oaic-textarea-height: 76px;
-  --oaic-padding-block-start: 0px;
+  --oaic-chat-container-padding: 200%;
 }
 
 /**
@@ -50,6 +50,15 @@
   height: calc(100% - 1.5rem - 24px - 7px); /* TODO: 7px is a magic number */
 }
 
+.ocha-ai-chat-popup .ocha-ai-chat-chat-form-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-content: start;
+}
+.ocha-ai-chat-popup .ocha-ai-chat-chat-form-wrapper .ocha-ai-chat-chat-form {
+  overflow-y: hidden;
+}
+
 /**
  * Title / Heading area
  */
@@ -74,11 +83,11 @@
   flex-flow: column nowrap;
   justify-content: space-between;
   height: 100%;
-  padding-block-start: 1rem;
 }
 
-.ocha-ai-chat-chat-form [data-drupal-selector="edit-advanced"] {
+.ocha-ai-chat-chat-form .form-wrapper[data-drupal-selector="edit-advanced"] {
   flex: 0 0 auto;
+  margin: 0.5rem;
 }
 
 /* This element provides the top-level layout for the chat content. */
@@ -94,9 +103,14 @@
   overflow-y: scroll;
   flex-flow: column nowrap;
   height: 100%;
-  padding-block-start: var(--oaic-padding-block-start);
   padding-inline: 16px;
   padding-block-end: 16px;
+}
+
+.ocha-ai-chat-chat-form [data-drupal-selector="edit-chat"] > .fieldset-wrapper::before {
+  display: block;
+  flex: 0 0 var(--oaic-chat-container-padding);
+  content: "";
 }
 
 /* The instructions margins provide crucial styles to bottom-align content so
@@ -551,4 +565,20 @@ button doesn't overlay any text */
     right: initial;
     left: 21px;
   }
+}
+
+/* Drupal message. */
+.ocha-ai-chat-popup .ocha-ai-chat-chat-form-wrapper .messages-list {
+  z-index: 10;
+  padding: 0.5rem 0.5rem 0.5rem 1rem;
+  background: white;
+}
+.ocha-ai-chat-popup .ocha-ai-chat-chat-form-wrapper .messages-list .messages {
+  margin: 0;
+}
+.ocha-ai-chat-popup .ocha-ai-chat-chat-form-wrapper .messages-list .messages + .messages {
+  margin-top: 1rem;
+}
+.ocha-ai-chat-popup .ocha-ai-chat-chat-form-wrapper .messages-list:has(+ .ocha-ai-chat-chat-form) {
+  box-shadow: 0 0 8px 4px rgba(0,0,0,0.5);
 }
