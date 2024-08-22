@@ -415,16 +415,23 @@ class OchaAiTagTagger extends OchaAiChat {
   }
 
   /**
-   * Embed a document.
+   * Embed a document using id or document array.
    */
-  public function embedDocument(int $id): bool {
-    $data = $this->getSourcePlugin()->getDocument('jobs', $id);
-    if (empty($data)) {
-      return FALSE;
+  public function embedDocument(int $id, array $doc = []): bool {
+    $job = [];
+    if (empty($doc)) {
+      $data = $this->getSourcePlugin()->getDocument('jobs', $id);
+      if (empty($data)) {
+        return FALSE;
+      }
+
+      $job = reset($data['jobs']);
+      $job = $this->processDocument($job);
+    }
+    else {
+      $job = $this->processDocument($doc);
     }
 
-    $job = reset($data['jobs']);
-    $job = $this->processDocument($job);
     return $this->getVectorStorePlugin()->indexDocuments('vector_jobs', [$id => $job], $this->getEmbeddingPlugin()->getDimensions());
   }
 

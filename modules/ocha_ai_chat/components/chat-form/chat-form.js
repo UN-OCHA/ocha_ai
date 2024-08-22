@@ -2,34 +2,123 @@
 (function () {
   'use strict';
 
-  // Some data needs to survive between executions of Drupal's `attach` method
-  // so we instantiate it outside the Behavior itself.
-  var oldScrollHeight;
-
   // Initialize. We do this outside Drupal.behaviors because it doesn't need to
   // run each time ajax gets called.
   window.parent.postMessage('ready', window.origin);
 
   Drupal.behaviors.ochaAiChatForm = {
     attach: function (context, settings) {
+      const createElement = Drupal.behaviors.ochaAiChatUtils.createElement;
+      const chatContainerSelector = '[data-drupal-selector="edit-chat"] > .fieldset-wrapper';
+
+      // Observe elements added to the form wrapper's parent to smooth scroll
+      // when the chat container is updated (ex: new question or answer).
+      once('ocha-ai-chat-form', '.ocha-ai-chat-chat-form-wrapper', context).forEach(element => {
+        const parent = element.parentNode;
+
+        // Check if the chat container is a child of an element in the given
+        // node list.
+        const hasChatContainer = (nodeList) => {
+          for (let node of nodeList) {
+            if (node.querySelector(chatContainerSelector)) {
+              return true;
+            }
+          }
+        };
+
+        // Check if the given node is the chat container.
+        const isChatContainer = (node) => {
+          return node.classList.contains('fieldset-wrapper') &&
+            node.parentNode.getAttribute('data-drupal-selector') === 'edit-chat';
+        };
+
+        // Scroll "smoohtly" to the bottom of the chat container when content
+        // is added for example.
+        const scrollChatContainer = (scrollToPrevious) => {
+          const chatContainer = document.querySelector(chatContainerSelector);
+
+          // There is some blank padding initially in the chat container to
+          // allow the smooth scrolling effect.
+          //
+          // If there is content, adjust the height of the `:before` pseudo
+          // element so that there is less scrollable blank area when the chat
+          // container is populated with real content.
+          if (chatContainer.firstElementChild) {
+            const sh = chatContainer.scrollHeight;
+            const ch = chatContainer.clientHeight;
+            const ot = chatContainer.firstElementChild.offsetTop;
+            // The initial height of the pseudo element is 200% (equivalent of
+            // 2 * client height.
+            const cp = Math.max((2 * ch) - (sh - ot), 0);
+
+            chatContainer.style.setProperty('--oaic-chat-container-padding', cp + 'px');
+          }
+
+          // Scroll to the previous position directly so the smooth scrolling
+          // doesn't start from the top of the chat container.
+          if (scrollToPrevious) {
+            const top = chatContainer.lastElementChild.offsetTop;
+            chatContainer.scrollTo({top: top, behavior: 'instant'});
+          }
+
+          // Delay a bit the smooth scrolling to give a less instant effect.
+          setTimeout(() => {
+            chatContainer.scrollTo({top: chatContainer.scrollHeight, behavior: 'smooth'});
+          }, 100);
+        };
+
+        // Mutation observer callback to determine if we should scroll to the
+        // bottom of the chat container.
+        const scrollObserverCallback = (mutationList, observer) => {
+          let scroll = false;
+          let scrollToPrevious = false;
+
+          for (const mutation of mutationList) {
+            if (!scroll && mutation.addedNodes.length > 0) {
+              // This is triggered when the question is added to the existing
+              // chat container.
+              if (isChatContainer(mutation.target)) {
+                scroll = true;
+                scrollToPrevious = false;
+              }
+              // This is triggered when the chat is recreated in which case
+              // the new chat container was added.
+              else if (mutation.target === parent && hasChatContainer(mutation.addedNodes)) {
+                scroll = true;
+                scrollToPrevious = true;
+              }
+            }
+          }
+
+          if (scroll) {
+            scrollChatContainer(scrollToPrevious);
+          }
+        };
+
+        // Observe DOM changes to the chat form.
+        const scrollObserver = new MutationObserver(scrollObserverCallback);
+        scrollObserver.observe(parent, {childList: true, subtree: true});
+
+        // Scroll to the bottom of the chat when the window is resized.
+        const resizeCallback = (elements) => {
+          console.log('resize');
+          scrollChatContainer(false);
+        };
+
+        // Observe resizing events of the chat form and scroll ot the bottom
+        // of the chat when that happens.
+        //
+        // There is an initial resizing when this behavior is attached. This
+        // allows to reveal the chat instructions smoothly as if given by the
+        // bot.
+        const resizeObserver = new ResizeObserver(resizeCallback);
+        resizeObserver.observe(parent);
+      });
+
+      // Handle chat interaction: sending, copying, rating.
       once('ocha-ai-chat-form', '[data-drupal-selector="edit-chat"]', context).forEach(element => {
-        var chatContainer = document.querySelector('[data-drupal-selector="edit-chat"] .fieldset-wrapper');
         var submitButton = document.querySelector('[data-drupal-selector="edit-submit"]');
         var questionTextarea = document.querySelector('[data-drupal-selector="edit-question"]');
-        var chatHeight = this.padChatWindow();
-
-        // Do some calculations to decide where to start our smooth scroll.
-        if (oldScrollHeight) {
-          var smoothScrollStart = oldScrollHeight - chatHeight;
-
-          // Jump to where the bottom of the previous container was before the DOM
-          // got updated. From there, we smooth-scroll to the bottom.
-          chatContainer.scrollTo({top: smoothScrollStart, behavior: 'instant'});
-          chatContainer.scrollTo({top: chatContainer.scrollHeight, behavior: 'smooth'});
-        }
-        else {
-          chatContainer.scrollTo({top: chatContainer.scrollHeight, behavior: 'smooth'});
-        }
 
         /**
          * Chat submission.
@@ -57,19 +146,19 @@
 
           // Build DOM nodes to be inserted.
           var chatContainer = document.querySelector('[data-drupal-selector="edit-chat"] .fieldset-wrapper');
-          var chatResult = Drupal.behaviors.ochaAiChatUtils.createElement('div', {
+          var chatResult = createElement('div', {
             'class': 'ocha-ai-chat-result'
           }, {});
-          var questionDl = Drupal.behaviors.ochaAiChatUtils.createElement('dl', {
+          var questionDl = createElement('dl', {
             'class': 'chat'
           }, {});
-          var questionWrapper = Drupal.behaviors.ochaAiChatUtils.createElement('div', {
+          var questionWrapper = createElement('div', {
             'class': 'chat__q chat__q--loading'
           }, {});
-          var questionDt = Drupal.behaviors.ochaAiChatUtils.createElement('dt', {
+          var questionDt = createElement('dt', {
             'class': 'visually-hidden'
           }, 'Question');
-          var questionDd = Drupal.behaviors.ochaAiChatUtils.createElement('dd', {}, questionValue);
+          var questionDd = createElement('dd', {}, questionValue);
 
           // Prep all the DOM nodes for insertion.
           questionWrapper.append(questionDt);
@@ -80,16 +169,6 @@
           // Introduce a small delay before question gets inserted into DOM.
           setTimeout(() => {
             chatContainer.append(chatResult);
-
-            // In this instance we use smooth scrolling. It won't be smooth
-            // unless the continer can be scrolled to begin with, but if padding
-            // was able to be added when the window opened, then it should work
-            // from the very beginning of the chat history.
-            chatContainer.scrollTo({top: chatContainer.scrollHeight, behavior: 'smooth'});
-
-            // Store the scroll position so that we can attempt to smooth-scroll
-            // when the form reloads with new data attached.
-            oldScrollHeight = chatContainer.scrollHeight;
 
             // Remove old question from textarea.
             document.querySelector('[data-drupal-selector="edit-question"]').value = '';
@@ -137,31 +216,7 @@
 
         // Initialize the button to toggle detailed feedback.
         this.toggleFeedback();
-
-        // Listen for window resizes and recalculate the amount of padding needed
-        // within the chat history.
-        window.addEventListener('resize', Drupal.debounce(this.padChatWindow, 33));
       });
-    },
-
-    /**
-     * Pad chat window
-     *
-     * Calculates the size of the chat window and adds padding to ensure there
-     * is always a scrollable area. This allows the smooth-scroll code to create
-     * the illusion of a chat UI like SMS or WhatsApp.
-     *
-     * @return int height of chat container minus some padding
-     */
-    padChatWindow: function (ev) {
-      var chatContainerOuter = document.querySelector('[data-drupal-selector="edit-chat"]');
-      var chatContainer = document.querySelector('[data-drupal-selector="edit-chat"] .fieldset-wrapper');
-
-      // There's some bottom padding we have to subtract away.
-      var chatHeight = chatContainerOuter.getBoundingClientRect().height - 16;
-      chatContainer.style.setProperty('--oaic-padding-block-start', chatHeight + 'px');
-
-      return chatHeight;
     },
 
     /**
@@ -307,6 +362,6 @@
           }
         });
       });
-    },
+    }
   };
 })();

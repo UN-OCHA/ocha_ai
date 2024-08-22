@@ -1,7 +1,7 @@
 :root {
   --oaic-outline: 2px; /* CD dependency */
   --oaic-textarea-height: 76px;
-  --oaic-padding-block-start: 0px;
+  --oaic-chat-container-padding: 200%;
 }
 
 /**
@@ -50,6 +50,15 @@
   height: calc(100% - 1.5rem - 24px - 7px); /* TODO: 7px is a magic number */
 }
 
+.ocha-ai-chat-popup .ocha-ai-chat-chat-form-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-content: start;
+}
+.ocha-ai-chat-popup .ocha-ai-chat-chat-form-wrapper .ocha-ai-chat-chat-form {
+  overflow-y: hidden;
+}
+
 /**
  * Title / Heading area
  */
@@ -74,11 +83,11 @@
   flex-flow: column nowrap;
   justify-content: space-between;
   height: 100%;
-  padding-block-start: 1rem;
 }
 
-.ocha-ai-chat-chat-form [data-drupal-selector="edit-advanced"] {
+.ocha-ai-chat-chat-form .form-wrapper[data-drupal-selector="edit-advanced"] {
   flex: 0 0 auto;
+  margin: 0.5rem;
 }
 
 /* This element provides the top-level layout for the chat content. */
@@ -94,9 +103,14 @@
   overflow-y: scroll;
   flex-flow: column nowrap;
   height: 100%;
-  padding-block-start: var(--oaic-padding-block-start);
   padding-inline: 16px;
   padding-block-end: 16px;
+}
+
+.ocha-ai-chat-chat-form [data-drupal-selector="edit-chat"] > .fieldset-wrapper::before {
+  display: block;
+  flex: 0 0 var(--oaic-chat-container-padding);
+  content: "";
 }
 
 /* The instructions margins provide crucial styles to bottom-align content so
@@ -233,9 +247,9 @@ button doesn't overlay any text */
 .ocha-ai-chat-chat-form .ocha-ai-chat-result .chat__refs,
 .ocha-ai-chat-chat-form__instructions > * {
   align-self: flex-start;
+  margin-left: 52px;
   margin-block-start: 1.5rem;
   margin-inline-end: 2rem;
-  margin-left: 52px;
   text-align: start;
   color: #333;
   background: var(--brand-grey);
@@ -248,9 +262,10 @@ button doesn't overlay any text */
     display: block;
     width: 48px;
     height: 48px;
-    background: var(--rw-icons--avatar--avatar--48--dark-grey);
     content: '';
+    background: var(--rw-icons--avatar--avatar--48--dark-grey);
   }
+
   &::after {
     position: absolute;
     bottom: 6px;
@@ -309,9 +324,9 @@ button doesn't overlay any text */
 .ocha-ai-chat-result-feedback .fieldset-wrapper {
   display: flex;
   flex-flow: row nowrap;
+  align-items: center;
   justify-content: flex-start;
   gap: 0.5rem;
-  align-items: center;
 }
 
 .ocha-ai-chat-result-feedback {
@@ -322,79 +337,117 @@ button doesn't overlay any text */
   margin-block-start: 0.5rem;
 }
 
-button.feedback-button.feedback-button.feedback-button.feedback-button {
-  width: 1rem;
-  height: 1rem;
-  border: 0;
-  padding: 0;
-  margin: 0;
+/**
+ * Feedback buttons.
+ *
+ * Note: we need long selectors to have enough specificity to override the
+ * default button styling when the form is shown on sites like ReliefWeb.
+ */
+.ocha-ai-chat-chat-form .ocha-ai-chat-result .feedback-button.feedback-button:active,
+.ocha-ai-chat-chat-form .ocha-ai-chat-result .feedback-button.feedback-button:hover,
+.ocha-ai-chat-chat-form .ocha-ai-chat-result .feedback-button.feedback-button:focus {
+  border: none;
+  outline: none;
   background: none;
-  color: transparent;
-  overflow: hidden;
 }
 
-.feedback-button::before {
+.ocha-ai-chat-chat-form .ocha-ai-chat-result .feedback-button.feedback-button--icon {
+  /* Visually hide the text. */
+  overflow: hidden;
+  width: 1rem;
+  height: 1rem;
+  margin: 0;
+  padding: 0;
+  color: transparent;
+  border: 0;
+  background: none;
+}
+
+.ocha-ai-chat-chat-form .ocha-ai-chat-result .feedback-button.feedback-button--icon::before {
   display: inline-block;
   width: 1rem;
   height: 1rem;
   content: '';
 }
 
-.feedback-button--good::before { background: var(--rw-icons--chat--thumbs-up--16--dark-blue); }
-.feedback-button--bad::before { background: var(--rw-icons--chat--thumbs-down--16--dark-blue); }
-.feedback-button--copy::before { background: var(--rw-icons--chat--copy--16--dark-blue); }
-
-button.feedback-button.feedback-button.feedback-button.feedback-button:hover,
-button.feedback-button.feedback-button.feedback-button.feedback-button:focus {
-  background: none;
-  outline: none;
-  border: none;
+.ocha-ai-chat-chat-form .ocha-ai-chat-result .feedback-button.feedback-button--good::before {
+  background: var(--rw-icons--chat--thumbs-up--16--dark-blue);
+}
+.ocha-ai-chat-chat-form .ocha-ai-chat-result .feedback-button.feedback-button--bad::before {
+  background: var(--rw-icons--chat--thumbs-down--16--dark-blue);
+}
+.ocha-ai-chat-chat-form .ocha-ai-chat-result .feedback-button.feedback-button--copy::before {
+  background: var(--rw-icons--chat--copy--16--dark-blue);
 }
 
-.feedback-button--good:focus::before { background: var(--rw-icons--chat--thumbs-up--16--dark-red); }
-.feedback-button--bad:focus::before { background: var(--rw-icons--chat--thumbs-down--16--dark-red); }
-.feedback-button--copy:focus::before { background: var(--rw-icons--chat--copy--16--dark-red); }
+.ocha-ai-chat-chat-form .ocha-ai-chat-result .feedback-button.feedback-button--copy:active::before,
+.ocha-ai-chat-chat-form .ocha-ai-chat-result .feedback-button.feedback-button--copy:hover::before,
+.ocha-ai-chat-chat-form .ocha-ai-chat-result .feedback-button.feedback-button--copy:focus::before {
+  background-position-x: var(--rw-icons--chat--16--dark-red--x);
+}
 
-button.feedback-button.feedback-button.feedback-button--pressed.feedback-button--good,
-button.feedback-button.feedback-button.feedback-button--pressed.feedback-button--bad {
+/* Thumb buttons. */
+.ocha-ai-chat-chat-form .ocha-ai-chat-result .feedback-button.feedback-button--thumb {
+  position: relative;
   width: 1.5rem;
   height: 1.5rem;
-  border: solid 1px #2e3436;
+  border: solid 1px transparent;
   border-radius: 50%;
-  position: relative;
 }
-
-.feedback-button--pressed.feedback-button--good::before,
-.feedback-button--pressed.feedback-button--bad::before {
+.ocha-ai-chat-chat-form .ocha-ai-chat-result .feedback-button.feedback-button--thumb.feedback-button--pressed {
+  border: solid 1px #2e3436;
+}
+.ocha-ai-chat-chat-form .ocha-ai-chat-result .feedback-button.feedback-button--thumb.feedback-button--pressed:active,
+.ocha-ai-chat-chat-form .ocha-ai-chat-result .feedback-button.feedback-button--thumb.feedback-button--pressed:hover,
+.ocha-ai-chat-chat-form .ocha-ai-chat-result .feedback-button.feedback-button--thumb.feedback-button--pressed:focus {
+  border: solid 1px transparent;
+}
+.ocha-ai-chat-chat-form .ocha-ai-chat-result .feedback-button.feedback-button--thumb:not(.feedback-button--pressed):active,
+.ocha-ai-chat-chat-form .ocha-ai-chat-result .feedback-button.feedback-button--thumb:not(.feedback-button--pressed):hover,
+.ocha-ai-chat-chat-form .ocha-ai-chat-result .feedback-button.feedback-button--thumb:not(.feedback-button--pressed):focus {
+  border: solid 1px var(--brand-primary);
+}
+.ocha-ai-chat-chat-form .ocha-ai-chat-result .feedback-button.feedback-button--thumb::before {
   position: absolute;
-  left: 0;
+  top: 0;
   right: 0;
+  left: 0;
   margin: auto;
 }
+.ocha-ai-chat-chat-form .ocha-ai-chat-result .feedback-button.feedback-button--thumb.feedback-button--good::before {
+  top: 2px;
+}
+.ocha-ai-chat-chat-form .ocha-ai-chat-result .feedback-button.feedback-button--thumb.feedback-button--bad::before {
+  top: 4px;
+}
+.ocha-ai-chat-chat-form .ocha-ai-chat-result .feedback-button.feedback-button--thumb.feedback-button--pressed::before {
+  background-position-x: var(--rw-icons--chat--16--dark-grey--x);
+}
+.ocha-ai-chat-chat-form .ocha-ai-chat-result .feedback-button.feedback-button--thumb + .feedback-button--thumb {
+  margin-left: -2px;
+}
 
-.feedback-button--pressed.feedback-button--good::before { background: var(--rw-icons--chat--thumbs-up--16--dark-grey); }
-.feedback-button--pressed.feedback-button--bad::before { background: var(--rw-icons--chat--thumbs-down--16--dark-grey); }
-
-.feedback-button--copy {
+/* Copy button. */
+.ocha-ai-chat-chat-form .ocha-ai-chat-result .feedback-button.feedback-button--copy {
   /* this icon looks misaligned when the boxes are flush */
   position: relative;
   top: -1px;
 }
 
-.feedback-button--show-detailed {
-  font-size: 0.8em;
-  padding: 0 .25rem;
-  background: transparent;
-  color: var(--brand-primary);
+/* Detailed feedback button. */
+.ocha-ai-chat-chat-form .ocha-ai-chat-result .feedback-button.feedback-button--show-detailed {
   position: relative;
+  padding: 0 .25rem;
+  color: var(--brand-primary);
+  border: none;
+  background: none;
+  font-size: 0.8em;
 }
-
-.feedback-button--show-detailed:hover {
-  background: transparent;
-}
-
-.feedback-button--show-detailed:focus {
-  background: transparent;
+.ocha-ai-chat-chat-form .ocha-ai-chat-result .feedback-button.feedback-button--show-detailed:active,
+.ocha-ai-chat-chat-form .ocha-ai-chat-result .feedback-button.feedback-button--show-detailed:hover,
+.ocha-ai-chat-chat-form .ocha-ai-chat-result .feedback-button.feedback-button--show-detailed:focus {
+  border: none;
+  background: none;
 }
 
 /**
@@ -423,28 +476,28 @@ button.feedback-button.feedback-button.feedback-button--pressed.feedback-button-
 }
 
 .clipboard-feedback {
-  font-size: .75em;
   position: absolute;
-  top: -4px;
   z-index: 100;
-  background: var(--cd-black);
-  color: var(--cd-white);
-  border-radius: 3px;
+  top: -4px;
   margin-inline-start: 0.5rem;
   padding: 0.2rem 0.25rem;
   white-space: nowrap;
+  color: var(--cd-white);
+  border-radius: 3px;
+  background: var(--cd-black);
+  font-size: .75em;
 }
 
 .clipboard-feedback::before {
   --clipboard-arrow: 7px;
 
-  content: '';
-  border-inline-end: var(--clipboard-arrow) solid black;
-  border-block: 5px solid transparent;
-  display: block;
   position: absolute;
   top: 50%;
+  display: block;
+  content: '';
   transform: translateY(-50%);
+  border-inline-end: var(--clipboard-arrow) solid black;
+  border-block: 5px solid transparent;
 }
 
 [dir="ltr"] .clipboard-feedback {
@@ -512,4 +565,20 @@ button.feedback-button.feedback-button.feedback-button--pressed.feedback-button-
     right: initial;
     left: 21px;
   }
+}
+
+/* Drupal message. */
+.ocha-ai-chat-popup .ocha-ai-chat-chat-form-wrapper .messages-list {
+  z-index: 10;
+  padding: 0.5rem 0.5rem 0.5rem 1rem;
+  background: white;
+}
+.ocha-ai-chat-popup .ocha-ai-chat-chat-form-wrapper .messages-list .messages {
+  margin: 0;
+}
+.ocha-ai-chat-popup .ocha-ai-chat-chat-form-wrapper .messages-list .messages + .messages {
+  margin-top: 1rem;
+}
+.ocha-ai-chat-popup .ocha-ai-chat-chat-form-wrapper .messages-list:has(+ .ocha-ai-chat-chat-form) {
+  box-shadow: 0 0 8px 4px rgba(0,0,0,0.5);
 }
