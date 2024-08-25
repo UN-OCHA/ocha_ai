@@ -20,6 +20,9 @@ defaults:
       plugin_id: aws_bedrock
     embedding:
       plugin_id: aws_bedrock
+    ranker:
+      plugin_id: ocha_ai_helper_ranker
+      limit: 5
     source:
       plugin_id: reliefweb
     text_extractor:
