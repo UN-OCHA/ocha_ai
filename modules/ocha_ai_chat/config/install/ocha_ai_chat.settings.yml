@@ -21,7 +21,7 @@ defaults:
     embedding:
       plugin_id: aws_bedrock
     ranker:
-      plugin_id: ocha_ai_helper_ranker
+      plugin_id: NULL
       limit: 5
     source:
       plugin_id: reliefweb
