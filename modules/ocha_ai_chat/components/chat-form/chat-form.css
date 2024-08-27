@@ -456,7 +456,7 @@ button doesn't overlay any text */
  * Instead of introducing a CD dependency, we add a few status message styles.
  */
 .ocha-ai-chat-result-feedback .messages {
-  margin-block-start: 0.5rem;
+  margin: 0.5rem 0 0 0;
   padding: 0.5rem;
   border: 1px solid var(--cd-grey--mid);
   border-radius: 3px;
@@ -570,6 +570,8 @@ button doesn't overlay any text */
 /* Drupal message. */
 .ocha-ai-chat-popup .ocha-ai-chat-chat-form-wrapper .messages-list {
   z-index: 10;
+  overflow-y: auto;
+  max-height: 30%;
   padding: 0.5rem 0.5rem 0.5rem 1rem;
   background: white;
 }
