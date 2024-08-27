@@ -59,7 +59,7 @@ class AzureOpenAi extends CompletionPluginBase {
       'messages' => $messages,
       'temperature' => 0.0,
       'top_p' => 0.9,
-      'max_tokens' => $this->getPluginSetting('max_tokens', 512),
+      'max_tokens' => (int) $this->getPluginSetting('max_tokens', 512),
     ];
 
     try {
