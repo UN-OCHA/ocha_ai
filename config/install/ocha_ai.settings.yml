@@ -12,6 +12,10 @@ plugins:
         Based solely on the information below, please answer the user's question. Please do not make things up and say you don't know if you cannot answer.
 
         {{ context }}
+  ranker:
+    ocha_ai_helper_ranker:
+      endpoint: http://ocha-ai-helper/text/correlate/texts
+      limit: 5
   source:
     reliefweb:
       api_url: https://api.reliefweb.int/v1
@@ -42,6 +46,8 @@ defaults:
       plugin_id: aws_bedrock
     embedding:
       plugin_id: aws_bedrock
+    ranker:
+      plugin_id: ocha_ai_helper_ranker
     source:
       plugin_id: reliefweb
     text_extractor:

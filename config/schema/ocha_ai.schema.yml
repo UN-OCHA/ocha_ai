@@ -162,6 +162,15 @@ ocha_ai.plugin.embedding:
       type: integer
       label: 'Max tokens.'
 
+# Ranker plugin base settings.
+ocha_ai.plugin.ranker:
+  type: mapping
+  label: 'Ranker plugin base settings.'
+  mapping:
+    limit:
+      type: integer
+      label: 'Maximum number of relevant texts to return.'
+
 # Source plugin base settings.
 ocha_ai.plugin.source:
   type: mapping
@@ -227,6 +236,15 @@ ocha_ai.plugin.completion.azure_openai:
 ocha_ai.plugin.embedding.azure_openai:
   type: ocha_ai.plugin.embedding
   label: 'AWS Bedrock embedding plugin settings.'
+
+# OCHA AI Helper ranker plugin settings
+ocha_ai.plugin.ranker.ocha_ai_helper_ranker:
+  type: ocha_ai.plugin.ranker
+  label: 'OCHA AI Helper ranker plugin settings.'
+  mapping:
+    endpoint:
+      type: string
+      label: 'Text ranking API endpoint.'
 
 # ReliefWeb source plugin settings.
 ocha_ai.plugin.source.reliefweb:

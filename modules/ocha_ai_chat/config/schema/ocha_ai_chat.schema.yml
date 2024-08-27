@@ -18,6 +18,12 @@ ocha_ai_chat.settings:
           sequence:
             type: ocha_ai.plugin.embedding.[%key]
             label: 'Settings for a embedding plugin.'
+        ranker:
+          type: sequence
+          label: 'List of ranker plugins.'
+          sequence:
+            type: ocha_ai.plugin.ranker.[%key]
+            label: 'Settings for a ranker plugin.'
         source:
           type: sequence
           label: 'List of source plugins.'
@@ -114,6 +120,16 @@ ocha_ai_chat.settings:
                 plugin_id:
                   type: string
                   label: 'Plugin ID.'
+            ranker:
+              type: mapping
+              label: 'Default ranker plugin settings.'
+              mapping:
+                plugin_id:
+                  type: string
+                  label: 'Plugin ID.'
+                limit:
+                  type: integer
+                  label: 'Maximum number of relevant texts to return.'
             source:
               type: mapping
               label: 'Default source plugin settings.'

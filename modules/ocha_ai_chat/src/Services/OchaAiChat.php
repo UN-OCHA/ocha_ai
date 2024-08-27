@@ -15,6 +15,8 @@ use Drupal\ocha_ai\Plugin\CompletionPluginInterface;
 use Drupal\ocha_ai\Plugin\CompletionPluginManagerInterface;
 use Drupal\ocha_ai\Plugin\EmbeddingPluginInterface;
 use Drupal\ocha_ai\Plugin\EmbeddingPluginManagerInterface;
+use Drupal\ocha_ai\Plugin\RankerPluginInterface;
+use Drupal\ocha_ai\Plugin\RankerPluginManagerInterface;
 use Drupal\ocha_ai\Plugin\SourcePluginInterface;
 use Drupal\ocha_ai\Plugin\SourcePluginManagerInterface;
 use Drupal\ocha_ai\Plugin\TextExtractorPluginInterface;
@@ -87,6 +89,13 @@ class OchaAiChat {
   protected EmbeddingPluginManagerInterface $embeddingPluginManager;
 
   /**
+   * Ranker plugin manager.
+   *
+   * @var \Drupal\ocha_ai\Plugin\RankerPluginManagerInterface
+   */
+  protected RankerPluginManagerInterface $rankerPluginManager;
+
+  /**
    * Source plugin manager.
    *
    * @var \Drupal\ocha_ai\Plugin\SourcePluginManagerInterface
@@ -140,6 +149,8 @@ class OchaAiChat {
    *   The completion plugin manager.
    * @param \Drupal\ocha_ai_chat\Plugin\EmbeddingPluginManagerInterface $embedding_plugin_manager
    *   The embedding plugin manager.
+   * @param \Drupal\ocha_ai_chat\Plugin\RankerPluginManagerInterface $ranker_plugin_manager
+   *   The ranker plugin manager.
    * @param \Drupal\ocha_ai_chat\Plugin\SourcePluginManagerInterface $source_plugin_manager
    *   The source plugin manager.
    * @param \Drupal\ocha_ai_chat\Plugin\TextExtractorPluginManagerInterface $text_extractor_plugin_manager
@@ -158,6 +169,7 @@ class OchaAiChat {
     TimeInterface $time,
     CompletionPluginManagerInterface $completion_plugin_manager,
     EmbeddingPluginManagerInterface $embedding_plugin_manager,
+    RankerPluginManagerInterface $ranker_plugin_manager,
     SourcePluginManagerInterface $source_plugin_manager,
     TextExtractorPluginManagerInterface $text_extractor_plugin_manager,
     TextSplitterPluginManagerInterface $text_splitter_plugin_manager,
@@ -171,6 +183,7 @@ class OchaAiChat {
     $this->time = $time;
     $this->completionPluginManager = $completion_plugin_manager;
     $this->embeddingPluginManager = $embedding_plugin_manager;
+    $this->rankerPluginManager = $ranker_plugin_manager;
     $this->sourcePluginManager = $source_plugin_manager;
     $this->textExtractorPluginManager = $text_extractor_plugin_manager;
     $this->textSplitterPluginManager = $text_splitter_plugin_manager;
@@ -275,6 +288,12 @@ class OchaAiChat {
     // Find document passages relevant to the question.
     $passages = $vector_store_plugin->getRelevantPassages($index, array_keys($documents), $question, $embedding);
     $data['stats']['Get relevant passages'] = 0 - $time + ($time = microtime(TRUE));
+
+    // Rerank the passages.
+    // @todo retrieve the language of the document. Currently we only support
+    // English but the ranker supports more languages.
+    $passages = $this->rerankPassages($question, $passages, 'en');
+    $data['stats']['Rerank passages'] = 0 - $time + ($time = microtime(TRUE));
 
     // If there are no passages matching the question, we inject metadata from
     // the documents. It helps for questions such as "What are those documents
@@ -550,6 +569,45 @@ class OchaAiChat {
       ->execute();
 
     return !empty($updated);
+  }
+
+  /**
+   * Rerank passages against the question.
+   *
+   * @param string $question
+   *   The user question.
+   * @param array $passages
+   *   Relevant passages retrieved from the document.
+   * @param string $language
+   *   Language of the document.
+   *
+   * @return array
+   *   Reranked passages.
+   */
+  protected function rerankPassages(string $question, array $passages, string $language): array {
+    $limit = $this->getSetting(['plugins', 'ranker', 'limit'], count($passages), FALSE);
+
+    $ranker_plugin = $this->getRankerPlugin();
+    if (empty($ranker_plugin)) {
+      return array_slice($passages, 0, $limit);
+    }
+
+    $unranked_passages = [];
+    foreach ($passages as $passage) {
+      if (!isset($unranked_passages[$passage['text']])) {
+        $unranked_passages[$passage['text']] = $passage;
+      }
+    }
+
+    $texts = array_keys($unranked_passages);
+    $ranked_texts = $ranker_plugin->rankTexts($question, $texts, $language, $limit);
+
+    $ranked_passages = [];
+    foreach ($ranked_texts as $text) {
+      $ranked_passages[] = $unranked_passages[$text];
+    }
+
+    return $ranked_passages;
   }
 
   /**
@@ -939,6 +997,16 @@ class OchaAiChat {
   }
 
   /**
+   * Get the ranker plugin manager.
+   *
+   * @return \Drupal\ocha_ai\Plugin\RankerPluginManagerInterface
+   *   Ranker plugin.
+   */
+  public function getRankerPluginManager(): RankerPluginManagerInterface {
+    return $this->rankerPluginManager;
+  }
+
+  /**
    * Get the source plugin manager.
    *
    * @return \Drupal\ocha_ai\Plugin\SourcePluginManagerInterface
@@ -998,6 +1066,17 @@ class OchaAiChat {
   public function getEmbeddingPlugin(): EmbeddingPluginInterface {
     $plugin_id = $this->getSetting(['plugins', 'embedding', 'plugin_id']);
     return $this->getEmbeddingPluginManager()->getPlugin($plugin_id);
+  }
+
+  /**
+   * Get the ranker plugin.
+   *
+   * @return ?\Drupal\ocha_ai\Plugin\RankerPluginInterface
+   *   Ranker plugin.
+   */
+  public function getRankerPlugin(): ?RankerPluginInterface {
+    $plugin_id = $this->getSetting(['plugins', 'ranker', 'plugin_id']);
+    return !empty($plugin_id) ? $this->getRankerPluginManager()->getPlugin($plugin_id) : NULL;
   }
 
   /**

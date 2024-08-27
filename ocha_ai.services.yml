@@ -11,6 +11,9 @@ services:
   plugin.manager.ocha_ai.embedding:
     class: Drupal\ocha_ai\Plugin\EmbeddingPluginManager
     parent: default_plugin_manager
+  plugin.manager.ocha_ai.ranker:
+    class: Drupal\ocha_ai\Plugin\RankerPluginManager
+    parent: default_plugin_manager
   plugin.manager.ocha_ai.source:
     class: Drupal\ocha_ai\Plugin\SourcePluginManager
     parent: default_plugin_manager
