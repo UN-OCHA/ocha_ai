@@ -264,7 +264,7 @@ ocha_ai.plugin.text_extractor.mupdf:
 # Elasticsearch source plugin settings.
 ocha_ai.plugin.vector_store.elasticsearch:
   type: ocha_ai.plugin.vector_store
-  label: 'Elasticsearch source plugin settings.'
+  label: 'Elasticsearch vector store plugin settings.'
   mapping:
     url:
       type: string
@@ -294,10 +294,30 @@ ocha_ai.plugin.vector_store.elasticsearch:
       type: float
       label: 'Coefficient for the standard deviation to determine the similarity cut-off for relevancy'
 
+ocha_ai.plugin.vector_store.elasticsearch_flattened:
+  type: ocha_ai.plugin.vector_store.elasticsearch
+  label: 'Elasticsearch flattened vector store plugin settings.'
+  mapping:
+    expand_passage_before:
+      type: integer
+      label: 'Number of adjacent text passages to prepend to the text when passed as context.'
+    expand_passage_after:
+      type: integer
+      label: 'Number of adjacent text passages to append to the text when passed as context.'
+
+
+ocha_ai.plugin.text_splitter.nlp_sentence:
+  type: ocha_ai.plugin.text_splitter
+  label: 'NLP sentence text splitter settings.'
+  mapping:
+    endpoint:
+      type: string
+      label: 'NLP text splitting API endpoint.'
+
 ocha_ai.plugin.text_splitter.sentence:
   type: ocha_ai.plugin.text_splitter
-  label: 'Split a text in groups of sentences'
+  label: 'Sentence text splitter settings.'
 
 ocha_ai.plugin.text_splitter.token:
   type: ocha_ai.plugin.text_splitter
-  label: 'Split a text into passges based on their estimated token count'
+  label: 'Token text splitter settings.'

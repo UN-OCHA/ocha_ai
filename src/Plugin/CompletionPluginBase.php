@@ -143,7 +143,7 @@ abstract class CompletionPluginBase extends PluginBase implements CompletionPlug
     $context = [];
 
     foreach ($passages as $passage) {
-      $context[] = trim($passage['text']);
+      $context[] = trim($passage['expanded_text'] ?? $passage['text']);
       if (isset($passage['reference'])) {
         $context[] = 'Source: ' . $passage['reference'];
       }
