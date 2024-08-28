@@ -7,7 +7,6 @@ defaults:
       format: 'plain_text'
     feedback: ''
     formatting: 'basic'
-    answer_min_similarity: 1.25
     answers:
       no_document: 'Sorry, no source documents were found.'
       no_passage: 'Sorry, I could not find information to answer the question.'
@@ -16,6 +15,8 @@ defaults:
       document_embedding_error: 'Sorry, there was an error trying to retrieve the documents to the answer to your question.'
       question_embedding_error: 'Sorry, there was an error trying to process the qestion.'
   plugins:
+    answer_validator:
+      plugin_id: similarity
     completion:
       plugin_id: aws_bedrock
     embedding:

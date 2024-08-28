@@ -5,6 +5,7 @@ namespace Drupal\ocha_ai\Form;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\ocha_ai\Plugin\AnswerValidatorPluginManagerInterface;
 use Drupal\ocha_ai\Plugin\CompletionPluginManagerInterface;
 use Drupal\ocha_ai\Plugin\EmbeddingPluginManagerInterface;
 use Drupal\ocha_ai\Plugin\RankerPluginManagerInterface;
@@ -18,6 +19,13 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  * Config form for the Ocha AI module.
  */
 class OchaAiConfigForm extends ConfigFormBase {
+
+  /**
+   * Answer validator plugin manager.
+   *
+   * @var \Drupal\ocha_ai\Plugin\AnswerValidatorPluginManagerInterface
+   */
+  protected AnswerValidatorPluginManagerInterface $answerValidatorPluginManager;
 
   /**
    * Completion plugin manager.
@@ -80,6 +88,8 @@ class OchaAiConfigForm extends ConfigFormBase {
    *
    * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
    *   The config factory service.
+   * @param \Drupal\ocha_ai\Plugin\AnswerValidatorPluginManagerInterface $answer_validator_plugin_manager
+   *   The answer validator plugin manager.
    * @param \Drupal\ocha_ai\Plugin\CompletionPluginManagerInterface $completion_plugin_manager
    *   The completion plugin manager.
    * @param \Drupal\ocha_ai\Plugin\EmbeddingPluginManagerInterface $embedding_plugin_manager
@@ -97,6 +107,7 @@ class OchaAiConfigForm extends ConfigFormBase {
    */
   public function __construct(
     ConfigFactoryInterface $config_factory,
+    AnswerValidatorPluginManagerInterface $answer_validator_plugin_manager,
     CompletionPluginManagerInterface $completion_plugin_manager,
     EmbeddingPluginManagerInterface $embedding_plugin_manager,
     RankerPluginManagerInterface $ranker_plugin_manager,
@@ -107,6 +118,7 @@ class OchaAiConfigForm extends ConfigFormBase {
   ) {
     parent::__construct($config_factory);
 
+    $this->answerValidatorPluginManager = $answer_validator_plugin_manager;
     $this->completionPluginManager = $completion_plugin_manager;
     $this->embeddingPluginManager = $embedding_plugin_manager;
     $this->rankerPluginManager = $ranker_plugin_manager;
@@ -122,6 +134,7 @@ class OchaAiConfigForm extends ConfigFormBase {
   public static function create(ContainerInterface $container) {
     return new static(
       $container->get('config.factory'),
+      $container->get('plugin.manager.ocha_ai.answer_validator'),
       $container->get('plugin.manager.ocha_ai.completion'),
       $container->get('plugin.manager.ocha_ai.embedding'),
       $container->get('plugin.manager.ocha_ai.ranker'),
@@ -137,6 +150,10 @@ class OchaAiConfigForm extends ConfigFormBase {
    */
   public function buildForm(array $form, FormStateInterface $form_state): array {
     $plugin_managers = [
+      'answer_validator' => [
+        'label' => $this->t('Answer validator'),
+        'manager' => $this->answerValidatorPluginManager,
+      ],
       'completion' => [
         'label' => $this->t('Completion'),
         'manager' => $this->completionPluginManager,

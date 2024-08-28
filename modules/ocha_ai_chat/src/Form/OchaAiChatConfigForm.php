@@ -6,6 +6,7 @@ use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\State\StateInterface;
+use Drupal\ocha_ai\Plugin\AnswerValidatorPluginManagerInterface;
 use Drupal\ocha_ai\Plugin\CompletionPluginManagerInterface;
 use Drupal\ocha_ai\Plugin\EmbeddingPluginManagerInterface;
 use Drupal\ocha_ai\Plugin\RankerPluginManagerInterface;
@@ -26,6 +27,13 @@ class OchaAiChatConfigForm extends FormBase {
    * @var \Drupal\Core\State\StateInterface
    */
   protected $state;
+
+  /**
+   * Answer validator plugin manager.
+   *
+   * @var \Drupal\ocha_ai\Plugin\AnswerValidatorPluginManagerInterface
+   */
+  protected AnswerValidatorPluginManagerInterface $answerValidatorPluginManager;
 
   /**
    * Completion plugin manager.
@@ -83,6 +91,8 @@ class OchaAiChatConfigForm extends FormBase {
    *   The config factory.
    * @param \Drupal\Core\State\StateInterface $state
    *   The state service.
+   * @param \Drupal\ocha_ai\Plugin\AnswerValidatorPluginManagerInterface $answer_validator_plugin_manager
+   *   The answer validator plugin manager.
    * @param \Drupal\ocha_ai\Plugin\CompletionPluginManagerInterface $completion_plugin_manager
    *   The completion plugin manager.
    * @param \Drupal\ocha_ai\Plugin\EmbeddingPluginManagerInterface $embedding_plugin_manager
@@ -101,6 +111,7 @@ class OchaAiChatConfigForm extends FormBase {
   public function __construct(
     ConfigFactoryInterface $config_factory,
     StateInterface $state,
+    AnswerValidatorPluginManagerInterface $answer_validator_plugin_manager,
     CompletionPluginManagerInterface $completion_plugin_manager,
     EmbeddingPluginManagerInterface $embedding_plugin_manager,
     RankerPluginManagerInterface $ranker_plugin_manager,
@@ -111,6 +122,7 @@ class OchaAiChatConfigForm extends FormBase {
   ) {
     $this->setConfigFactory($config_factory);
     $this->state = $state;
+    $this->answerValidatorPluginManager = $answer_validator_plugin_manager;
     $this->completionPluginManager = $completion_plugin_manager;
     $this->embeddingPluginManager = $embedding_plugin_manager;
     $this->rankerPluginManager = $ranker_plugin_manager;
@@ -127,6 +139,7 @@ class OchaAiChatConfigForm extends FormBase {
     return new static(
       $container->get('config.factory'),
       $container->get('state'),
+      $container->get('plugin.manager.ocha_ai.answer_validator'),
       $container->get('plugin.manager.ocha_ai.completion'),
       $container->get('plugin.manager.ocha_ai.embedding'),
       $container->get('plugin.manager.ocha_ai.ranker'),
@@ -193,12 +206,6 @@ class OchaAiChatConfigForm extends FormBase {
       ],
       '#description' => $this->t('Basic formatting means that the module takes the answer from the LLM and restores line breaks within HTML.'),
     ];
-    $form['defaults']['form']['answer_min_similarity'] = [
-      '#type' => 'textfield',
-      '#title' => $this->t('Answer min similarity'),
-      '#default_value' => $defaults['form']['answer_min_similarity'] ?? 1.35,
-      '#description' => $this->t('Minimum similarity between the answer and the context passages to be considered valid.'),
-    ];
 
     $form['defaults']['form']['answers'] = [
       '#type' => 'details',
@@ -250,6 +257,11 @@ class OchaAiChatConfigForm extends FormBase {
     ];
 
     $plugin_managers = [
+      'answer_validator' => [
+        'label' => $this->t('Answer validator'),
+        'manager' => $this->answerValidatorPluginManager,
+        'optional' => TRUE,
+      ],
       'completion' => [
         'label' => $this->t('Completion'),
         'manager' => $this->completionPluginManager,

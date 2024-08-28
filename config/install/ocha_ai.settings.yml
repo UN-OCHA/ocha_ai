@@ -1,4 +1,7 @@
 plugins:
+  answer_validator:
+    similarity:
+      min_similarity: 0.2
   completion:
     aws_bedrock:
       prompt_template: |-
@@ -42,6 +45,8 @@ plugins:
       nested_object_limit: 100000
 defaults:
   plugins:
+    answer_validator:
+      plugin_id: similarity
     completion:
       plugin_id: aws_bedrock
     embedding:
