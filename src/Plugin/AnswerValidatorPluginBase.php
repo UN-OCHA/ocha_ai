@@ -2,8 +2,6 @@
 
 namespace Drupal\ocha_ai\Plugin;
 
-use Drupal\Core\Form\FormStateInterface;
-
 /**
  * Base answer validator plugin.
  */
