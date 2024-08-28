@@ -6,6 +6,12 @@ ocha_ai_chat.settings:
       type: mapping
       label: 'List of plugins.'
       mapping:
+        answer_validator:
+          type: sequence
+          label: 'List of answer validator plugins.'
+          sequence:
+            type: ocha_ai.plugin.answer_validator.[%key]
+            label: 'Settings for a answer validator plugin.'
         completion:
           type: sequence
           label: 'List of completion plugins.'
@@ -78,9 +84,6 @@ ocha_ai_chat.settings:
             formatting:
               type: string
               label: 'Formatting mode.'
-            answer_min_similarity:
-              type: float
-              label: 'Minimum similarity between the answer and the context passages to be considered valid.'
             answers:
               type: mapping
               mapping:
@@ -106,6 +109,13 @@ ocha_ai_chat.settings:
           type: mapping
           label: 'Default plugins.'
           mapping:
+            answer_validator:
+              type: mapping
+              label: 'Default answer validator plugin settings.'
+              mapping:
+                plugin_id:
+                  type: string
+                  label: 'Plugin ID.'
             completion:
               type: mapping
               label: 'Default completion plugin settings.'

@@ -14,7 +14,7 @@ use GuzzleHttp\ClientInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Split a text in groups of sentences.
+ * Rank texts against another text.
  */
 #[OchaAiRanker(
   id: 'ocha_ai_helper_ranker',

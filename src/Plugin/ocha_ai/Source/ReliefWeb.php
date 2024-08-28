@@ -1068,7 +1068,6 @@ class ReliefWeb extends SourcePluginBase {
       // the API query for example as "related documents" etc.
       $document = [
         'id' => $id,
-        'title' => $fields['title'],
         'url' => $fields['url'],
         'source' => $fields['source'],
         'date' => $fields['date'],
@@ -1078,6 +1077,9 @@ class ReliefWeb extends SourcePluginBase {
 
       $title = trim($fields['title']);
       $body = trim($fields['body'] ?? '');
+
+      $document['title'] = $title;
+      $document['body'] = $body;
 
       $document['contents'][] = [
         // @todo might not be so great to use the same id as the parent document

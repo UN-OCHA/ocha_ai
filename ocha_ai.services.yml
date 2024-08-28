@@ -5,6 +5,9 @@ services:
       - { name: cache.bin }
     factory: cache_factory:get
     arguments: [ocha_ai_cache]
+  plugin.manager.ocha_ai.answer_validator:
+    class: Drupal\ocha_ai\Plugin\AnswerValidatorPluginManager
+    parent: default_plugin_manager
   plugin.manager.ocha_ai.completion:
     class: Drupal\ocha_ai\Plugin\CompletionPluginManager
     parent: default_plugin_manager

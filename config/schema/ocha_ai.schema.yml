@@ -6,6 +6,12 @@ ocha_ai.settings:
       type: mapping
       label: 'List of plugins.'
       mapping:
+        answer_validator:
+          type: sequence
+          label: 'List of answer validator plugins.'
+          sequence:
+            type: ocha_ai.plugin.answer_validator.[%key]
+            label: 'Settings for a answer validator plugin.'
         completion:
           type: sequence
           label: 'List of completion plugins.'
@@ -18,6 +24,12 @@ ocha_ai.settings:
           sequence:
             type: ocha_ai.plugin.embedding.[%key]
             label: 'Settings for a embedding plugin.'
+        ranker:
+          type: sequence
+          label: 'List of ranker plugins.'
+          sequence:
+            type: ocha_ai.plugin.ranker.[%key]
+            label: 'Settings for a ranker plugin.'
         source:
           type: sequence
           label: 'List of source plugins.'
@@ -57,6 +69,13 @@ ocha_ai.settings:
           type: mapping
           label: 'Default plugins.'
           mapping:
+            answer_validator:
+              type: mapping
+              label: 'Default answer validator plugin settings.'
+              mapping:
+                plugin_id:
+                  type: string
+                  label: 'Plugin ID.'
             completion:
               type: mapping
               label: 'Default completion plugin settings.'
@@ -67,6 +86,13 @@ ocha_ai.settings:
             embedding:
               type: mapping
               label: 'Default embedding plugin settings.'
+              mapping:
+                plugin_id:
+                  type: string
+                  label: 'Plugin ID.'
+            ranker:
+              type: mapping
+              label: 'Default ranker plugin settings.'
               mapping:
                 plugin_id:
                   type: string
@@ -104,6 +130,12 @@ ocha_ai.settings:
                   label: 'Plugin ID.'
 
 ### Base plugin settings. ###
+
+# Ranker plugin base settings.
+ocha_ai.plugin.answer_validation:
+  type: mapping
+  label: 'Answer validator plugin base settings.'
+  mapping:
 
 # Completion plugin base settings.
 ocha_ai.plugin.completion:
@@ -202,6 +234,15 @@ ocha_ai.plugin.vector_store:
   mapping:
 
 ### Plugin settings. ###
+
+# Text splitter plugin base settings.
+ocha_ai.plugin.answer_validator.similarity:
+  type: mapping
+  label: 'Similarity answer validator plugin settings.'
+  mapping:
+    min_similarity:
+      type: float
+      label: 'Minimum similarity for the answer to be considered valid.'
 
 # AWS Bedrock completion plugin settings.
 ocha_ai.plugin.completion.aws_bedrock:

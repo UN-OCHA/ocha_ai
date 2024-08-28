@@ -85,6 +85,8 @@ class Elasticsearch extends VectorStorePluginBase {
       '#default_value' => $config['min_similarity'] ?? NULL,
       '#required' => TRUE,
       '#step' => '.01',
+      '#min' => 0.0,
+      '#max' => 1.0,
     ];
 
     $form['plugins'][$plugin_type][$plugin_id]['cutoff_coefficient'] = [
