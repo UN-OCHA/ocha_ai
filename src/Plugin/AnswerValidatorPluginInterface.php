@@ -16,6 +16,8 @@ interface AnswerValidatorPluginInterface {
    *   Question.
    * @param string $passages
    *   Text passages passed used as context to answer the question.
+   * @param string $language
+   *   Language of the passages.
    * @param \Drupal\ocha_ai\Plugin\PluginInterface[] $plugins
    *   Additional plugins used in the pipeline to answer the question. For
    *   example the embedding plugin.
@@ -27,6 +29,6 @@ interface AnswerValidatorPluginInterface {
    *   An exception if the plugin cannot perform its validation, for example,
    *   due to a missing plugin it depends on.
    */
-  public function validate(string $answer, string $question, array $passages, array $plugins = []): bool;
+  public function validate(string $answer, string $question, array $passages, string $language, array $plugins = []): bool;
 
 }

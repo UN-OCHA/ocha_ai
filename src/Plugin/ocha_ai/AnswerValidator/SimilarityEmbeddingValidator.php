@@ -15,16 +15,16 @@ use Drupal\ocha_ai\Plugin\EmbeddingPluginInterface;
  * Validate an answer by comparing its similarity to the context or question.
  */
 #[OchaAiAnswerValidator(
-  id: 'similarity',
-  label: new TranslatableMarkup('Similarity'),
-  description: new TranslatableMarkup('Validate an answer by comparing its similarity to the context and/or question.')
+  id: 'similarity_embedding',
+  label: new TranslatableMarkup('Similarity - Embedding'),
+  description: new TranslatableMarkup('Validate an answer by comparing its similarity to the context and/or question via embeddings.')
 )]
-class SimilarityValidator extends AnswerValidatorPluginBase {
+class SimilarityEmbeddingValidator extends AnswerValidatorPluginBase {
 
   /**
    * {@inheritdoc}
    */
-  public function validate(string $answer, string $question, array $passages, array $plugins = []): bool {
+  public function validate(string $answer, string $question, array $passages, string $language, array $plugins = []): bool {
     if (empty($answer)) {
       return FALSE;
     }

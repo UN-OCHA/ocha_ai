@@ -19,8 +19,8 @@ interface RankerPluginInterface {
    * @param int|null $limit
    *   Maximum number of relevant texts to return.
    *
-   * @return array
-   *   Ranked texts.
+   * @return array<string, float>
+   *   Ranked texts (keys) with their score (value).
    */
   public function rankTexts(string $text, array $texts, string $language, ?int $limit = NULL): array;
 

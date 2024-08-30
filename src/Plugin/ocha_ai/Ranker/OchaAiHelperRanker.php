@@ -112,7 +112,7 @@ class OchaAiHelperRanker extends RankerPluginBase {
       ]));
     }
 
-    return array_slice($texts, 0, $limit);
+    return array_slice($texts, 0, $limit, preserve_keys: TRUE);
   }
 
   /**
