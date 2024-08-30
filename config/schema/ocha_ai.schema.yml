@@ -235,10 +235,19 @@ ocha_ai.plugin.vector_store:
 
 ### Plugin settings. ###
 
-# Text splitter plugin base settings.
-ocha_ai.plugin.answer_validator.similarity:
+# Similarity - Embedding answer validator plugin settings.
+ocha_ai.plugin.answer_validator.similarity_embedding:
   type: mapping
-  label: 'Similarity answer validator plugin settings.'
+  label: 'Similarity - Embedding answer validator plugin settings.'
+  mapping:
+    min_similarity:
+      type: float
+      label: 'Minimum similarity for the answer to be considered valid.'
+
+# Similarity - Ranker answer validator plugin settings.
+ocha_ai.plugin.answer_validator.similarity_ranker:
+  type: mapping
+  label: 'Similarity - Ranker answer validator plugin settings.'
   mapping:
     min_similarity:
       type: float

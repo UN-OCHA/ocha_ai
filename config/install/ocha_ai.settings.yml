@@ -1,7 +1,9 @@
 plugins:
   answer_validator:
-    similarity:
+    similarity_embedding:
       min_similarity: 0.2
+    similarity_ranker:
+      min_similarity: 0.8
   completion:
     aws_bedrock:
       prompt_template: |-
@@ -46,7 +48,7 @@ plugins:
 defaults:
   plugins:
     answer_validator:
-      plugin_id: similarity
+      plugin_id: similarity_embedding
     completion:
       plugin_id: aws_bedrock
     embedding:

@@ -16,7 +16,7 @@ defaults:
       question_embedding_error: 'Sorry, there was an error trying to process the qestion.'
   plugins:
     answer_validator:
-      plugin_id: similarity
+      plugin_id: similarity_embedding
     completion:
       plugin_id: aws_bedrock
     embedding:

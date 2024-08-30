@@ -302,10 +302,13 @@ class OchaAiChat {
     $passages = $vector_store_plugin->getRelevantPassages($index, array_keys($documents), $question, $embedding);
     $data['stats']['Get relevant passages'] = 0 - $time + ($time = microtime(TRUE));
 
+    // Language of the documents.
+    // @todo retrieve the language of the documents. Currently we only support
+    // English but the ranker, for example, supports more languages.
+    $language = 'en';
+
     // Rerank the passages.
-    // @todo retrieve the language of the document. Currently we only support
-    // English but the ranker supports more languages.
-    $passages = $this->rerankPassages($question, $passages, 'en');
+    $passages = $this->rerankPassages($question, $passages, $language);
     $data['stats']['Rerank passages'] = 0 - $time + ($time = microtime(TRUE));
 
     // If there are no passages matching the question, we inject metadata from
@@ -342,7 +345,7 @@ class OchaAiChat {
       return $this->logAnswerData($data);
     }
     // Validate the answer.
-    elseif (!$this->validateAnswer($answer, $question, $passages)) {
+    elseif (!$this->validateAnswer($answer, $question, $passages, $language)) {
       $data['answer'] = $this->getAnswer('invalid_answer', 'Sorry, I was unable to answer your question.');
       $data['error'] = 'invalid_answer';
       return $this->logAnswerData($data);
@@ -409,17 +412,19 @@ class OchaAiChat {
    *   The question.
    * @param array $passages
    *   The text passages used as context for the answer.
+   * @param string $language
+   *   Language of the passages.
    *
    * @return bool
    *   TRUE if the answer seems valid.
    */
-  public function validateAnswer(string $answer, string $question, array $passages): bool {
+  public function validateAnswer(string $answer, string $question, array $passages, string $language): bool {
     $answer_validator_plugin = $this->getAnswerValidatorPlugin();
     if (empty($answer_validator_plugin)) {
       return TRUE;
     }
 
-    return $answer_validator_plugin->validate($answer, $question, $passages, [
+    return $answer_validator_plugin->validate($answer, $question, $passages, $language, [
       'completion' => $this->getCompletionPlugin(),
       'embedding' => $this->getEmbeddingPlugin(),
       'ranker' => $this->getRankerPlugin(),
@@ -573,12 +578,14 @@ class OchaAiChat {
    *   Relevant passages retrieved from the document.
    * @param string $language
    *   Language of the document.
+   * @param ?int $limit
+   *   Optional limit override.
    *
    * @return array
    *   Reranked passages.
    */
-  protected function rerankPassages(string $question, array $passages, string $language): array {
-    $limit = $this->getSetting(['plugins', 'ranker', 'limit'], count($passages), FALSE);
+  protected function rerankPassages(string $question, array $passages, string $language, ?int $limit = NULL): array {
+    $limit ??= $this->getSetting(['plugins', 'ranker', 'limit'], count($passages), FALSE);
 
     $ranker_plugin = $this->getRankerPlugin();
     if (empty($ranker_plugin)) {
@@ -595,11 +602,7 @@ class OchaAiChat {
     $texts = array_keys($unranked_passages);
     $ranked_texts = $ranker_plugin->rankTexts($question, $texts, $language, $limit);
 
-    $ranked_passages = [];
-    foreach ($ranked_texts as $text) {
-      $ranked_passages[] = $unranked_passages[$text];
-    }
-
+    $ranked_passages = array_intersect_key($unranked_passages, $ranked_texts);
     return $ranked_passages;
   }
 
