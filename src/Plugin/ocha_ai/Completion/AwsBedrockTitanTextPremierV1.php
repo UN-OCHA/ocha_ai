@@ -95,7 +95,7 @@ class AwsBedrockTitanTextPremierV1 extends AwsBedrock {
    * {@inheritdoc}
    */
   protected function generateRequestBody(string $prompt): array {
-    $max_tokens = $this->getPluginSetting('max_tokens', 512);
+    $max_tokens = (int) $this->getPluginSetting('max_tokens', 512);
 
     return [
       'inputText' => $prompt,
