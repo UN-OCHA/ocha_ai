@@ -11,10 +11,14 @@ use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\Core\Session\AccountProxyInterface;
 use Drupal\Core\State\StateInterface;
 use Drupal\ocha_ai\Helpers\VectorHelper;
+use Drupal\ocha_ai\Plugin\AnswerValidatorPluginInterface;
+use Drupal\ocha_ai\Plugin\AnswerValidatorPluginManagerInterface;
 use Drupal\ocha_ai\Plugin\CompletionPluginInterface;
 use Drupal\ocha_ai\Plugin\CompletionPluginManagerInterface;
 use Drupal\ocha_ai\Plugin\EmbeddingPluginInterface;
 use Drupal\ocha_ai\Plugin\EmbeddingPluginManagerInterface;
+use Drupal\ocha_ai\Plugin\RankerPluginInterface;
+use Drupal\ocha_ai\Plugin\RankerPluginManagerInterface;
 use Drupal\ocha_ai\Plugin\SourcePluginInterface;
 use Drupal\ocha_ai\Plugin\SourcePluginManagerInterface;
 use Drupal\ocha_ai\Plugin\TextExtractorPluginInterface;
@@ -73,6 +77,13 @@ class OchaAiChat {
   protected TimeInterface $time;
 
   /**
+   * Answer validator plugin manager.
+   *
+   * @var \Drupal\ocha_ai\Plugin\AnswerValidatorPluginManagerInterface
+   */
+  protected AnswerValidatorPluginManagerInterface $answerValidatorPluginManager;
+
+  /**
    * Completion plugin manager.
    *
    * @var \Drupal\ocha_ai\Plugin\CompletionPluginManagerInterface
@@ -85,6 +96,13 @@ class OchaAiChat {
    * @var \Drupal\ocha_ai\Plugin\EmbeddingPluginManagerInterface
    */
   protected EmbeddingPluginManagerInterface $embeddingPluginManager;
+
+  /**
+   * Ranker plugin manager.
+   *
+   * @var \Drupal\ocha_ai\Plugin\RankerPluginManagerInterface
+   */
+  protected RankerPluginManagerInterface $rankerPluginManager;
 
   /**
    * Source plugin manager.
@@ -136,10 +154,14 @@ class OchaAiChat {
    *   The database.
    * @param \Drupal\Component\Datetime\TimeInterface $time
    *   The time service.
+   * @param \Drupal\ocha_ai_chat\Plugin\AnswerValidatorPluginManagerInterface $answer_validator_plugin_manager
+   *   The answer validator plugin manager.
    * @param \Drupal\ocha_ai_chat\Plugin\CompletionPluginManagerInterface $completion_plugin_manager
    *   The completion plugin manager.
    * @param \Drupal\ocha_ai_chat\Plugin\EmbeddingPluginManagerInterface $embedding_plugin_manager
    *   The embedding plugin manager.
+   * @param \Drupal\ocha_ai_chat\Plugin\RankerPluginManagerInterface $ranker_plugin_manager
+   *   The ranker plugin manager.
    * @param \Drupal\ocha_ai_chat\Plugin\SourcePluginManagerInterface $source_plugin_manager
    *   The source plugin manager.
    * @param \Drupal\ocha_ai_chat\Plugin\TextExtractorPluginManagerInterface $text_extractor_plugin_manager
@@ -156,8 +178,10 @@ class OchaAiChat {
     AccountProxyInterface $current_user,
     Connection $database,
     TimeInterface $time,
+    AnswerValidatorPluginManagerInterface $answer_validator_plugin_manager,
     CompletionPluginManagerInterface $completion_plugin_manager,
     EmbeddingPluginManagerInterface $embedding_plugin_manager,
+    RankerPluginManagerInterface $ranker_plugin_manager,
     SourcePluginManagerInterface $source_plugin_manager,
     TextExtractorPluginManagerInterface $text_extractor_plugin_manager,
     TextSplitterPluginManagerInterface $text_splitter_plugin_manager,
@@ -169,8 +193,10 @@ class OchaAiChat {
     $this->currentUser = $current_user;
     $this->database = $database;
     $this->time = $time;
+    $this->answerValidatorPluginManager = $answer_validator_plugin_manager;
     $this->completionPluginManager = $completion_plugin_manager;
     $this->embeddingPluginManager = $embedding_plugin_manager;
+    $this->rankerPluginManager = $ranker_plugin_manager;
     $this->sourcePluginManager = $source_plugin_manager;
     $this->textExtractorPluginManager = $text_extractor_plugin_manager;
     $this->textSplitterPluginManager = $text_splitter_plugin_manager;
@@ -276,6 +302,15 @@ class OchaAiChat {
     $passages = $vector_store_plugin->getRelevantPassages($index, array_keys($documents), $question, $embedding);
     $data['stats']['Get relevant passages'] = 0 - $time + ($time = microtime(TRUE));
 
+    // Language of the documents.
+    // @todo retrieve the language of the documents. Currently we only support
+    // English but the ranker, for example, supports more languages.
+    $language = 'en';
+
+    // Rerank the passages.
+    $passages = $this->rerankPassages($question, $passages, $language);
+    $data['stats']['Rerank passages'] = 0 - $time + ($time = microtime(TRUE));
+
     // If there are no passages matching the question, we inject metadata from
     // the documents. It helps for questions such as "What are those documents
     // about?".
@@ -303,8 +338,6 @@ class OchaAiChat {
     $data['stats']['Get answer'] = 0 - $time + ($time = microtime(TRUE));
     $data['original_answer'] = $answer;
 
-    $answer_min_similarity = (float) $this->getSetting(['form', 'answer_min_similarity'], 1.35, FALSE);
-
     // The answer is empty for example if there was an error during the request.
     if ($answer === '') {
       $data['answer'] = $this->getAnswer('no_answer', 'Sorry, I was unable to answer your question. Please try again in a short moment.');
@@ -312,7 +345,7 @@ class OchaAiChat {
       return $this->logAnswerData($data);
     }
     // Validate the answer.
-    elseif (!$this->validateAnswer($answer, $passages, $answer_min_similarity)) {
+    elseif (!$this->validateAnswer($answer, $question, $passages, $language)) {
       $data['answer'] = $this->getAnswer('invalid_answer', 'Sorry, I was unable to answer your question.');
       $data['error'] = 'invalid_answer';
       return $this->logAnswerData($data);
@@ -375,44 +408,28 @@ class OchaAiChat {
    *
    * @param string $answer
    *   The answer.
+   * @param string $question
+   *   The question.
    * @param array $passages
    *   The text passages used as context for the answer.
-   * @param float $min_similarity
-   *   The minimum similarity for the answer to be considered valid.
+   * @param string $language
+   *   Language of the passages.
    *
    * @return bool
    *   TRUE if the answer seems valid.
-   *
-   * @todo adjust the min similarity so that it's high enough to prevent
-   *   invalid answers but still pass for valid answers that use only small
-   *   parts of the context, for which, the similarity can be low.
    */
-  public function validateAnswer(string $answer, array $passages, float $min_similarity = 1.35): bool {
-    // Skip directly if the model considered it was a prompt attack.
-    // @todo instead of that here, have the ::answer() method of the model
-    // throw an exception for example so we are not tied to the what the prompt
-    // tells the model to return.
-    if (mb_stripos($answer, 'Prompt Attack Detected') !== FALSE) {
-      return FALSE;
+  public function validateAnswer(string $answer, string $question, array $passages, string $language): bool {
+    $answer_validator_plugin = $this->getAnswerValidatorPlugin();
+    if (empty($answer_validator_plugin)) {
+      return TRUE;
     }
 
-    $embedding_plugin = $this->getEmbeddingPlugin();
-
-    $answer_embedding = $embedding_plugin->generateEmbedding($answer, TRUE);
-    if (empty($answer_embedding)) {
-      return FALSE;
-    }
-
-    $max_similarity = 0.0;
-    foreach ($passages as $passage) {
-      $embedding = $passage['embedding'] ?? $embedding_plugin->generateEmbedding($passage['text']);
-      if (!empty($embedding)) {
-        $similarity = VectorHelper::cosineSimilarity($embedding, $answer_embedding) + 1.0;
-        $max_similarity = max($max_similarity, $similarity);
-      }
-    }
-
-    return $max_similarity > $min_similarity;
+    return $answer_validator_plugin->validate($answer, $question, $passages, $language, [
+      'completion' => $this->getCompletionPlugin(),
+      'embedding' => $this->getEmbeddingPlugin(),
+      'ranker' => $this->getRankerPlugin(),
+      'vector_store' => $this->getVectorStorePlugin(),
+    ]);
   }
 
   /**
@@ -550,6 +567,43 @@ class OchaAiChat {
       ->execute();
 
     return !empty($updated);
+  }
+
+  /**
+   * Rerank passages against the question.
+   *
+   * @param string $question
+   *   The user question.
+   * @param array $passages
+   *   Relevant passages retrieved from the document.
+   * @param string $language
+   *   Language of the document.
+   * @param ?int $limit
+   *   Optional limit override.
+   *
+   * @return array
+   *   Reranked passages.
+   */
+  protected function rerankPassages(string $question, array $passages, string $language, ?int $limit = NULL): array {
+    $limit ??= $this->getSetting(['plugins', 'ranker', 'limit'], count($passages), FALSE);
+
+    $ranker_plugin = $this->getRankerPlugin();
+    if (empty($ranker_plugin)) {
+      return array_slice($passages, 0, $limit);
+    }
+
+    $unranked_passages = [];
+    foreach ($passages as $passage) {
+      if (!isset($unranked_passages[$passage['text']])) {
+        $unranked_passages[$passage['text']] = $passage;
+      }
+    }
+
+    $texts = array_keys($unranked_passages);
+    $ranked_texts = $ranker_plugin->rankTexts($question, $texts, $language, $limit);
+
+    $ranked_passages = array_intersect_key($unranked_passages, $ranked_texts);
+    return $ranked_passages;
   }
 
   /**
@@ -919,6 +973,16 @@ class OchaAiChat {
   }
 
   /**
+   * Get the answer validator plugin manager.
+   *
+   * @return \Drupal\ocha_ai\Plugin\AnswerValidatorPluginManagerInterface
+   *   Completion plugin manager.
+   */
+  public function getAnswerValidatorPluginManager(): AnswerValidatorPluginManagerInterface {
+    return $this->answerValidatorPluginManager;
+  }
+
+  /**
    * Get the completion plugin manager.
    *
    * @return \Drupal\ocha_ai\Plugin\CompletionPluginManagerInterface
@@ -936,6 +1000,16 @@ class OchaAiChat {
    */
   public function getEmbeddingPluginManager(): EmbeddingPluginManagerInterface {
     return $this->embeddingPluginManager;
+  }
+
+  /**
+   * Get the ranker plugin manager.
+   *
+   * @return \Drupal\ocha_ai\Plugin\RankerPluginManagerInterface
+   *   Ranker plugin.
+   */
+  public function getRankerPluginManager(): RankerPluginManagerInterface {
+    return $this->rankerPluginManager;
   }
 
   /**
@@ -979,74 +1053,96 @@ class OchaAiChat {
   }
 
   /**
+   * Get the answe validator plugin.
+   *
+   * @return ?\Drupal\ocha_ai\Plugin\AnswerValidatorPluginInterface
+   *   Answer validator plugin.
+   */
+  public function getAnswerValidatorPlugin(): ?AnswerValidatorPluginInterface {
+    $plugin_id = $this->getSetting(['plugins', 'answer_validator', 'plugin_id']);
+    return !empty($plugin_id) ? $this->getAnswerValidatorPluginManager()->getPlugin($plugin_id) : NULL;
+  }
+
+  /**
    * Get the completion plugin.
    *
-   * @return \Drupal\ocha_ai\Plugin\CompletionPluginInterface
+   * @return ?\Drupal\ocha_ai\Plugin\CompletionPluginInterface
    *   Completion plugin.
    */
-  public function getCompletionPlugin(): CompletionPluginInterface {
+  public function getCompletionPlugin(): ?CompletionPluginInterface {
     $plugin_id = $this->getSetting(['plugins', 'completion', 'plugin_id']);
-    return $this->getCompletionPluginManager()->getPlugin($plugin_id);
+    return !empty($plugin_id) ? $this->getCompletionPluginManager()->getPlugin($plugin_id) : NULL;
   }
 
   /**
    * Get the embedding plugin.
    *
-   * @return \Drupal\ocha_ai\Plugin\EmbeddingPluginInterface
+   * @return ?\Drupal\ocha_ai\Plugin\EmbeddingPluginInterface
    *   Embedding plugin.
    */
-  public function getEmbeddingPlugin(): EmbeddingPluginInterface {
+  public function getEmbeddingPlugin(): ?EmbeddingPluginInterface {
     $plugin_id = $this->getSetting(['plugins', 'embedding', 'plugin_id']);
-    return $this->getEmbeddingPluginManager()->getPlugin($plugin_id);
+    return !empty($plugin_id) ? $this->getEmbeddingPluginManager()->getPlugin($plugin_id) : NULL;
+  }
+
+  /**
+   * Get the ranker plugin.
+   *
+   * @return ?\Drupal\ocha_ai\Plugin\RankerPluginInterface
+   *   Ranker plugin.
+   */
+  public function getRankerPlugin(): ?RankerPluginInterface {
+    $plugin_id = $this->getSetting(['plugins', 'ranker', 'plugin_id']);
+    return !empty($plugin_id) ? $this->getRankerPluginManager()->getPlugin($plugin_id) : NULL;
   }
 
   /**
    * Get the source plugin.
    *
-   * @return \Drupal\ocha_ai\Plugin\SourcePluginInterface
+   * @return ?\Drupal\ocha_ai\Plugin\SourcePluginInterface
    *   Source plugin.
    */
-  public function getSourcePlugin(): SourcePluginInterface {
+  public function getSourcePlugin(): ?SourcePluginInterface {
     $plugin_id = $this->getSetting(['plugins', 'source', 'plugin_id']);
-    return $this->getSourcePluginManager()->getPlugin($plugin_id);
+    return !empty($plugin_id) ? $this->getSourcePluginManager()->getPlugin($plugin_id) : NULL;
   }
 
   /**
    * Get the text extractor plugin for the given file mimetype.
    *
-   * @return \Drupal\ocha_ai\Plugin\TextExtractorPluginInterface
+   * @return ?\Drupal\ocha_ai\Plugin\TextExtractorPluginInterface
    *   Text extractor plugin.
    */
-  public function getTextExtractorPlugin(string $mimetype): TextExtractorPluginInterface {
+  public function getTextExtractorPlugin(string $mimetype): ?TextExtractorPluginInterface {
     $plugin_id = $this->getSetting([
       'plugins',
       'text_extractor',
       $mimetype,
       'plugin_id',
     ]);
-    return $this->getTextExtractorPluginManager()->getPlugin($plugin_id);
+    return !empty($plugin_id) ? $this->getTextExtractorPluginManager()->getPlugin($plugin_id) : NULL;
   }
 
   /**
    * Get the text splitter plugin.
    *
-   * @return \Drupal\ocha_ai\Plugin\TextSplitterPluginInterface
+   * @return ?\Drupal\ocha_ai\Plugin\TextSplitterPluginInterface
    *   Text splitter plugin.
    */
-  public function getTextSplitterPlugin(): TextSplitterPluginInterface {
+  public function getTextSplitterPlugin(): ?TextSplitterPluginInterface {
     $plugin_id = $this->getSetting(['plugins', 'text_splitter', 'plugin_id']);
-    return $this->getTextSplitterPluginManager()->getPlugin($plugin_id);
+    return !empty($plugin_id) ? $this->getTextSplitterPluginManager()->getPlugin($plugin_id) : NULL;
   }
 
   /**
    * Get the vector store plugin.
    *
-   * @return \Drupal\ocha_ai\Plugin\VectorStorePluginInterface
+   * @return ?\Drupal\ocha_ai\Plugin\VectorStorePluginInterface
    *   Vector store plugin.
    */
-  public function getVectorStorePlugin(): VectorStorePluginInterface {
+  public function getVectorStorePlugin(): ?VectorStorePluginInterface {
     $plugin_id = $this->getSetting(['plugins', 'vector_store', 'plugin_id']);
-    return $this->getVectorStorePluginManager()->getPlugin($plugin_id);
+    return !empty($plugin_id) ? $this->getVectorStorePluginManager()->getPlugin($plugin_id) : NULL;
   }
 
   /**

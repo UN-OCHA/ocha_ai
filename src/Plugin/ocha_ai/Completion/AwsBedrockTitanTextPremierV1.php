@@ -67,6 +67,7 @@ class AwsBedrockTitanTextPremierV1 extends AwsBedrock {
         <instruction>
         Your answer should ONLY be drawn from the provided search results above, never include answers outside of the search results provided.
         When you reply, first find exact quotes in the context relevant to the user\'s question and write them down word for word inside <thinking></thinking> XML tags. This is a space for you to write down relevant content and will not be shown to the user. Once you are done extracting relevant quotes, answer the question.  Put your answer to the user inside <answer></answer> XML tags.
+        Form a full sentence when answering.
         <instruction>
 
         <instruction>

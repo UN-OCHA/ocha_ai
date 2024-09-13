@@ -6,6 +6,12 @@ ocha_ai.settings:
       type: mapping
       label: 'List of plugins.'
       mapping:
+        answer_validator:
+          type: sequence
+          label: 'List of answer validator plugins.'
+          sequence:
+            type: ocha_ai.plugin.answer_validator.[%key]
+            label: 'Settings for a answer validator plugin.'
         completion:
           type: sequence
           label: 'List of completion plugins.'
@@ -18,6 +24,12 @@ ocha_ai.settings:
           sequence:
             type: ocha_ai.plugin.embedding.[%key]
             label: 'Settings for a embedding plugin.'
+        ranker:
+          type: sequence
+          label: 'List of ranker plugins.'
+          sequence:
+            type: ocha_ai.plugin.ranker.[%key]
+            label: 'Settings for a ranker plugin.'
         source:
           type: sequence
           label: 'List of source plugins.'
@@ -57,6 +69,13 @@ ocha_ai.settings:
           type: mapping
           label: 'Default plugins.'
           mapping:
+            answer_validator:
+              type: mapping
+              label: 'Default answer validator plugin settings.'
+              mapping:
+                plugin_id:
+                  type: string
+                  label: 'Plugin ID.'
             completion:
               type: mapping
               label: 'Default completion plugin settings.'
@@ -67,6 +86,13 @@ ocha_ai.settings:
             embedding:
               type: mapping
               label: 'Default embedding plugin settings.'
+              mapping:
+                plugin_id:
+                  type: string
+                  label: 'Plugin ID.'
+            ranker:
+              type: mapping
+              label: 'Default ranker plugin settings.'
               mapping:
                 plugin_id:
                   type: string
@@ -104,6 +130,12 @@ ocha_ai.settings:
                   label: 'Plugin ID.'
 
 ### Base plugin settings. ###
+
+# Ranker plugin base settings.
+ocha_ai.plugin.answer_validation:
+  type: mapping
+  label: 'Answer validator plugin base settings.'
+  mapping:
 
 # Completion plugin base settings.
 ocha_ai.plugin.completion:
@@ -162,6 +194,15 @@ ocha_ai.plugin.embedding:
       type: integer
       label: 'Max tokens.'
 
+# Ranker plugin base settings.
+ocha_ai.plugin.ranker:
+  type: mapping
+  label: 'Ranker plugin base settings.'
+  mapping:
+    limit:
+      type: integer
+      label: 'Maximum number of relevant texts to return.'
+
 # Source plugin base settings.
 ocha_ai.plugin.source:
   type: mapping
@@ -193,6 +234,24 @@ ocha_ai.plugin.vector_store:
   mapping:
 
 ### Plugin settings. ###
+
+# Similarity - Embedding answer validator plugin settings.
+ocha_ai.plugin.answer_validator.similarity_embedding:
+  type: mapping
+  label: 'Similarity - Embedding answer validator plugin settings.'
+  mapping:
+    min_similarity:
+      type: float
+      label: 'Minimum similarity for the answer to be considered valid.'
+
+# Similarity - Ranker answer validator plugin settings.
+ocha_ai.plugin.answer_validator.similarity_ranker:
+  type: mapping
+  label: 'Similarity - Ranker answer validator plugin settings.'
+  mapping:
+    min_similarity:
+      type: float
+      label: 'Minimum similarity for the answer to be considered valid.'
 
 # AWS Bedrock completion plugin settings.
 ocha_ai.plugin.completion.aws_bedrock:
@@ -227,6 +286,15 @@ ocha_ai.plugin.completion.azure_openai:
 ocha_ai.plugin.embedding.azure_openai:
   type: ocha_ai.plugin.embedding
   label: 'AWS Bedrock embedding plugin settings.'
+
+# OCHA AI Helper ranker plugin settings
+ocha_ai.plugin.ranker.ocha_ai_helper_ranker:
+  type: ocha_ai.plugin.ranker
+  label: 'OCHA AI Helper ranker plugin settings.'
+  mapping:
+    endpoint:
+      type: string
+      label: 'Text ranking API endpoint.'
 
 # ReliefWeb source plugin settings.
 ocha_ai.plugin.source.reliefweb:
@@ -264,7 +332,7 @@ ocha_ai.plugin.text_extractor.mupdf:
 # Elasticsearch source plugin settings.
 ocha_ai.plugin.vector_store.elasticsearch:
   type: ocha_ai.plugin.vector_store
-  label: 'Elasticsearch source plugin settings.'
+  label: 'Elasticsearch vector store plugin settings.'
   mapping:
     url:
       type: string
@@ -294,10 +362,30 @@ ocha_ai.plugin.vector_store.elasticsearch:
       type: float
       label: 'Coefficient for the standard deviation to determine the similarity cut-off for relevancy'
 
+ocha_ai.plugin.vector_store.elasticsearch_flattened:
+  type: ocha_ai.plugin.vector_store.elasticsearch
+  label: 'Elasticsearch flattened vector store plugin settings.'
+  mapping:
+    expand_passage_before:
+      type: integer
+      label: 'Number of adjacent text passages to prepend to the text when passed as context.'
+    expand_passage_after:
+      type: integer
+      label: 'Number of adjacent text passages to append to the text when passed as context.'
+
+
+ocha_ai.plugin.text_splitter.nlp_sentence:
+  type: ocha_ai.plugin.text_splitter
+  label: 'NLP sentence text splitter settings.'
+  mapping:
+    endpoint:
+      type: string
+      label: 'NLP text splitting API endpoint.'
+
 ocha_ai.plugin.text_splitter.sentence:
   type: ocha_ai.plugin.text_splitter
-  label: 'Split a text in groups of sentences'
+  label: 'Sentence text splitter settings.'
 
 ocha_ai.plugin.text_splitter.token:
   type: ocha_ai.plugin.text_splitter
-  label: 'Split a text into passges based on their estimated token count'
+  label: 'Token text splitter settings.'

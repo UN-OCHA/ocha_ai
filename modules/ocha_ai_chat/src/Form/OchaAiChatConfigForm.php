@@ -6,8 +6,10 @@ use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\State\StateInterface;
+use Drupal\ocha_ai\Plugin\AnswerValidatorPluginManagerInterface;
 use Drupal\ocha_ai\Plugin\CompletionPluginManagerInterface;
 use Drupal\ocha_ai\Plugin\EmbeddingPluginManagerInterface;
+use Drupal\ocha_ai\Plugin\RankerPluginManagerInterface;
 use Drupal\ocha_ai\Plugin\SourcePluginManagerInterface;
 use Drupal\ocha_ai\Plugin\TextExtractorPluginManagerInterface;
 use Drupal\ocha_ai\Plugin\TextSplitterPluginManagerInterface;
@@ -27,6 +29,13 @@ class OchaAiChatConfigForm extends FormBase {
   protected $state;
 
   /**
+   * Answer validator plugin manager.
+   *
+   * @var \Drupal\ocha_ai\Plugin\AnswerValidatorPluginManagerInterface
+   */
+  protected AnswerValidatorPluginManagerInterface $answerValidatorPluginManager;
+
+  /**
    * Completion plugin manager.
    *
    * @var \Drupal\ocha_ai\Plugin\CompletionPluginManagerInterface
@@ -39,6 +48,13 @@ class OchaAiChatConfigForm extends FormBase {
    * @var \Drupal\ocha_ai\Plugin\EmbeddingPluginManagerInterface
    */
   protected EmbeddingPluginManagerInterface $embeddingPluginManager;
+
+  /**
+   * Ranker plugin manager.
+   *
+   * @var \Drupal\ocha_ai\Plugin\RankerPluginManagerInterface
+   */
+  protected RankerPluginManagerInterface $rankerPluginManager;
 
   /**
    * Source plugin manager.
@@ -75,10 +91,14 @@ class OchaAiChatConfigForm extends FormBase {
    *   The config factory.
    * @param \Drupal\Core\State\StateInterface $state
    *   The state service.
+   * @param \Drupal\ocha_ai\Plugin\AnswerValidatorPluginManagerInterface $answer_validator_plugin_manager
+   *   The answer validator plugin manager.
    * @param \Drupal\ocha_ai\Plugin\CompletionPluginManagerInterface $completion_plugin_manager
    *   The completion plugin manager.
    * @param \Drupal\ocha_ai\Plugin\EmbeddingPluginManagerInterface $embedding_plugin_manager
    *   The embedding plugin manager.
+   * @param \Drupal\ocha_ai\Plugin\RankerPluginManagerInterface $ranker_plugin_manager
+   *   The ranker plugin manager.
    * @param \Drupal\ocha_ai\Plugin\SourcePluginManagerInterface $source_plugin_manager
    *   The source plugin manager.
    * @param \Drupal\ocha_ai\Plugin\TextExtractorPluginManagerInterface $text_extractor_plugin_manager
@@ -91,8 +111,10 @@ class OchaAiChatConfigForm extends FormBase {
   public function __construct(
     ConfigFactoryInterface $config_factory,
     StateInterface $state,
+    AnswerValidatorPluginManagerInterface $answer_validator_plugin_manager,
     CompletionPluginManagerInterface $completion_plugin_manager,
     EmbeddingPluginManagerInterface $embedding_plugin_manager,
+    RankerPluginManagerInterface $ranker_plugin_manager,
     SourcePluginManagerInterface $source_plugin_manager,
     TextExtractorPluginManagerInterface $text_extractor_plugin_manager,
     TextSplitterPluginManagerInterface $text_splitter_plugin_manager,
@@ -100,8 +122,10 @@ class OchaAiChatConfigForm extends FormBase {
   ) {
     $this->setConfigFactory($config_factory);
     $this->state = $state;
+    $this->answerValidatorPluginManager = $answer_validator_plugin_manager;
     $this->completionPluginManager = $completion_plugin_manager;
     $this->embeddingPluginManager = $embedding_plugin_manager;
+    $this->rankerPluginManager = $ranker_plugin_manager;
     $this->sourcePluginManager = $source_plugin_manager;
     $this->textExtractorPluginManager = $text_extractor_plugin_manager;
     $this->textSplitterPluginManager = $text_splitter_plugin_manager;
@@ -115,8 +139,10 @@ class OchaAiChatConfigForm extends FormBase {
     return new static(
       $container->get('config.factory'),
       $container->get('state'),
+      $container->get('plugin.manager.ocha_ai.answer_validator'),
       $container->get('plugin.manager.ocha_ai.completion'),
       $container->get('plugin.manager.ocha_ai.embedding'),
+      $container->get('plugin.manager.ocha_ai.ranker'),
       $container->get('plugin.manager.ocha_ai.source'),
       $container->get('plugin.manager.ocha_ai.text_extractor'),
       $container->get('plugin.manager.ocha_ai.text_splitter'),
@@ -180,12 +206,6 @@ class OchaAiChatConfigForm extends FormBase {
       ],
       '#description' => $this->t('Basic formatting means that the module takes the answer from the LLM and restores line breaks within HTML.'),
     ];
-    $form['defaults']['form']['answer_min_similarity'] = [
-      '#type' => 'textfield',
-      '#title' => $this->t('Answer min similarity'),
-      '#default_value' => $defaults['form']['answer_min_similarity'] ?? 1.35,
-      '#description' => $this->t('Minimum similarity between the answer and the context passages to be considered valid.'),
-    ];
 
     $form['defaults']['form']['answers'] = [
       '#type' => 'details',
@@ -237,6 +257,11 @@ class OchaAiChatConfigForm extends FormBase {
     ];
 
     $plugin_managers = [
+      'answer_validator' => [
+        'label' => $this->t('Answer validator'),
+        'manager' => $this->answerValidatorPluginManager,
+        'optional' => TRUE,
+      ],
       'completion' => [
         'label' => $this->t('Completion'),
         'manager' => $this->completionPluginManager,
@@ -244,6 +269,11 @@ class OchaAiChatConfigForm extends FormBase {
       'embedding' => [
         'label' => $this->t('Embedding'),
         'manager' => $this->embeddingPluginManager,
+      ],
+      'ranker' => [
+        'label' => $this->t('Ranker'),
+        'manager' => $this->rankerPluginManager,
+        'optional' => TRUE,
       ],
       'source' => [
         'label' => $this->t('Document source'),
@@ -265,6 +295,8 @@ class OchaAiChatConfigForm extends FormBase {
         $options[$plugin->getPluginId()] = $plugin->getPluginLabel();
       }
 
+      $required = empty($info['optional']);
+
       $form['defaults']['plugins'][$plugin_type] = [
         '#type' => 'fieldset',
         '#title' => $info['label'],
@@ -275,8 +307,12 @@ class OchaAiChatConfigForm extends FormBase {
         '#title' => $this->t('Plugin'),
         '#options' => $options,
         '#default_value' => $defaults['plugins'][$plugin_type]['plugin_id'] ?? NULL,
-        '#required' => TRUE,
+        '#required' => $required,
       ];
+
+      if (!$required) {
+        $form['defaults']['plugins'][$plugin_type]['plugin_id']['#empty_option'] = $this->t('None');
+      }
     }
 
     // For text extractors, we group the plugins by mimetype.
@@ -301,6 +337,17 @@ class OchaAiChatConfigForm extends FormBase {
         }
         $form['defaults']['plugins']['text_extractor'][$mimetype]['plugin_id']['#options'][$plugin->getPluginId()] = $plugin->getPluginLabel();
       }
+    }
+
+    // Override settings for the ranker.
+    if (isset($form['defaults']['plugins']['ranker'])) {
+      $form['defaults']['plugins']['ranker']['limit'] = [
+        '#type' => 'number',
+        '#title' => $this->t('Limit'),
+        '#description' => $this->t('Maximum number of relevant texts to return.'),
+        '#default_value' => $defaults['plugins']['ranker']['limit'] ?? NULL,
+        '#required' => FALSE,
+      ];
     }
 
     // Override settings for the text splitter.
