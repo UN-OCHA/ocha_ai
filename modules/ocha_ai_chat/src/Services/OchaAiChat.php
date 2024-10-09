@@ -27,6 +27,7 @@ use Drupal\ocha_ai\Plugin\TextSplitterPluginInterface;
 use Drupal\ocha_ai\Plugin\TextSplitterPluginManagerInterface;
 use Drupal\ocha_ai\Plugin\VectorStorePluginInterface;
 use Drupal\ocha_ai\Plugin\VectorStorePluginManagerInterface;
+use GuzzleHttp\ClientInterface;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -35,11 +36,11 @@ use Psr\Log\LoggerInterface;
 class OchaAiChat {
 
   /**
-   * OCHA AI Chat config.
+   * The config factory.
    *
-   * @var \Drupal\Core\Config\ImmutableConfig
+   * @var \Drupal\Core\Config\ConfigFactoryInterface
    */
-  protected ImmutableConfig $config;
+  protected ConfigFactoryInterface $configFactory;
 
   /**
    * The logger service.
@@ -75,6 +76,13 @@ class OchaAiChat {
    * @var \Drupal\Component\Datetime\TimeInterface
    */
   protected TimeInterface $time;
+
+  /**
+   * The HTTP client.
+   *
+   * @var \GuzzleHttp\ClientInterface
+   */
+  protected ClientInterface $httpClient;
 
   /**
    * Answer validator plugin manager.
@@ -154,6 +162,8 @@ class OchaAiChat {
    *   The database.
    * @param \Drupal\Component\Datetime\TimeInterface $time
    *   The time service.
+   * @param \GuzzleHttp\ClientInterface $http_client
+   *   The HTTP client service.
    * @param \Drupal\ocha_ai_chat\Plugin\AnswerValidatorPluginManagerInterface $answer_validator_plugin_manager
    *   The answer validator plugin manager.
    * @param \Drupal\ocha_ai_chat\Plugin\CompletionPluginManagerInterface $completion_plugin_manager
@@ -178,6 +188,7 @@ class OchaAiChat {
     AccountProxyInterface $current_user,
     Connection $database,
     TimeInterface $time,
+    ClientInterface $http_client,
     AnswerValidatorPluginManagerInterface $answer_validator_plugin_manager,
     CompletionPluginManagerInterface $completion_plugin_manager,
     EmbeddingPluginManagerInterface $embedding_plugin_manager,
@@ -187,12 +198,13 @@ class OchaAiChat {
     TextSplitterPluginManagerInterface $text_splitter_plugin_manager,
     VectorStorePluginManagerInterface $vector_store_plugin_manager,
   ) {
-    $this->config = $config_factory->get('ocha_ai_chat.settings');
+    $this->configFactory = $config_factory;
     $this->logger = $logger_factory->get('ocha_ai_chat');
     $this->state = $state;
     $this->currentUser = $current_user;
     $this->database = $database;
     $this->time = $time;
+    $this->httpClient = $http_client;
     $this->answerValidatorPluginManager = $answer_validator_plugin_manager;
     $this->completionPluginManager = $completion_plugin_manager;
     $this->embeddingPluginManager = $embedding_plugin_manager;
@@ -205,6 +217,32 @@ class OchaAiChat {
 
   /**
    * Answer the question against the ReliefWeb documents from the river URL.
+   *
+   * @param string $question
+   *   Question.
+   * @param array $source
+   *   Data to retrieve the source documents.
+   * @param int $limit
+   *   Number of documents to retrieve.
+   * @param \Drupal\ocha_ai_chat\Plugin\CompletionPluginInterface $completion_plugin
+   *   Optional completion plugin override.
+   *
+   * @return array
+   *   Associative array with the qestion, the answer, the source URL,
+   *   the limit, the plugins, the stats and the relevant passages.
+   */
+  public function answer(string $question, array $source, int $limit = 10, ?CompletionPluginInterface $completion_plugin = NULL): array {
+    $mode = $this->getSetting(['form', 'retrieval_mode'], NULL, FALSE);
+    if ($mode === 'keywords') {
+      return $this->answerKeywords($question, $source, $limit, $completion_plugin);
+    }
+    return $this->answerEmbeddings($question, $source, $limit, $completion_plugin);
+  }
+
+  /**
+   * Answer the question against the ReliefWeb documents from the river URL.
+   *
+   * Embeddings mode.
    *
    * 1. Retrieve the documents from the ReliefWeb API URL.
    * 2. Embed the documents if not already.
@@ -226,7 +264,7 @@ class OchaAiChat {
    *   Associative array with the qestion, the answer, the source URL,
    *   the limit, the plugins, the stats and the relevant passages.
    */
-  public function answer(string $question, array $source, int $limit = 10, ?CompletionPluginInterface $completion_plugin = NULL): array {
+  public function answerEmbeddings(string $question, array $source, int $limit = 10, ?CompletionPluginInterface $completion_plugin = NULL): array {
     $completion_plugin = $completion_plugin ?? $this->getCompletionPlugin();
     $embedding_plugin = $this->getEmbeddingPlugin();
     $source_plugin = $this->getSourcePlugin();
@@ -346,6 +384,306 @@ class OchaAiChat {
     }
     // Validate the answer.
     elseif (!$this->validateAnswer($answer, $question, $passages, $language)) {
+      $data['answer'] = $this->getAnswer('invalid_answer', 'Sorry, I was unable to answer your question.');
+      $data['error'] = 'invalid_answer';
+      return $this->logAnswerData($data);
+    }
+    else {
+      $data['answer'] = $answer;
+    }
+
+    // Arrived at this point we have a valid answer so we consider the request
+    // successful.
+    $data['status'] = 'success';
+
+    return $this->logAnswerData($data);
+  }
+
+  /**
+   * Answer the question against the ReliefWeb documents from the river URL.
+   *
+   * Keywords mode.
+   *
+   * 1. Retrieve the documents from the ReliefWeb API URL.
+   * 2. Get the term vectors for the document from the Elasticsearch backend.
+   * 3. Get the most relevant terms in regards to the question.
+   * 4. Query Elasticseach with those terms and use its highlight functionality
+   *    to get the most relevant passages.
+   * 5. Generate the prompt context.
+   * 6. Answer the question.
+   *
+   * @param string $question
+   *   Question.
+   * @param array $source
+   *   Data to retrieve the source documents.
+   * @param int $limit
+   *   Number of documents to retrieve.
+   * @param \Drupal\ocha_ai_chat\Plugin\CompletionPluginInterface $completion_plugin
+   *   Optional completion plugin override.
+   *
+   * @return array
+   *   Associative array with the qestion, the answer, the source URL,
+   *   the limit, the plugins, the stats and the relevant passages.
+   */
+  public function answerKeywords(string $question, array $source, int $limit = 10, ?CompletionPluginInterface $completion_plugin = NULL): array {
+    $completion_plugin = $completion_plugin ?? $this->getCompletionPlugin();
+    $source_plugin = $this->getSourcePlugin();
+    $logger = $this->logger;
+
+    // Stats to record the time of each operation.
+    // @todo either store the stats elsewhere (log etc.) or remove.
+    $data = [
+      'completion_plugin_id' => $completion_plugin->getPluginId(),
+      'embedding_plugin_id' => NULL,
+      'source_plugin_id' => $source_plugin->getPluginId(),
+      'source_data' => $source,
+      'source_limit' => $limit,
+      'source_document_ids' => [],
+      'question' => $question,
+      'answer' => '',
+      'original_answer' => '',
+      'passages' => [],
+      'status' => 'error',
+      'error' => '',
+      'timestamp' => $this->time->getRequestTime(),
+      'duration' => 0,
+      'uid' => $this->currentUser->id(),
+      'stats' => [
+        'Get source documents' => 0,
+        'Embed documents' => 0,
+        'Get question embedding' => 0,
+        'Get relevant passages' => 0,
+        'Get answer' => 0,
+      ],
+    ];
+
+    $time = microtime(TRUE);
+
+    $ranker_plugin = $this->getRankerPlugin();
+    if (empty($ranker_plugin)) {
+      $data['answer'] = $this->getAnswer('no_ranker', 'Sorry, there is an error. Please contact the administrator.');
+      $data['error'] = 'no_ranker';
+      return $this->logAnswerData($data);
+    }
+
+    $elasticsearch = $this->getConfig('reliefweb_api.settings')?->get('elasticsearch');
+    if (empty($elasticsearch)) {
+      $data['answer'] = $this->getAnswer('no_elasticsearch', 'Sorry, there is an error. Please contact the administrator.');
+      $data['error'] = 'no_elasticsearch';
+      return $this->logAnswerData($data);
+    }
+
+    // Retrieve the source documents matching the document source URL.
+    ['index' => $index, 'documents' => $documents] = $this->getSourceDocuments($source, $limit);
+    $data['source_document_ids'] = array_keys($documents);
+    $data['stats']['Get source documents'] = 0 - $time + ($time = microtime(TRUE));
+
+    // If there are no documents to query, then no need to ask the AI.
+    if (empty($documents)) {
+      $data['answer'] = $this->getAnswer('no_document', 'Sorry, no source documents were found.');
+      $data['error'] = 'no_document';
+      return $this->logAnswerData($data);
+    }
+
+    // @todo inject dependency.
+    $http_client = $this->httpClient;
+    $document_ids = array_map(function ($document) {
+      return $document['raw']['id'];
+    }, array_values($documents));
+    $document_language = 'en';
+    $document_fields = ['title', 'body'];
+
+    // Retrieve the term vectors for the documents.
+    //
+    // @todo currently, the idea is to get the document terms using the ES
+    // term vectors API. Another option could be to add an endpoint to the OCHA
+    // AI helper to return a list of keywords associated with the question.
+    $document_terms = call_user_func(function (array $ids, array $fields) use ($http_client, $logger, $elasticsearch): array {
+      try {
+        // @todo this is restricted to the reports for now.
+        $endpoint = $elasticsearch . '/reliefweb_reports/_mtermvectors';
+
+        $response = $http_client->post($endpoint, [
+          'json' => [
+            'ids' => $ids,
+            'parameters' => [
+              'fields' => $fields,
+              'offsets' => FALSE,
+              'payloads' => FALSE,
+              'positions' => FALSE,
+              'field_statistics' => FALSE,
+              'term_statistics' => FALSE,
+            ],
+          ],
+        ]);
+
+        $data = $response->getBody()->getContents();
+        $data = json_decode($data, TRUE, flags: \JSON_THROW_ON_ERROR);
+
+        $terms = [];
+        foreach ($data['docs'] ?? [] as $doc) {
+          foreach ($doc['term_vectors'] ?? [] as $field_data) {
+            foreach (array_keys($field_data['terms'] ?? []) as $term) {
+              $term = trim(mb_strtolower($term));
+              // We try to filter out some "bad" terms. It's important to note
+              // that we use shingles and other term transformations when
+              // indexing ReliefWeb content into Elasticsearch. This can result
+              // in a messy bag of term vectors.
+              //
+              // @todo additional filtering to reduce the number of terms.
+              if ($term !== '' && mb_strlen($term) > 1 && !is_numeric($term) && mb_strpos($term, ' ') === FALSE) {
+                $terms[$term] = TRUE;
+              }
+            }
+          }
+        }
+        return array_keys($terms);
+      }
+      catch (\Exception $exception) {
+        $logger->error(strtr('Unable to retrieve term vectors for documents: @ids with error: @error', [
+          '@ids' => implode(', ', $ids),
+          '@error' => $exception->getMessage(),
+        ]));
+      }
+
+      return [];
+    }, $document_ids, $document_fields);
+
+    // Skip if there are no relevant terms.
+    if (empty($document_terms)) {
+      return [];
+    }
+
+    // Get the relevant keywords.
+    $relevant_keywords = call_user_func(function (string $question, array $terms, string $language, int $limit) use ($ranker_plugin, $logger): array {
+
+      try {
+        $texts = $ranker_plugin->rankTexts($question, $terms, $language, $limit);
+        return array_slice(array_keys($texts), 0, $limit);
+      }
+      catch (\Exception $exception) {
+        $logger->error(strtr('Error while retrieving pertinent keywords: @error', [
+          '@error' => $exception->getMessage(),
+        ]));
+      }
+
+      return [];
+    }, $question, $document_terms, $document_language, 50);
+
+    // Skip if there are no relevant keywords.
+    if (empty($relevant_keywords)) {
+      return [];
+    }
+
+    // Get the relevant passages.
+    $relevant_passages = call_user_func(function (array $ids, string $question, array $keywords, array $fields) use ($http_client, $logger, $elasticsearch): array {
+      $limit = 30;
+      $length = 500;
+      $endpoint = $elasticsearch . '/reliefweb_reports/_search';
+
+      // Generate match queries for the question and for the keywords.
+      $queries = array_map(function (string $term) use ($fields): array {
+        return [
+          'multi_match' => [
+            'query' => $term,
+            'fields' => $fields,
+          ],
+        ];
+      }, array_merge([$question], $keywords));
+
+      try {
+        $response = $http_client->post($endpoint, [
+          'json' => [
+            'query' => [
+              'bool' => [
+                'filter' => [
+                  'ids' => [
+                    'values' => $ids,
+                  ],
+                ],
+                'should' => $queries,
+              ],
+            ],
+            // Highlights will give us passages which contain keywords. We
+            // rank them by score to get the ones with the most matches first.
+            'highlight' => [
+              'order' => 'score',
+              'number_of_fragments' => $limit,
+              'fragment_size' => $length,
+              'pre_tags'  => [''],
+              'post_tags'  => [''],
+              'fields' => [
+                '*' => (object) [],
+              ],
+            ],
+          ],
+        ]);
+
+        $data = $response->getBody()->getContents();
+        $data = json_decode($data, TRUE, flags: \JSON_THROW_ON_ERROR);
+
+        $passages = [];
+        foreach ($data['hits']['hits'] ?? [] as $hit) {
+          foreach ($hit['highlight'] as $highlights) {
+            foreach ($highlights as $highlight) {
+              $passages[$highlight] = ['text' => $highlight];
+            }
+          }
+        }
+
+        return array_slice($passages, 0, $limit);
+      }
+      catch (\Exception $exception) {
+        $logger->error(strtr('Error while retrieving relevant passages: @error', [
+          '@error' => $exception->getMessage(),
+        ]));
+      }
+
+      return [];
+    }, $document_ids, $question, $relevant_keywords, $document_fields);
+    $data['stats']['Get relevant passages'] = 0 - $time + ($time = microtime(TRUE));
+
+    $passages = $relevant_passages;
+
+    // Generate inline references for the passages.
+    $source_document = reset($documents);
+    $reference = $source_plugin->generateInlineReference($source_document);
+    foreach ($passages ?? [] as $key => $passage) {
+      $passages[$key]['source'] = $source_document;
+      $passages[$key]['reference'] = $reference;
+    }
+
+    // If there are no passages matching the question, we inject metadata from
+    // the documents. It helps for questions such as "What are those documents
+    // about?".
+    $passages = array_merge($passages, $this->getFallbackPassages($index, $documents));
+
+    // Rerank the passages.
+    // @todo retrieve the language of the document. Currently we only support
+    // English but the ranker supports more languages.
+    $passages = $this->rerankPassages($question, $passages, 'en', 3);
+    $data['stats']['Rerank passages'] = 0 - $time + ($time = microtime(TRUE));
+
+    $data['passages'] = $passages;
+
+    // Generate the context to answer the question based on the relevant
+    // passages.
+    $context = $completion_plugin->generateContext($question, $passages);
+
+    // @todo parse the answer and try to detect "failure" to propose
+    // alternatives or instructions to clarify the question.
+    $answer = trim($completion_plugin->answer($question, $context) ?? '');
+    $data['stats']['Get answer'] = 0 - $time + ($time = microtime(TRUE));
+    $data['original_answer'] = $answer;
+
+    // The answer is empty for example if there was an error during the request.
+    if ($answer === '') {
+      $data['answer'] = $this->getAnswer('no_answer', 'Sorry, I was unable to answer your question. Please try again in a short moment.');
+      $data['error'] = 'no_answer';
+      return $this->logAnswerData($data);
+    }
+    // Validate the answer.
+    elseif (!$this->validateAnswer($answer, $question, $passages, $document_language)) {
       $data['answer'] = $this->getAnswer('invalid_answer', 'Sorry, I was unable to answer your question.');
       $data['error'] = 'invalid_answer';
       return $this->logAnswerData($data);
@@ -1153,7 +1491,7 @@ class OchaAiChat {
    */
   public function getSettings(): array {
     if (!isset($this->settings)) {
-      $config_defaults = $this->config->get('defaults') ?? [];
+      $config_defaults = $this->getConfig()->get('defaults') ?? [];
 
       $state_defaults = $this->state->get('ocha_ai_chat.default_settings', []);
 
@@ -1188,6 +1526,16 @@ class OchaAiChat {
       ]));
     }
     return $setting;
+  }
+
+  /**
+   * Get the configuration object for the given name.
+   *
+   * @return \Drupal\Core\Config\ImmutableConfig
+   *   The configuratioin object.
+   */
+  protected function getConfig(string $name = 'ocha_ai_chat.settings'): ImmutableConfig {
+    return $this->configFactory->get($name);
   }
 
 }
