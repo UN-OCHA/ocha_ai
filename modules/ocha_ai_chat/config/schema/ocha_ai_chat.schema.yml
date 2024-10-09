@@ -84,6 +84,9 @@ ocha_ai_chat.settings:
             formatting:
               type: string
               label: 'Formatting mode.'
+            retrieval_mode:
+              type: string
+              label: 'Passage retrieval mode: embeddings or keywords.'
             answers:
               type: mapping
               mapping:

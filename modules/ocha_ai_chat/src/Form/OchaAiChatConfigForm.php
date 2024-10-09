@@ -207,6 +207,19 @@ class OchaAiChatConfigForm extends FormBase {
       '#description' => $this->t('Basic formatting means that the module takes the answer from the LLM and restores line breaks within HTML.'),
     ];
 
+    // Passage retrieval mode.
+    $form['defaults']['form']['retrieval_mode'] = [
+      '#type' => 'select',
+      '#title' => $this->t('Passage retrieval mode.'),
+      '#default_value' => $defaults['form']['retrieval_mode'] ?? '',
+      '#options' => [
+        'embeddings' => $this->t('Embeddings'),
+        'keywords' => $this->t('Keywords'),
+      ],
+      '#description' => $this->t('Retrieve relevant passages using embeddings or keywords.'),
+    ];
+
+    // Default answers when there is an error for example.
     $form['defaults']['form']['answers'] = [
       '#type' => 'details',
       '#title' => $this->t('Answers'),

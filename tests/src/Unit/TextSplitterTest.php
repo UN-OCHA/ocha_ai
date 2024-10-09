@@ -2,8 +2,8 @@
 
 namespace Drupal\Tests\ocha_ai\Unit;
 
-use Drupal\ocha_ai\Helpers\TextHelper;
 use Drupal\Tests\UnitTestCase;
+use Drupal\ocha_ai\Helpers\TextHelper;
 
 /**
  * Tests TextHelper.
