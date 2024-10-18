@@ -473,6 +473,13 @@ class OchaAiChat {
       return $this->logAnswerData($data);
     }
 
+    $base_index_name = $this->getConfig('reliefweb_api.settings')?->get('base_index_name');
+    if (empty($base_index_name)) {
+      $data['answer'] = $this->getAnswer('no_base_index_name', 'Sorry, there is an error. Please contact the administrator.');
+      $data['error'] = 'no_base_index_name';
+      return $this->logAnswerData($data);
+    }
+
     // Retrieve the source documents matching the document source URL.
     ['index' => $index, 'documents' => $documents] = $this->getSourceDocuments($source, $limit);
     $data['source_document_ids'] = array_keys($documents);
@@ -498,10 +505,10 @@ class OchaAiChat {
     // @todo currently, the idea is to get the document terms using the ES
     // term vectors API. Another option could be to add an endpoint to the OCHA
     // AI helper to return a list of keywords associated with the question.
-    $document_terms = call_user_func(function (array $ids, array $fields) use ($http_client, $logger, $elasticsearch): array {
+    $document_terms = call_user_func(function (array $ids, array $fields) use ($http_client, $logger, $elasticsearch, $base_index_name): array {
       try {
         // @todo this is restricted to the reports for now.
-        $endpoint = $elasticsearch . '/reliefweb_reports/_mtermvectors';
+        $endpoint = $elasticsearch . '/' . $base_index_name . '_reports/_mtermvectors';
 
         $response = $http_client->post($endpoint, [
           'json' => [
@@ -576,10 +583,10 @@ class OchaAiChat {
     }
 
     // Get the relevant passages.
-    $relevant_passages = call_user_func(function (array $ids, string $question, array $keywords, array $fields) use ($http_client, $logger, $elasticsearch): array {
+    $relevant_passages = call_user_func(function (array $ids, string $question, array $keywords, array $fields) use ($http_client, $logger, $elasticsearch, $base_index_name): array {
       $limit = 30;
       $length = 500;
-      $endpoint = $elasticsearch . '/reliefweb_reports/_search';
+      $endpoint = $elasticsearch . '/' . $base_index_name . '_reports/_search';
 
       // Generate match queries for the question and for the keywords.
       $queries = array_map(function (string $term) use ($fields): array {
