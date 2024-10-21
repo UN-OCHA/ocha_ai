@@ -33,7 +33,7 @@ class ReliefwebAiChatCommands extends DrushCommands {
     if (!file_exists($filename)) {
       $this->output->writeln('File not found: ' . $filename);
     }
-return;
+
     $out = fopen($filename_out, 'w');
 
     $f = fopen($filename, 'r');
