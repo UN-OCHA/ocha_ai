@@ -54,7 +54,7 @@ class ReliefwebAiChatCommands extends DrushCommands {
         $data[$header_lowercase[$i]] = $row[$i];
       }
 
-      if (!isset($data['status']) || $data['status'] == 'success' ) {
+      if (!isset($data['status']) || $data['status'] == 'success') {
         continue;
       }
 
