@@ -151,8 +151,16 @@ class MuPdf extends TextExtractorPluginBase {
    *   Normalized text.
    */
   protected function normalizeText(string $text): string {
+    if (is_null($text)) {
+      return '';
+    }
+
     // Remove carriage return characters.
     $text = preg_replace(['/\r(?!\n)/u', '/\r/u'], [' ', ''], $text);
+
+    if (is_null($text)) {
+      return '';
+    }
 
     // Remove exponents.
     $text = preg_replace('/\n\d{1,2}\n/u', '', $text);
