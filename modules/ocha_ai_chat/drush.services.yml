@@ -1,0 +1,6 @@
+services:
+  ocha_ai_chat.commands:
+    class: \Drupal\ocha_ai_chat\Commands\ReliefwebAiChatCommands
+    arguments: ['@entity_type.manager', '@ocha_ai_chat.chat']
+    tags:
+      - { name: drush.command }
