@@ -41,9 +41,20 @@ class AwsBedrock extends CompletionPluginBase {
       return '';
     }
 
+    return $this->query($prompt, raw: FALSE) ?? '';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function query(string $prompt, string $system_prompt = '', array $parameters = [], bool $raw = TRUE): ?string {
+    if (empty($prompt)) {
+      return '';
+    }
+
     $payload = [
       'accept' => 'application/json',
-      'body' => json_encode($this->generateRequestBody($prompt)),
+      'body' => json_encode($this->generateRequestBody($prompt, $parameters)),
       'contentType' => 'application/json',
       'modelId' => $this->getPluginSetting('model'),
     ];
@@ -67,7 +78,7 @@ class AwsBedrock extends CompletionPluginBase {
       return '';
     }
 
-    return $this->parseResponseBody($data);
+    return $this->parseResponseBody($data, $raw);
   }
 
   /**
@@ -75,12 +86,16 @@ class AwsBedrock extends CompletionPluginBase {
    *
    * @param string $prompt
    *   Prompt.
+   * @param array $parameters
+   *   Parameters for the payload: max_tokens, temperature, top_p.
    *
    * @return array
    *   Request body.
    */
-  protected function generateRequestBody(string $prompt): array {
-    $max_tokens = (int) $this->getPluginSetting('max_tokens', 512);
+  protected function generateRequestBody(string $prompt, array $parameters = []): array {
+    $max_tokens = (int) ($parameters['max_tokens'] ?? $this->getPluginSetting('max_tokens', 512));
+    $temperature = (float) ($parameters['temperature'] ?? 0.0);
+    $top_p = (float) ($parameters['top_p'] ?? 0.9);
 
     switch ($this->getPluginSetting('model')) {
       case 'amazon.titan-text-express-v1':
@@ -90,16 +105,16 @@ class AwsBedrock extends CompletionPluginBase {
             'maxTokenCount' => $max_tokens,
             // @todo adjust based on the prompt?
             'stopSequences' => [],
-            'temperature' => 0.0,
-            'topP' => 0.9,
+            'temperature' => $temperature,
+            'topP' => $top_p,
           ],
         ];
 
       case 'anthropic.claude-instant-v1':
         return [
           'prompt' => "\n\nHuman:$prompt\n\nAssistant:",
-          'temperature' => 0.0,
-          'top_p' => 0.9,
+          'temperature' => $temperature,
+          'top_p' => $top_p,
           'top_k' => 0,
           'max_tokens_to_sample' => $max_tokens,
           'stop_sequences' => ["\n\nHuman:"],
@@ -109,8 +124,8 @@ class AwsBedrock extends CompletionPluginBase {
       case 'cohere.command-light-text-v14':
         return [
           'prompt' => $prompt,
-          'temperature' => 0.0,
-          'p' => 0.9,
+          'temperature' => $temperature,
+          'p' => $top_p,
           'k' => 0.0,
           'max_tokens' => $max_tokens,
           'stop_sequences' => [],
@@ -129,11 +144,14 @@ class AwsBedrock extends CompletionPluginBase {
    *
    * @param array $data
    *   Decoded response.
+   * @param bool $raw
+   *   Whether to return the raw output text or let the plugin do some
+   *   processing if any.
    *
    * @return string
    *   The generated text.
    */
-  protected function parseResponseBody(array $data): string {
+  protected function parseResponseBody(array $data, bool $raw = TRUE): string {
     switch ($this->getPluginSetting('model')) {
       case 'amazon.titan-text-express-v1':
         return trim($data['results'][0]['outputText'] ?? '');
