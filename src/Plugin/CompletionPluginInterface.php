@@ -21,6 +21,24 @@ interface CompletionPluginInterface {
   public function answer(string $question, string $context): string;
 
   /**
+   * Perform a completion query.
+   *
+   * @param string $prompt
+   *   Prompt.
+   * @param string $system_prompt
+   *   Optional system prompt.
+   * @param array $parameters
+   *   Optional parameters for the payload: max_tokens, temperature, top_p.
+   * @param bool $raw
+   *   Whether to return the raw output text or let the plugin do some
+   *   processing if any.
+   *
+   * @return string|null
+   *   The model output text or NULL in case of error when querying the model.
+   */
+  public function query(string $prompt, string $system_prompt = '', array $parameters = [], bool $raw = TRUE): ?string;
+
+  /**
    * Get the prompt template.
    *
    * @return string

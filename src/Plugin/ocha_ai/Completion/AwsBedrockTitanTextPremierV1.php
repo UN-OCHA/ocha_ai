@@ -94,8 +94,10 @@ class AwsBedrockTitanTextPremierV1 extends AwsBedrock {
   /**
    * {@inheritdoc}
    */
-  protected function generateRequestBody(string $prompt): array {
-    $max_tokens = (int) $this->getPluginSetting('max_tokens', 512);
+  protected function generateRequestBody(string $prompt, array $parameters = []): array {
+    $max_tokens = (int) ($parameters['max_tokens'] ?? $this->getPluginSetting('max_tokens', 512));
+    $temperature = (float) ($parameters['temperature'] ?? 0.0);
+    $top_p = (float) ($parameters['top_p'] ?? 0.9);
 
     return [
       'inputText' => $prompt,
@@ -103,8 +105,8 @@ class AwsBedrockTitanTextPremierV1 extends AwsBedrock {
         'maxTokenCount' => $max_tokens,
         // @todo adjust based on the prompt?
         'stopSequences' => [],
-        'temperature' => 0.0,
-        'topP' => 0.9,
+        'temperature' => $temperature,
+        'topP' => $top_p,
       ],
     ];
   }
@@ -112,10 +114,14 @@ class AwsBedrockTitanTextPremierV1 extends AwsBedrock {
   /**
    * {@inheritdoc}
    */
-  protected function parseResponseBody(array $data): string {
+  protected function parseResponseBody(array $data, bool $raw = TRUE): string {
     $response = trim($data['results'][0]['outputText'] ?? '');
     if ($response === '') {
       return '';
+    }
+
+    if ($raw) {
+      return $response;
     }
 
     // Extract the answer.
