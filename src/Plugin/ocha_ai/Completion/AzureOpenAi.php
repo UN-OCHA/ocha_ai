@@ -43,23 +43,38 @@ class AzureOpenAi extends CompletionPluginBase {
       return '';
     }
 
+    return $this->query($question, $prompt) ?? '';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function query(string $prompt, string $system_prompt = '', array $parameters = [], bool $process = FALSE): ?string {
+    if (empty($prompt)) {
+      return '';
+    }
+
+    $max_tokens = (int) ($parameters['max_tokens'] ?? $this->getPluginSetting('max_tokens', 512));
+    $temperature = (float) ($parameters['temperature'] ?? 0.0);
+    $top_p = (float) ($parameters['top_p'] ?? 0.9);
+
     $messages = [
       [
         'role' => 'system',
-        'content' => $prompt,
+        'content' => $system_prompt ?: 'You are a helpful assistant.',
       ],
       [
         'role' => 'user',
-        'content' => $question,
+        'content' => $prompt,
       ],
     ];
 
     $payload = [
       'model' => $this->getPluginSetting('model'),
       'messages' => $messages,
-      'temperature' => 0.0,
-      'top_p' => 0.9,
-      'max_tokens' => (int) $this->getPluginSetting('max_tokens', 512),
+      'temperature' => $temperature,
+      'top_p' => $top_p,
+      'max_tokens' => $max_tokens,
     ];
 
     try {
@@ -70,7 +85,7 @@ class AzureOpenAi extends CompletionPluginBase {
       $this->getLogger()->error(strtr('Completion request failed with: @error.', [
         '@error' => $exception->getMessage(),
       ]));
-      return '';
+      return NULL;
     }
 
     try {
@@ -80,7 +95,7 @@ class AzureOpenAi extends CompletionPluginBase {
       $this->getLogger()->error(strtr('Unable to retrieve completion result data: @error.', [
         '@error' => $exception->getMessage(),
       ]));
-      return '';
+      return NULL;
     }
 
     return trim($data['choices'][0]['message']['content'] ?? '');
