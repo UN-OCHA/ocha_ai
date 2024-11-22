@@ -5,11 +5,14 @@ namespace Drupal\ocha_ai_chat\Form;
 use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Ajax\MessageCommand;
 use Drupal\Core\Database\Connection;
+use Drupal\Core\Database\Query\PagerSelectExtender;
+use Drupal\Core\Database\Query\TableSortExtender;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\File\FileSystemInterface;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Link;
+use Drupal\Core\Pager\PagerManagerInterface;
 use Drupal\Core\Session\AccountProxyInterface;
 use Drupal\Core\Url;
 use Drupal\ocha_ai_chat\Services\OchaAiChat;
@@ -50,6 +53,13 @@ class OchaAiChatLogsForm extends FormBase {
   protected FileSystemInterface $fileSystem;
 
   /**
+   * The pager manager.
+   *
+   * @var \Drupal\Core\Pager\PagerManagerInterface
+   */
+  protected PagerManagerInterface $pagerManager;
+
+  /**
    * The OCHA AI chat service.
    *
    * @var \Drupal\ocha_ai_chat\Services\OchaAiChat
@@ -67,6 +77,8 @@ class OchaAiChatLogsForm extends FormBase {
    *   The entity type manager.
    * @param \Drupal\Core\File\FileSystemInterface $file_system
    *   The file system.
+   * @param \Drupal\Core\Pager\PagerManagerInterface $pager_manager
+   *   The pager manager.
    * @param \Drupal\ocha_ai_chat\Services\OchaAiChat $ocha_ai_chat
    *   The OCHA AI chat service.
    */
@@ -75,12 +87,14 @@ class OchaAiChatLogsForm extends FormBase {
     AccountProxyInterface $current_user,
     EntityTypeManagerInterface $entity_type_manager,
     FileSystemInterface $file_system,
+    PagerManagerInterface $pager_manager,
     OchaAiChat $ocha_ai_chat,
   ) {
     $this->database = $database;
     $this->currentUser = $current_user;
     $this->entityTypeManager = $entity_type_manager;
     $this->fileSystem = $file_system;
+    $this->pagerManager = $pager_manager;
     $this->ochaAiChat = $ocha_ai_chat;
   }
 
@@ -93,6 +107,7 @@ class OchaAiChatLogsForm extends FormBase {
       $container->get('current_user'),
       $container->get('entity_type.manager'),
       $container->get('file_system'),
+      $container->get('pager.manager'),
       $container->get('ocha_ai_chat.chat')
     );
   }
@@ -218,20 +233,28 @@ class OchaAiChatLogsForm extends FormBase {
     $query = $this->database
       ->select('ocha_ai_chat_logs', 'ocha_ai_chat_logs')
       ->fields('ocha_ai_chat_logs')
-      ->extend('\Drupal\Core\Database\Query\TableSortExtender')
+      ->extend(TableSortExtender::class)
       ->orderByHeader($header)
-      ->extend('\Drupal\Core\Database\Query\PagerSelectExtender')
+      ->extend(PagerSelectExtender::class)
       ->limit(20);
 
+    $filtered = FALSE;
     if (!empty($question)) {
       $query->condition('ocha_ai_chat_logs.question', '%' . $question . '%', 'LIKE');
+      $filtered = TRUE;
     }
     if (!empty($answer)) {
       $query->condition('ocha_ai_chat_logs.answer', '%' . $answer . '%', 'LIKE');
+      $filtered = TRUE;
     }
     if (!empty($user)) {
       $query->condition('ocha_ai_chat_logs.uid', $user, '=');
+      $filtered = TRUE;
     }
+
+    $total = $query->countQuery()->execute()?->fetchField();
+
+    $form['filters']['#open'] = $filtered;
 
     $link_options = [
       'attributes' => [
@@ -286,7 +309,7 @@ class OchaAiChatLogsForm extends FormBase {
             '#type' => 'details',
             '#title' => $this->t('Stats'),
             '#open' => FALSE,
-            'passages' => $this->formatStats($stats),
+            'stats' => $this->formatStats($stats),
           ],
         ],
       ];
@@ -316,7 +339,27 @@ class OchaAiChatLogsForm extends FormBase {
       '#header' => $header,
       '#rows' => $rows,
       '#empty' => $this->t('No content has been found.'),
+      '#prefix' => '<div class="ocha-ai-chat-logs-table-wrapper">',
+      '#suffic' => '</div>',
     ];
+
+    if (!empty($total)) {
+      $current_page = $this->pagerManager->findPage();
+      // Calculate start and end item numbers.
+      $range_start = ($current_page * 50) + 1;
+      $range_end = min(($current_page + 1) * 50, $total);
+
+      // Render range string.
+      $form['table']['#caption'] = [
+        '#type' => 'inline_template',
+        '#template' => '<p>Showing {{ start }}-{{ end }} of {{ total }} entries</p>',
+        '#context' => [
+          'start' => $range_start,
+          'end' => $range_end,
+          'total' => $total,
+        ],
+      ];
+    }
 
     $form['pager'] = [
       '#type' => 'pager',
