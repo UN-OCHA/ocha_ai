@@ -227,7 +227,7 @@ class OchaAiChatLogsForm extends FormBase {
       $query->condition('ocha_ai_chat_logs.question', '%' . $question . '%', 'LIKE');
     }
     if (!empty($answer)) {
-      $query->condition('ocha_ai_chat_logs.question', '%' . $answer . '%', 'LIKE');
+      $query->condition('ocha_ai_chat_logs.answer', '%' . $answer . '%', 'LIKE');
     }
     if (!empty($user)) {
       $query->condition('ocha_ai_chat_logs.uid', $user, '=');
@@ -464,7 +464,7 @@ class OchaAiChatLogsForm extends FormBase {
           $query->condition('ocha_ai_chat_logs.question', '%' . $question . '%', 'LIKE');
         }
         if (!empty($answer)) {
-          $query->condition('ocha_ai_chat_logs.question', '%' . $answer . '%', 'LIKE');
+          $query->condition('ocha_ai_chat_logs.answer', '%' . $answer . '%', 'LIKE');
         }
         if (!empty($user)) {
           $query->condition('ocha_ai_chat_logs.uid', $user, '=');
