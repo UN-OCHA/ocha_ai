@@ -517,18 +517,40 @@ class OchaAiChatLogsForm extends FormBase {
           $query->condition('ocha_ai_chat_logs.id', $last_id, '<');
         }
 
+        // Extra user information.
+        $query->leftJoin('users_field_data', 'ufd', 'ufd.uid = ocha_ai_chat_logs.uid');
+        $query->leftJoin('user__roles', 'ur', "ur.entity_id = ocha_ai_chat_logs.uid AND ur.roles_target_id = 'editor'");
+        $query->addField('ufd', 'name', 'username');
+        $query->addExpression("IF(ufd.uid = 1 OR ufd.mail LIKE '%reliefweb.int' OR ur.roles_target_id = 'editor', 'yes', 'no')", 'editor');
+
         $results = $query->execute()?->fetchAllAssoc('id', \PDO::FETCH_ASSOC);
         if (empty($results)) {
           break;
         }
 
         if (!isset($last_id)) {
+          $headers = array_keys(reset($results));
+          $headers[] = 'username';
+          $headers[] = 'editor';
+
           if (fputcsv($handle, array_keys(reset($results)), "\t") === FALSE) {
             throw new \Exception('Unable to write headers to file for the log export');
           }
         }
 
         foreach ($results as $result) {
+          foreach ($result as $field => $value) {
+            $value = strtr($value, "\t", ' ');
+            $result[$field] = match ($field) {
+              'source_data' => $this->formatSourceDataForExport($value),
+              'source_document_ids' => $this->formatSourceIdsForExport($value),
+              'passages' => $this->formatPassagesForExport($value),
+              'stats' => $this->formatStatsForExport($value),
+              'timestamp' => date('c', (int) $value),
+              default => $value,
+            };
+          }
+
           if (fputcsv($handle, $result, "\t") === FALSE) {
             throw new \Exception('Unable to write rows to file for the log export');
           }
@@ -548,6 +570,120 @@ class OchaAiChatLogsForm extends FormBase {
       '@url' => $file->createFileUrl(),
     ]);
     return $response->addCommand(new MessageCommand($message, $selector));
+  }
+
+  /**
+   * Retrieve a search URL from a source data and use that as exported value.
+   *
+   * @param string $source_data
+   *   Source data as JSON blob.
+   *
+   * @return string
+   *   The ReliefWeb search URL or the URL of the single document if the search
+   *   URL is in the format https://reliefweb.int/updates?search=url_alias:URL.
+   *   The original blob is returned if no URL could be extracted.
+   */
+  protected function formatSourceDataForExport(string $source_data): string {
+    $decoded = json_decode($source_data, TRUE);
+    if (empty($decoded['url'])) {
+      return $source_data;
+    }
+    $url = $decoded['url'];
+
+    $query = parse_url($url, \PHP_URL_QUERY);
+    if (empty($query)) {
+      return $url;
+    }
+
+    parse_str($query, $parameters);
+    if (empty($parameters['search'])) {
+      return $url;
+    }
+
+    if (preg_match('#url_alias:"(https?://[^"]+)"#', $parameters['search'], $matches)) {
+      return $matches[1];
+    }
+    return $url;
+  }
+
+  /**
+   * Format the source IDs for the logs export.
+   *
+   * @param string $source_ids
+   *   Source IDs json blob.
+   *
+   * @return string
+   *   Formatted source IDs or input data.
+   */
+  protected function formatSourceIdsForExport(string $source_ids): string {
+    $decoded = json_decode($source_ids, TRUE);
+    if (empty($decoded) || !is_array($decoded)) {
+      return $source_ids;
+    }
+    return implode(',', $decoded);
+  }
+
+  /**
+   * Format the stats for the logs export.
+   *
+   * @param string $stats
+   *   Stats json blob.
+   *
+   * @return string
+   *   Formatted stats or input data.
+   */
+  protected function formatStatsForExport(string $stats): string {
+    $decoded = json_decode($stats, TRUE);
+    if (empty($decoded)) {
+      return $stats;
+    }
+
+    $items = [];
+    foreach ($decoded as $key => $value) {
+      $items[] = $key . ': ' . round($value, 3) . 's';
+    }
+
+    return implode("\n", $items);
+  }
+
+  /**
+   * Format the text passages for the logs export.
+   *
+   * @param string $passages
+   *   Passages json blob.
+   *
+   * @return string
+   *   Formatted passages or input data.
+   */
+  protected function formatPassagesForExport(string $passages): string {
+    $decoded = json_decode($passages, TRUE);
+    if (empty($decoded)) {
+      return $passages;
+    }
+
+    $items = [];
+    foreach ($decoded as $passage) {
+      $source_title = $passage['source']['title'];
+      if (!empty($passage['source']['page'])) {
+        $source_title .= ' (page ' . $passage['source']['page'] . ')';
+      }
+      $source_url = Url::fromUri($passage['source']['url'], $link_options)->toString();
+
+      // Source organizations.
+      $sources = implode(', ', array_filter(array_map(function ($source) {
+        return $source['shortname'] ?? $source['name'] ?? '';
+      }, $passage['source']['source'] ?? [])));
+
+      // Publication date.
+      $date = date_create($passage['source']['date']['original'])->format('j F Y');
+
+      // Text.
+      $text = $passage['expanded_text'] ?? $passage['text'];
+
+      $items[] = "$text\nSource: $sources, $source_title ($source_url), $date";
+    }
+
+    return implode("\n\n", $items);
   }
 
   /**
