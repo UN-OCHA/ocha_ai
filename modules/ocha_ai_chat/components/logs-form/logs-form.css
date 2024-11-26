@@ -25,3 +25,6 @@
   margin-right: auto;
   margin-left: auto;
 }
+.ocha-ai-chat-logs-form .ocha-ai-chat-logs-table-wrapper {
+  overflow-x: auto;
+}

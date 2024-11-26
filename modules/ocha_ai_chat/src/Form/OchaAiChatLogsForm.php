@@ -5,11 +5,14 @@ namespace Drupal\ocha_ai_chat\Form;
 use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Ajax\MessageCommand;
 use Drupal\Core\Database\Connection;
+use Drupal\Core\Database\Query\PagerSelectExtender;
+use Drupal\Core\Database\Query\TableSortExtender;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\File\FileSystemInterface;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Link;
+use Drupal\Core\Pager\PagerManagerInterface;
 use Drupal\Core\Session\AccountProxyInterface;
 use Drupal\Core\Url;
 use Drupal\ocha_ai_chat\Services\OchaAiChat;
@@ -50,6 +53,13 @@ class OchaAiChatLogsForm extends FormBase {
   protected FileSystemInterface $fileSystem;
 
   /**
+   * The pager manager.
+   *
+   * @var \Drupal\Core\Pager\PagerManagerInterface
+   */
+  protected PagerManagerInterface $pagerManager;
+
+  /**
    * The OCHA AI chat service.
    *
    * @var \Drupal\ocha_ai_chat\Services\OchaAiChat
@@ -67,6 +77,8 @@ class OchaAiChatLogsForm extends FormBase {
    *   The entity type manager.
    * @param \Drupal\Core\File\FileSystemInterface $file_system
    *   The file system.
+   * @param \Drupal\Core\Pager\PagerManagerInterface $pager_manager
+   *   The pager manager.
    * @param \Drupal\ocha_ai_chat\Services\OchaAiChat $ocha_ai_chat
    *   The OCHA AI chat service.
    */
@@ -75,12 +87,14 @@ class OchaAiChatLogsForm extends FormBase {
     AccountProxyInterface $current_user,
     EntityTypeManagerInterface $entity_type_manager,
     FileSystemInterface $file_system,
+    PagerManagerInterface $pager_manager,
     OchaAiChat $ocha_ai_chat,
   ) {
     $this->database = $database;
     $this->currentUser = $current_user;
     $this->entityTypeManager = $entity_type_manager;
     $this->fileSystem = $file_system;
+    $this->pagerManager = $pager_manager;
     $this->ochaAiChat = $ocha_ai_chat;
   }
 
@@ -93,6 +107,7 @@ class OchaAiChatLogsForm extends FormBase {
       $container->get('current_user'),
       $container->get('entity_type.manager'),
       $container->get('file_system'),
+      $container->get('pager.manager'),
       $container->get('ocha_ai_chat.chat')
     );
   }
@@ -218,20 +233,28 @@ class OchaAiChatLogsForm extends FormBase {
     $query = $this->database
       ->select('ocha_ai_chat_logs', 'ocha_ai_chat_logs')
       ->fields('ocha_ai_chat_logs')
-      ->extend('\Drupal\Core\Database\Query\TableSortExtender')
+      ->extend(TableSortExtender::class)
       ->orderByHeader($header)
-      ->extend('\Drupal\Core\Database\Query\PagerSelectExtender')
+      ->extend(PagerSelectExtender::class)
       ->limit(20);
 
+    $filtered = FALSE;
     if (!empty($question)) {
       $query->condition('ocha_ai_chat_logs.question', '%' . $question . '%', 'LIKE');
+      $filtered = TRUE;
     }
     if (!empty($answer)) {
-      $query->condition('ocha_ai_chat_logs.question', '%' . $answer . '%', 'LIKE');
+      $query->condition('ocha_ai_chat_logs.answer', '%' . $answer . '%', 'LIKE');
+      $filtered = TRUE;
     }
     if (!empty($user)) {
       $query->condition('ocha_ai_chat_logs.uid', $user, '=');
+      $filtered = TRUE;
     }
+
+    $total = $query->countQuery()->execute()?->fetchField();
+
+    $form['filters']['#open'] = $filtered;
 
     $link_options = [
       'attributes' => [
@@ -286,7 +309,7 @@ class OchaAiChatLogsForm extends FormBase {
             '#type' => 'details',
             '#title' => $this->t('Stats'),
             '#open' => FALSE,
-            'passages' => $this->formatStats($stats),
+            'stats' => $this->formatStats($stats),
           ],
         ],
       ];
@@ -316,7 +339,27 @@ class OchaAiChatLogsForm extends FormBase {
       '#header' => $header,
       '#rows' => $rows,
       '#empty' => $this->t('No content has been found.'),
+      '#prefix' => '<div class="ocha-ai-chat-logs-table-wrapper">',
+      '#suffic' => '</div>',
     ];
+
+    if (!empty($total)) {
+      $current_page = $this->pagerManager->findPage();
+      // Calculate start and end item numbers.
+      $range_start = ($current_page * 50) + 1;
+      $range_end = min(($current_page + 1) * 50, $total);
+
+      // Render range string.
+      $form['table']['#caption'] = [
+        '#type' => 'inline_template',
+        '#template' => '<p>Showing {{ start }}-{{ end }} of {{ total }} entries</p>',
+        '#context' => [
+          'start' => $range_start,
+          'end' => $range_end,
+          'total' => $total,
+        ],
+      ];
+    }
 
     $form['pager'] = [
       '#type' => 'pager',
@@ -464,7 +507,7 @@ class OchaAiChatLogsForm extends FormBase {
           $query->condition('ocha_ai_chat_logs.question', '%' . $question . '%', 'LIKE');
         }
         if (!empty($answer)) {
-          $query->condition('ocha_ai_chat_logs.question', '%' . $answer . '%', 'LIKE');
+          $query->condition('ocha_ai_chat_logs.answer', '%' . $answer . '%', 'LIKE');
         }
         if (!empty($user)) {
           $query->condition('ocha_ai_chat_logs.uid', $user, '=');
@@ -474,18 +517,40 @@ class OchaAiChatLogsForm extends FormBase {
           $query->condition('ocha_ai_chat_logs.id', $last_id, '<');
         }
 
+        // Extra user information.
+        $query->leftJoin('users_field_data', 'ufd', 'ufd.uid = ocha_ai_chat_logs.uid');
+        $query->leftJoin('user__roles', 'ur', "ur.entity_id = ocha_ai_chat_logs.uid AND ur.roles_target_id = 'editor'");
+        $query->addField('ufd', 'name', 'username');
+        $query->addExpression("IF(ufd.uid = 1 OR ufd.mail LIKE '%reliefweb.int' OR ur.roles_target_id = 'editor', 'yes', 'no')", 'editor');
+
         $results = $query->execute()?->fetchAllAssoc('id', \PDO::FETCH_ASSOC);
         if (empty($results)) {
           break;
         }
 
         if (!isset($last_id)) {
+          $headers = array_keys(reset($results));
+          $headers[] = 'username';
+          $headers[] = 'editor';
+
           if (fputcsv($handle, array_keys(reset($results)), "\t") === FALSE) {
             throw new \Exception('Unable to write headers to file for the log export');
           }
         }
 
         foreach ($results as $result) {
+          foreach ($result as $field => $value) {
+            $value = strtr($value, "\t", ' ');
+            $result[$field] = match ($field) {
+              'source_data' => $this->formatSourceDataForExport($value),
+              'source_document_ids' => $this->formatSourceIdsForExport($value),
+              'passages' => $this->formatPassagesForExport($value),
+              'stats' => $this->formatStatsForExport($value),
+              'timestamp' => date('c', (int) $value),
+              default => $value,
+            };
+          }
+
           if (fputcsv($handle, $result, "\t") === FALSE) {
             throw new \Exception('Unable to write rows to file for the log export');
           }
@@ -505,6 +570,120 @@ class OchaAiChatLogsForm extends FormBase {
       '@url' => $file->createFileUrl(),
     ]);
     return $response->addCommand(new MessageCommand($message, $selector));
+  }
+
+  /**
+   * Retrieve a search URL from a source data and use that as exported value.
+   *
+   * @param string $source_data
+   *   Source data as JSON blob.
+   *
+   * @return string
+   *   The ReliefWeb search URL or the URL of the single document if the search
+   *   URL is in the format https://reliefweb.int/updates?search=url_alias:URL.
+   *   The original blob is returned if no URL could be extracted.
+   */
+  protected function formatSourceDataForExport(string $source_data): string {
+    $decoded = json_decode($source_data, TRUE);
+    if (empty($decoded['url'])) {
+      return $source_data;
+    }
+    $url = $decoded['url'];
+
+    $query = parse_url($url, \PHP_URL_QUERY);
+    if (empty($query)) {
+      return $url;
+    }
+
+    parse_str($query, $parameters);
+    if (empty($parameters['search'])) {
+      return $url;
+    }
+
+    if (preg_match('#url_alias:"(https?://[^"]+)"#', $parameters['search'], $matches)) {
+      return $matches[1];
+    }
+    return $url;
+  }
+
+  /**
+   * Format the source IDs for the logs export.
+   *
+   * @param string $source_ids
+   *   Source IDs json blob.
+   *
+   * @return string
+   *   Formatted source IDs or input data.
+   */
+  protected function formatSourceIdsForExport(string $source_ids): string {
+    $decoded = json_decode($source_ids, TRUE);
+    if (empty($decoded) || !is_array($decoded)) {
+      return $source_ids;
+    }
+    return implode(',', $decoded);
+  }
+
+  /**
+   * Format the stats for the logs export.
+   *
+   * @param string $stats
+   *   Stats json blob.
+   *
+   * @return string
+   *   Formatted stats or input data.
+   */
+  protected function formatStatsForExport(string $stats): string {
+    $decoded = json_decode($stats, TRUE);
+    if (empty($decoded)) {
+      return $stats;
+    }
+
+    $items = [];
+    foreach ($decoded as $key => $value) {
+      $items[] = $key . ': ' . round($value, 3) . 's';
+    }
+
+    return implode("\n", $items);
+  }
+
+  /**
+   * Format the text passages for the logs export.
+   *
+   * @param string $passages
+   *   Passages json blob.
+   *
+   * @return string
+   *   Formatted passages or input data.
+   */
+  protected function formatPassagesForExport(string $passages): string {
+    $decoded = json_decode($passages, TRUE);
+    if (empty($decoded)) {
+      return $passages;
+    }
+
+    $items = [];
+    foreach ($decoded as $passage) {
+      $source_title = $passage['source']['title'];
+      if (!empty($passage['source']['page'])) {
+        $source_title .= ' (page ' . $passage['source']['page'] . ')';
+      }
+      $source_url = Url::fromUri($passage['source']['url'], $link_options)->toString();
+
+      // Source organizations.
+      $sources = implode(', ', array_filter(array_map(function ($source) {
+        return $source['shortname'] ?? $source['name'] ?? '';
+      }, $passage['source']['source'] ?? [])));
+
+      // Publication date.
+      $date = date_create($passage['source']['date']['original'])->format('j F Y');
+
+      // Text.
+      $text = $passage['expanded_text'] ?? $passage['text'];
+
+      $items[] = "$text\nSource: $sources, $source_title ($source_url), $date";
+    }
+
+    return implode("\n\n", $items);
   }
 
   /**
