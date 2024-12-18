@@ -141,7 +141,7 @@ class ChatPopup extends BlockBase implements ContainerFactoryPluginInterface {
    *   TRUE if the URL is valid.
    */
   protected function checkReportUrl(string $url): bool {
-    return !empty($url) && preg_match('@^https?://reliefweb\.int/report/[^/]+/[^/]+$@', $url) === 1;
+    return !empty($url) && preg_match('@^https?://reliefweb\.int/(report|map)/[^/]+/[^/]+$@', $url) === 1;
   }
 
 }
