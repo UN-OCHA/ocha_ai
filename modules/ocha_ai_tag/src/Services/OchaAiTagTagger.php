@@ -258,7 +258,7 @@ class OchaAiTagTagger extends OchaAiChat {
       $embeddings = [
         VectorHelper::mean($embeddings),
       ];
-    };
+    }
 
     $results = [];
     foreach ($this->getTermEmbeddings() as $vocabulary => $terms) {
@@ -391,7 +391,7 @@ class OchaAiTagTagger extends OchaAiChat {
     $variance = 0.0;
     foreach ($similarity_scores as $value) {
       $variance += pow((float) $value - $mean, 2);
-    };
+    }
     $deviation = (float) sqrt($variance / ($sample ? $count - 1 : $count));
 
     // Calculate the similarity cut-off.
