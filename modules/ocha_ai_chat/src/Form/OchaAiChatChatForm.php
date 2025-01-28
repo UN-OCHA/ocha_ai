@@ -7,6 +7,7 @@ use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Ajax\HtmlCommand;
 use Drupal\Core\Ajax\InvokeCommand;
 use Drupal\Core\Ajax\MessageCommand;
+use Drupal\Core\Ajax\ReplaceCommand;
 use Drupal\Core\Database\Connection;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
@@ -408,6 +409,7 @@ class OchaAiChatChatForm extends FormBase {
     $form['#suffix'] = '</div>';
     $form['actions']['submit']['#attributes']['class'][] = 'use-ajax-submit';
     $form['actions']['submit']['#ajax'] = [
+      'callback' => '::ajaxSubmitCallback',
       'wrapper' => $id,
       'disable-refocus' => TRUE,
       'progress' => [
@@ -421,6 +423,21 @@ class OchaAiChatChatForm extends FormBase {
 
     // @todo check if we need a theme.
     return $form;
+  }
+
+  /**
+   * Ajax callback for form submission.
+   */
+  public function ajaxSubmitCallback(array &$form, FormStateInterface $form_state): AjaxResponse {
+    $response = new AjaxResponse();
+
+    // Replace the entire form.
+    $response->addCommand(new ReplaceCommand('#' . $form['actions']['submit']['#ajax']['wrapper'], $form));
+
+    // Set focus on the 'question' element.
+    $response->addCommand(new InvokeCommand('[data-drupal-selector="edit-question"]', 'focus'));
+
+    return $response;
   }
 
   /**
