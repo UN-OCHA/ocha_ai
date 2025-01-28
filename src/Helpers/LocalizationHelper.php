@@ -12,21 +12,21 @@ class LocalizationHelper {
    *
    * @var array
    */
-  static protected array $collators;
+  protected static array $collators;
 
   /**
    * Store the instantiated formatters per language.
    *
    * @var array
    */
-  static protected array $formatters;
+  protected static array $formatters;
 
   /**
    * Store the default language.
    *
    * @var string
    */
-  static protected string $defaultLanguage;
+  protected static string $defaultLanguage;
 
   /**
    * Sort an array using a collator for the given language, perserving the keys.
