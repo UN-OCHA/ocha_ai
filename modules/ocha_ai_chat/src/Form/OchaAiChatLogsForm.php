@@ -199,6 +199,9 @@ class OchaAiChatLogsForm extends FormBase {
       'context' => [
         'data' => $this->t('Context'),
       ],
+      'model' => [
+        'data' => $this->t('Model'),
+      ],
       'status' => [
         'data' => $this->t('Status'),
       ],
@@ -267,6 +270,8 @@ class OchaAiChatLogsForm extends FormBase {
     foreach ($query->execute() ?? [] as $record) {
       $source_plugin_id = $record->source_plugin_id;
       $source_plugin = $this->ochaAiChat->getSourcePluginManager()->getPlugin($source_plugin_id);
+      $completion_plugin_id = $record->completion_plugin_id;
+      $completion_plugin = $this->ochaAiChat->getCompletionPluginManager()->getPlugin($completion_plugin_id);
       $source_data = json_decode($record->source_data, TRUE);
       $passages = json_decode($record->passages, TRUE);
       $stats = json_decode($record->stats, TRUE);
@@ -287,6 +292,7 @@ class OchaAiChatLogsForm extends FormBase {
             'passages' => $this->formatPassages($passages),
           ],
         ],
+        'model' => $completion_plugin->getPluginLabel(),
         'status' => $record->status,
         'error' => $record->error,
         'duration' => $record->duration,
