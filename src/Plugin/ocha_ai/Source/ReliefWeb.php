@@ -527,8 +527,8 @@ class ReliefWeb extends SourcePluginBase {
    * {@inheritdoc}
    */
   public function renderSourceData(array $data): array {
-    if (isset($data['url'])) {
-      $url = Url::fromUri($data['url'], [
+    if (!empty($data['url'])) {
+      $url = Url::fromUri($this->parseSourceUrl($data['url']), [
         'attributes' => [
           'rel' => 'noreferrer noopener',
           'target' => '_blank',
@@ -537,6 +537,34 @@ class ReliefWeb extends SourcePluginBase {
       return Link::fromTextAndUrl($this->t('Link'), $url)->toRenderable();
     }
     return [];
+  }
+
+  /**
+   * Parse the source URL. Extract the link to the document or the search URL.
+   *
+   * @param string $url
+   *   Source URL: river URL to multiple documents or a single document.
+   *
+   * @return string
+   *   The ReliefWeb search URL or the URL of the single document if the search
+   *   URL is in the format https://reliefweb.int/updates?search=url_alias:URL.
+   *   The original blob is returned if no URL could be extracted.
+   */
+  protected function parseSourceUrl(string $url): string {
+    $query = parse_url($url, \PHP_URL_QUERY);
+    if (empty($query)) {
+      return $url;
+    }
+
+    parse_str($query, $parameters);
+    if (empty($parameters['search'])) {
+      return $url;
+    }
+
+    if (preg_match('#url_alias:"(https?://[^"]+)"#', $parameters['search'], $matches)) {
+      return $matches[1];
+    }
+    return $url;
   }
 
   /**
