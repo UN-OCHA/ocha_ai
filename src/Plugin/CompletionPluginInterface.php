@@ -32,11 +32,34 @@ interface CompletionPluginInterface {
    * @param bool $raw
    *   Whether to return the raw output text or let the plugin do some
    *   processing if any.
+   * @param array $files
+   *   List files to pass to the model for analysis. Each file is an
+   *   associative array with the following properties:
+   *   - mimetype (string): the mime type of the file.
+   *   - id (string): optional document ID, for example for reference in the
+   *     prompt.
+   *   - data (string): optional content of the file. If not defined, the `uri`
+   *     property should be set.
+   *   - uri (string): optional URI of the file. If not defined, the `data`
+   *     property should be set.
+   *   - base64 (bool): optional flag indicating if the data is already base64
+   *     encoded.
    *
    * @return string|null
    *   The model output text or NULL in case of error when querying the model.
    */
-  public function query(string $prompt, string $system_prompt = '', array $parameters = [], bool $raw = TRUE): ?string;
+  public function query(string $prompt, string $system_prompt = '', array $parameters = [], bool $raw = TRUE, array $files = []): ?string;
+
+  /**
+   * Query the model with the given payload and return the raw response data.
+   *
+   * @param array $payload
+   *   Payload as expected by the model.
+   *
+   * @return array
+   *   Data as returned by the model.
+   */
+  public function queryModel(array $payload): array;
 
   /**
    * Get the prompt template.
