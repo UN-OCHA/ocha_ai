@@ -86,8 +86,8 @@
         ]
       }
     },
-    "avatar": {
-      "source": "img/icons/avatar",
+    "ai": {
+      "source": "img/icons/ai",
       "include": [
         "avatar"
       ],

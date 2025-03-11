@@ -1,5 +1,5 @@
 :root {
-  --rw-icons-sprite: url("/modules/contrib/ocha_ai/modules/ocha_ai_chat/components/rw-icons/img/rw-icons-sprite.svg?v=1.0.3");
+  --rw-icons-sprite: url("/modules/contrib/ocha_ai/modules/ocha_ai_chat/components/rw-icons/img/rw-icons-sprite.svg?v=1.0.4");
   --rw-icons--common--12--dark-blue--x: 0;
   --rw-icons--common--12--dark-red--x: -12px;
   --rw-icons--common--12--dark-grey--x: -24px;
@@ -99,8 +99,8 @@
   --rw-icons--content--interactive--16--dark-grey: var(--rw-icons-sprite) -230px -16px no-repeat;
   --rw-icons--content--map--16--dark-grey: var(--rw-icons-sprite) -230px -32px no-repeat;
   --rw-icons--content--report--16--dark-grey: var(--rw-icons-sprite) -230px -48px no-repeat;
-  --rw-icons--avatar--48--dark-grey--x: -246px;
-  --rw-icons--avatar--avatar--48--dark-grey: var(--rw-icons-sprite) -246px 0 no-repeat;
+  --rw-icons--ai--48--dark-grey--x: -246px;
+  --rw-icons--ai--avatar--48--dark-grey: var(--rw-icons-sprite) -246px 0 no-repeat;
   --rw-icons--datepicker--32--dark-blue--x: -294px;
   --rw-icons--datepicker--32--dark-red--x: -326px;
   --rw-icons--datepicker--datepicker--32--dark-blue: var(--rw-icons-sprite) -294px 0 no-repeat;
