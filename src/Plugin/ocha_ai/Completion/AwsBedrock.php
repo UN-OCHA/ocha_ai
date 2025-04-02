@@ -47,18 +47,30 @@ class AwsBedrock extends CompletionPluginBase {
   /**
    * {@inheritdoc}
    */
-  public function query(string $prompt, string $system_prompt = '', array $parameters = [], bool $raw = TRUE): ?string {
+  public function query(string $prompt, string $system_prompt = '', array $parameters = [], bool $raw = TRUE, array $files = []): ?string {
     if (empty($prompt)) {
       return '';
     }
 
     $payload = [
       'accept' => 'application/json',
-      'body' => json_encode($this->generateRequestBody($prompt, $parameters)),
+      'body' => json_encode($this->generateRequestBody($prompt, $system_prompt, $files, $parameters)),
       'contentType' => 'application/json',
       'modelId' => $this->getPluginSetting('model'),
     ];
 
+    $data = $this->queryModel($payload);
+    if (empty($data)) {
+      return '';
+    }
+
+    return $this->parseResponseBody($data, $raw);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function queryModel(array $payload): array {
     try {
       /** @var \Aws\Result $response */
       $response = $this->getApiClient()->invokeModel($payload);
@@ -67,7 +79,7 @@ class AwsBedrock extends CompletionPluginBase {
       $this->getLogger()->error(strtr('Completion request failed with error: @error.', [
         '@error' => $exception->getMessage(),
       ]));
-      return '';
+      return [];
     }
 
     try {
@@ -75,10 +87,9 @@ class AwsBedrock extends CompletionPluginBase {
     }
     catch (\Exception $exception) {
       $this->getLogger()->error('Unable to decode completion response.');
-      return '';
+      return [];
     }
-
-    return $this->parseResponseBody($data, $raw);
+    return $data;
   }
 
   /**
@@ -86,13 +97,17 @@ class AwsBedrock extends CompletionPluginBase {
    *
    * @param string $prompt
    *   Prompt.
+   * @param string $system_prompt
+   *   System prompt.
+   * @param array $files
+   *   List of URIs of files to pass to the model for analysis.
    * @param array $parameters
    *   Parameters for the payload: max_tokens, temperature, top_p.
    *
    * @return array
    *   Request body.
    */
-  protected function generateRequestBody(string $prompt, array $parameters = []): array {
+  protected function generateRequestBody(string $prompt, string $system_prompt, array $files = [], array $parameters = []): array {
     $max_tokens = (int) ($parameters['max_tokens'] ?? $this->getPluginSetting('max_tokens', 512));
     $temperature = (float) ($parameters['temperature'] ?? 0.0);
     $top_p = (float) ($parameters['top_p'] ?? 0.9);

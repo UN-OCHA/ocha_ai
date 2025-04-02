@@ -49,7 +49,7 @@ class AzureOpenAi extends CompletionPluginBase {
   /**
    * {@inheritdoc}
    */
-  public function query(string $prompt, string $system_prompt = '', array $parameters = [], bool $process = FALSE): ?string {
+  public function query(string $prompt, string $system_prompt = '', array $parameters = [], bool $raw = FALSE, array $files = []): ?string {
     if (empty($prompt)) {
       return '';
     }
@@ -77,6 +77,18 @@ class AzureOpenAi extends CompletionPluginBase {
       'max_tokens' => $max_tokens,
     ];
 
+    $data = $this->queryModel($payload);
+    if (empty($data)) {
+      return NULL;
+    }
+
+    return trim($data['choices'][0]['message']['content'] ?? '');
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function queryModel(array $payload): array {
     try {
       /** @var \OpenAI\Responses\Chat\CreateResponse $response */
       $response = $this->getApiClient()->chat()->create($payload);
@@ -85,7 +97,7 @@ class AzureOpenAi extends CompletionPluginBase {
       $this->getLogger()->error(strtr('Completion request failed with: @error.', [
         '@error' => $exception->getMessage(),
       ]));
-      return NULL;
+      return [];
     }
 
     try {
@@ -95,10 +107,9 @@ class AzureOpenAi extends CompletionPluginBase {
       $this->getLogger()->error(strtr('Unable to retrieve completion result data: @error.', [
         '@error' => $exception->getMessage(),
       ]));
-      return NULL;
+      return [];
     }
-
-    return trim($data['choices'][0]['message']['content'] ?? '');
+    return $data;
   }
 
   /**
