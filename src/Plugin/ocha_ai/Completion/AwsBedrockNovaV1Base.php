@@ -93,7 +93,7 @@ abstract class AwsBedrockNovaV1Base extends AwsBedrock {
 
     // Add the system prompt if any.
     if (!empty($system_prompt)) {
-      $payload['system'] = $system_prompt;
+      $payload['system'] = [['text' => $system_prompt]];
     }
 
     // Add the documents to analyze if any.
