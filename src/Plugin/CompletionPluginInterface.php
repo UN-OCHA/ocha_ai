@@ -104,4 +104,13 @@ interface CompletionPluginInterface {
    */
   public function getModels(): array;
 
+  /**
+   * Get the list of files that the model supports.
+   *
+   * @return array
+   *   List of files keyed by mime types and with the max allowed file sizes
+   *   as values.
+   */
+  public function getSupportedFileTypes(): array;
+
 }

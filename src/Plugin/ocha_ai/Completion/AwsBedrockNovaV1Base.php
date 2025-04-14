@@ -194,6 +194,42 @@ abstract class AwsBedrockNovaV1Base extends AwsBedrock {
   /**
    * {@inheritdoc}
    */
+  public function getSupportedFileTypes(): array {
+    return [
+      // Text-based documents (4.5MB limit).
+      'text/plain' => 4718592,
+      'text/csv' => 4718592,
+      'text/html' => 4718592,
+      'text/markdown' => 4718592,
+      'application/msword' => 4718592,
+      'application/vnd.ms-excel' => 4718592,
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' => 4718592,
+
+      // Media-based documents (18MB limit).
+      'application/pdf' => 18874368,
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document' => 18874368,
+
+      // Image formats (20MB limit).
+      'image/jpeg' => 20971520,
+      'image/png' => 20971520,
+      'image/gif' => 20971520,
+      'image/webp' => 20971520,
+
+      // Video formats (25MB limit for direct upload, 1GB for S3).
+      'video/x-matroska' => 26214400,
+      'video/quicktime' => 26214400,
+      'video/mp4' => 26214400,
+      'video/webm' => 26214400,
+      'video/3gpp' => 26214400,
+      'video/x-flv' => 26214400,
+      'video/mpeg' => 26214400,
+      'video/x-ms-wmv' => 26214400,
+    ];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   protected function parseResponseBody(array $data, bool $raw = TRUE): string {
     $response = trim($data['output']['message']['content'][0]['text'] ?? '');
     if ($response === '') {
