@@ -152,4 +152,11 @@ abstract class CompletionPluginBase extends PluginBase implements CompletionPlug
     return implode("\n\n", $context);
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function getSupportedFileTypes(): array {
+    return [];
+  }
+
 }

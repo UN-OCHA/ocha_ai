@@ -36,4 +36,12 @@ class AwsBedrockNovaMicroV1 extends AwsBedrockNovaV1Base {
     ];
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function getSupportedFileTypes(): array {
+    // Nova Micro doesn't support files.
+    return [];
+  }
+
 }
