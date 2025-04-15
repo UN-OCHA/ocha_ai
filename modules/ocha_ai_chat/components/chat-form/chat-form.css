@@ -263,7 +263,7 @@ button doesn't overlay any text */
     width: 48px;
     height: 48px;
     content: '';
-    background: var(--rw-icons--avatar--avatar--48--dark-grey);
+    background: var(--rw-icons--ai--avatar--48--dark-grey);
   }
 
   &::after {

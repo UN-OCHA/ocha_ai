@@ -5,28 +5,11 @@ declare(strict_types=1);
 namespace Drupal\ocha_ai\Plugin\ocha_ai\Completion;
 
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\StringTranslation\TranslatableMarkup;
-use Drupal\ocha_ai\Attribute\OchaAiCompletion;
 
 /**
- * AWS Bedrock Titan text premier v1 completion generator.
+ * AWS Bedrock Nova v1 completion generator base class.
  */
-#[OchaAiCompletion(
-  id: 'aws_bedrock_titan_text_premier_v1',
-  label: new TranslatableMarkup('AWS Bedrock - Titan text premier v1'),
-  description: new TranslatableMarkup('Use AWS Bedrock - Titan text premier v1 as completion generator.')
-)]
-class AwsBedrockTitanTextPremierV1 extends AwsBedrock {
-
-  /**
-   * {@inheritdoc}
-   */
-  public function defaultConfiguration(): array {
-    return [
-      'model' => 'amazon.titan-text-premier-v1:0',
-      'max_tokens' => 512,
-    ];
-  }
+abstract class AwsBedrockNovaV1Base extends AwsBedrock {
 
   /**
    * {@inheritdoc}
@@ -99,15 +82,148 @@ class AwsBedrockTitanTextPremierV1 extends AwsBedrock {
     $temperature = (float) ($parameters['temperature'] ?? 0.0);
     $top_p = (float) ($parameters['top_p'] ?? 0.9);
 
-    return [
-      'inputText' => $prompt,
-      'textGenerationConfig' => [
-        'maxTokenCount' => $max_tokens,
-        // @todo adjust based on the prompt?
-        'stopSequences' => [],
+    $payload = [
+      'schemaVersion' => 'messages-v1',
+      'inferenceConfig' => [
+        'max_new_tokens' => $max_tokens,
         'temperature' => $temperature,
         'topP' => $top_p,
       ],
+    ];
+
+    // Add the system prompt if any.
+    if (!empty($system_prompt)) {
+      $payload['system'] = [['text' => $system_prompt]];
+    }
+
+    // Add the documents to analyze if any.
+    if (!empty($files)) {
+      foreach ($files as $index => $file) {
+        $format = $this->mimetypeToFormat($file['mimetype']);
+        if (empty($format)) {
+          continue;
+        }
+
+        $encode = TRUE;
+        if (isset($file['data'])) {
+          $data = $file['data'];
+          $encode = empty($file['base64']);
+        }
+        elseif (isset($file['uri'])) {
+          $data = @file_get_contents($file['uri']);
+        }
+        else {
+          continue;
+        }
+
+        if (empty($data)) {
+          continue;
+        }
+
+        $content[] = [
+          'document' => [
+            'format' => $format,
+            'name' => $file['id'] ?? 'document' . ($index + 1),
+            'source' => [
+              'bytes' => $encode ? base64_encode($data) : $data,
+            ],
+          ],
+        ];
+      }
+    }
+
+    // Add the prompt.
+    $content[] = ['text' => $prompt];
+
+    $payload['messages'][] = [
+      'role' => 'user',
+      'content' => $content,
+    ];
+
+    return $payload;
+  }
+
+  /**
+   * Get the file format expected by the model from the file mime type.
+   *
+   * @param string $mimetype
+   *   Mime type.
+   *
+   * @return string
+   *   File format.
+   */
+  protected function mimetypeToFormat(string $mimetype): string {
+    $mapping = [
+      // Images.
+      'image/jpeg' => 'jpeg',
+      'image/jpg' => 'jpeg',
+      'image/png' => 'png',
+      'image/gif' => 'gif',
+      'image/webp' => 'webp',
+
+      // Videos.
+      'video/mp4' => 'mp4',
+      'video/quicktime' => 'mov',
+      'video/x-matroska' => 'mkv',
+      'video/webm' => 'webm',
+      'video/x-flv' => 'flv',
+      'video/mpeg' => 'mpeg',
+      'video/mpg' => 'mpg',
+      'video/x-ms-wmv' => 'wmv',
+      'video/3gpp' => 'three_gp',
+
+      // Text Documents.
+      'text/plain' => 'txt',
+      'text/markdown' => 'md',
+      'text/html' => 'html',
+      'text/csv' => 'csv',
+
+      // Media Documents.
+      'application/pdf' => 'pdf',
+
+      // Microsoft Office Documents.
+      'application/msword' => 'doc',
+      'application/vnd.ms-excel' => 'xls',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document' => 'docx',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' => 'xlsx',
+    ];
+
+    return $mapping[$mimetype] ?? '';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getSupportedFileTypes(): array {
+    return [
+      // Text-based documents (4.5MB limit).
+      'text/plain' => 4718592,
+      'text/csv' => 4718592,
+      'text/html' => 4718592,
+      'text/markdown' => 4718592,
+      'application/msword' => 4718592,
+      'application/vnd.ms-excel' => 4718592,
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' => 4718592,
+
+      // Media-based documents (18MB limit).
+      'application/pdf' => 18874368,
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document' => 18874368,
+
+      // Image formats (20MB limit).
+      'image/jpeg' => 20971520,
+      'image/png' => 20971520,
+      'image/gif' => 20971520,
+      'image/webp' => 20971520,
+
+      // Video formats (25MB limit for direct upload, 1GB for S3).
+      'video/x-matroska' => 26214400,
+      'video/quicktime' => 26214400,
+      'video/mp4' => 26214400,
+      'video/webm' => 26214400,
+      'video/3gpp' => 26214400,
+      'video/x-flv' => 26214400,
+      'video/mpeg' => 26214400,
+      'video/x-ms-wmv' => 26214400,
     ];
   }
 
@@ -115,7 +231,7 @@ class AwsBedrockTitanTextPremierV1 extends AwsBedrock {
    * {@inheritdoc}
    */
   protected function parseResponseBody(array $data, bool $raw = TRUE): string {
-    $response = trim($data['results'][0]['outputText'] ?? '');
+    $response = trim($data['output']['message']['content'][0]['text'] ?? '');
     if ($response === '') {
       return '';
     }
@@ -138,15 +254,6 @@ class AwsBedrockTitanTextPremierV1 extends AwsBedrock {
     $answer = preg_replace('#<thinking>.*</thinking>#', '', $answer);
 
     return trim($answer);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getModels(): array {
-    return [
-      'amazon.titan-text-premier-v1:0' => $this->t('Amazon - Titan text premier v1'),
-    ];
   }
 
 }
