@@ -83,9 +83,9 @@ abstract class AwsBedrockNovaV1Base extends AwsBedrock {
     $top_p = (float) ($parameters['top_p'] ?? 0.9);
 
     $payload = [
-      'schemaVersion' => 'messages-v1',
+      'modelId' => $this->getPluginSetting('model'),
       'inferenceConfig' => [
-        'max_new_tokens' => $max_tokens,
+        'maxTokens' => $max_tokens,
         'temperature' => $temperature,
         'topP' => $top_p,
       ],
@@ -96,7 +96,13 @@ abstract class AwsBedrockNovaV1Base extends AwsBedrock {
       $payload['system'] = [['text' => $system_prompt]];
     }
 
-    // Add the documents to analyze if any.
+    // Initialize messages array.
+    $payload['messages'] = [];
+
+    // Prepare content blocks for the user message.
+    $content = [];
+
+    // Add the documents to analyze if any as document blocks.
     if (!empty($files)) {
       foreach ($files as $index => $file) {
         $format = $this->mimetypeToFormat($file['mimetype']);
@@ -104,16 +110,12 @@ abstract class AwsBedrockNovaV1Base extends AwsBedrock {
           continue;
         }
 
-        $encode = TRUE;
+        $data = NULL;
         if (isset($file['data'])) {
           $data = $file['data'];
-          $encode = empty($file['base64']);
         }
         elseif (isset($file['uri'])) {
           $data = @file_get_contents($file['uri']);
-        }
-        else {
-          continue;
         }
 
         if (empty($data)) {
@@ -125,22 +127,68 @@ abstract class AwsBedrockNovaV1Base extends AwsBedrock {
             'format' => $format,
             'name' => $file['id'] ?? 'document' . ($index + 1),
             'source' => [
-              'bytes' => $encode ? base64_encode($data) : $data,
+              'bytes' => $data,
             ],
           ],
         ];
       }
     }
 
-    // Add the prompt.
+    // Add the prompt as text content.
     $content[] = ['text' => $prompt];
 
+    // Add the user message with all content blocks.
     $payload['messages'][] = [
       'role' => 'user',
       'content' => $content,
     ];
 
     return $payload;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function query(string $prompt, string $system_prompt = '', array $parameters = [], bool $raw = TRUE, array $files = []): ?string {
+    if (empty($prompt)) {
+      return '';
+    }
+
+    $payload = $this->generateRequestBody($prompt, $system_prompt, $files, $parameters);
+
+    $data = $this->queryModel($payload);
+    if (empty($data)) {
+      return '';
+    }
+
+    return $this->parseResponseBody($data, $raw);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function queryModel(array $payload): array {
+    try {
+      /** @var \Aws\Result $response */
+      $response = $this->getApiClient()->converse($payload);
+    }
+    catch (\Exception $exception) {
+      $this->getLogger()->error(strtr('Converse request failed with error: @error.', [
+        '@error' => $exception->getMessage(),
+      ]));
+      return [];
+    }
+
+    try {
+      // The response is already a structured array, no need to decode JSON.
+      $data = $response->toArray();
+    }
+    catch (\Exception $exception) {
+      $this->getLogger()->error('Unable to process converse response.');
+      return [];
+    }
+
+    return $data;
   }
 
   /**
@@ -231,7 +279,17 @@ abstract class AwsBedrockNovaV1Base extends AwsBedrock {
    * {@inheritdoc}
    */
   protected function parseResponseBody(array $data, bool $raw = TRUE): string {
-    $response = trim($data['output']['message']['content'][0]['text'] ?? '');
+    // Extract text from the assistant's message content.
+    $response = '';
+    if (isset($data['output']['message']['content'])) {
+      foreach ($data['output']['message']['content'] as $content) {
+        if (isset($content['text'])) {
+          $response .= $content['text'];
+        }
+      }
+    }
+
+    $response = trim($response);
     if ($response === '') {
       return '';
     }
