@@ -188,7 +188,7 @@ abstract class AwsBedrockNovaV1Base extends AwsBedrock {
       '-dBATCH',
       '-dCompatibilityLevel=1.4',
       '-o',
-      // Read from standard output.
+      // Write to standard output.
       '-',
       // Read from the standard input.
       '-',
