@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace Drupal\ocha_ai\Plugin\ocha_ai\Completion;
 
 use Drupal\Core\Form\FormStateInterface;
+use Symfony\Component\Process\Exception\ProcessFailedException;
+use Symfony\Component\Process\Exception\ProcessTimedOutException;
+use Symfony\Component\Process\Process;
 
 /**
  * AWS Bedrock Nova v1 completion generator base class.
@@ -115,7 +118,7 @@ abstract class AwsBedrockNovaV1Base extends AwsBedrock {
           $data = $file['data'];
         }
         elseif (isset($file['uri'])) {
-          $data = @file_get_contents($file['uri']);
+          $data = $this->getFileContent($file['uri']);
         }
 
         if (empty($data)) {
@@ -144,6 +147,96 @@ abstract class AwsBedrockNovaV1Base extends AwsBedrock {
     ];
 
     return $payload;
+  }
+
+  /**
+   * Get the content of file from its URI.
+   */
+  public function getFileContent(string $uri): string {
+    $content = @file_get_contents($uri);
+    if (empty($content)) {
+      return '';
+    }
+
+    // The API doesn't support recent PDF versions, notably the ones using
+    // JPEG2000 (JPXDecode). We convert them to version 1.4.
+    if (preg_match('/^%PDF-(\d+\.\d+)/i', $content, $matches) === 1 && ((float) $matches[1]) > 1.4) {
+      $content = $this->convertPdfVersion($uri, $content);
+    }
+
+    return $content;
+  }
+
+  /**
+   * Convert a PDF version > 1.4 to 1.4.
+   *
+   * @param string $uri
+   *   File URI.
+   * @param string $content
+   *   File content.
+   *
+   * @return string
+   *   File content.
+   */
+  protected function convertPdfVersion(string $uri, string $content): string {
+    // Build the GhostScript conversion command.
+    $process = new Process([
+      'gs',
+      '-sDEVICE=pdfwrite',
+      '-dNOPAUSE',
+      '-dQUIET',
+      '-dBATCH',
+      '-dCompatibilityLevel=1.4',
+      '-o',
+      // Read from standard output.
+      '-',
+      // Read from the standard input.
+      '-',
+    ]);
+
+    // The conversion should be quick, but just in case use 1 min timeout.
+    $process->setTimeout(60);
+
+    try {
+      // Pass the file content as input to the process.
+      $process->setInput($content);
+
+      // Execute the process.
+      $process->mustRun();
+
+      // Get the output directly.
+      $output = $process->getOutput();
+
+      // Check if the conversion succeeded.
+      if (empty($output) || substr($output, 0, 4) !== '%PDF') {
+        throw new \Exception('Invalid PDF output.');
+      }
+
+      $this->getLogger()->info('Successfully converted PDF version for @uri', ['@uri' => $uri]);
+
+      return $output;
+    }
+    catch (ProcessFailedException $exception) {
+      $this->getLogger()->warning('GhostScript conversion failed for file @uri with error: @error', [
+        '@uri' => $uri,
+        '@error' => strtr($exception->getMessage(), "\n", ' '),
+      ]);
+    }
+    catch (ProcessTimedOutException $exception) {
+      $this->getLogger()->warning('GhostScript conversion timed out after @seconds seconds for file @uri', [
+        '@seconds' => $process->getTimeout(),
+        '@uri' => $uri,
+      ]);
+    }
+    catch (\Exception $exception) {
+      $this->getLogger()->warning('GhostScript conversion failed for file @uri with error: @error', [
+        '@uri' => $uri,
+        '@error' => strtr($exception->getMessage(), "\n", ' '),
+      ]);
+    }
+
+    // Return the original content to give it a chance.
+    return $content;
   }
 
   /**
