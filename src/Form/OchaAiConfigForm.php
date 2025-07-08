@@ -3,6 +3,7 @@
 namespace Drupal\ocha_ai\Form;
 
 use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\Core\Config\TypedConfigManagerInterface;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\ocha_ai\Plugin\AnswerValidatorPluginManagerInterface;
@@ -88,6 +89,8 @@ class OchaAiConfigForm extends ConfigFormBase {
    *
    * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
    *   The config factory service.
+   * @param \Drupal\Core\Config\TypedConfigManagerInterface $typed_config_manager
+   *   The typed config manager service.
    * @param \Drupal\ocha_ai\Plugin\AnswerValidatorPluginManagerInterface $answer_validator_plugin_manager
    *   The answer validator plugin manager.
    * @param \Drupal\ocha_ai\Plugin\CompletionPluginManagerInterface $completion_plugin_manager
@@ -107,6 +110,7 @@ class OchaAiConfigForm extends ConfigFormBase {
    */
   public function __construct(
     ConfigFactoryInterface $config_factory,
+    TypedConfigManagerInterface $typed_config_manager,
     AnswerValidatorPluginManagerInterface $answer_validator_plugin_manager,
     CompletionPluginManagerInterface $completion_plugin_manager,
     EmbeddingPluginManagerInterface $embedding_plugin_manager,
@@ -116,7 +120,7 @@ class OchaAiConfigForm extends ConfigFormBase {
     TextSplitterPluginManagerInterface $text_splitter_plugin_manager,
     VectorStorePluginManagerInterface $vector_store_plugin_manager,
   ) {
-    parent::__construct($config_factory);
+    parent::__construct($config_factory, $typed_config_manager);
 
     $this->answerValidatorPluginManager = $answer_validator_plugin_manager;
     $this->completionPluginManager = $completion_plugin_manager;
@@ -134,6 +138,7 @@ class OchaAiConfigForm extends ConfigFormBase {
   public static function create(ContainerInterface $container) {
     return new static(
       $container->get('config.factory'),
+      $container->get('config.typed'),
       $container->get('plugin.manager.ocha_ai.answer_validator'),
       $container->get('plugin.manager.ocha_ai.completion'),
       $container->get('plugin.manager.ocha_ai.embedding'),
