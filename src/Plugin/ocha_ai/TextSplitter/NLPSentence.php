@@ -86,7 +86,7 @@ class NLPSentence extends TextSplitterPluginBase {
     $endpoint = $this->getPluginSetting('endpoint');
 
     try {
-      $response = $client = $this->httpClient->post($endpoint, [
+      $response = $this->httpClient->post($endpoint, [
         'json' => [
           'language' => $language,
           'text' => $text,
