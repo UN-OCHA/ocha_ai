@@ -4,12 +4,12 @@ namespace Drupal\Tests\ocha_ai\Unit;
 
 use Drupal\Tests\UnitTestCase;
 use Drupal\ocha_ai\Helpers\TextHelper;
+use PHPUnit\Framework\Attributes\CoversClass;
 
 /**
  * Tests TextHelper.
- *
- * @coversDefaultClass \Drupal\ocha_ai\Helpers\TextHelper
  */
+#[CoversClass(TextHelper::class)]
 class TextSplitterOverlapTest extends UnitTestCase {
 
   /**
@@ -25,7 +25,7 @@ class TextSplitterOverlapTest extends UnitTestCase {
   /**
    * Test short string.
    */
-  public function testShortString() {
+  public function testShortString(): void {
     $text = 'Mollit quis sunt do dolore irure aliqua ea magna enim aliquip adipisicing esse culpa id elit labore irure ad tempor enim commodo nulla nisi magna fugiat aute exercitation ex sint quis magna incididunt ut proident ad qui commodo incididunt enim anim et pariatur duis labore amet id ipsum exercitation dolor culpa nulla reprehenderit id magna in do commodo pariatur excepteur amet eu ullamco proident labore et irure proident ad laborum aute laborum id ea ex culpa excepteur eu amet aliquip et sint in deserunt quis aliquip labore labore incididunt non quis aliquip proident laboris consequat pariatur non eu dolore deserunt.
 
     Dolore consectetur incididunt magna fugiat ut consequat mollit reprehenderit sit esse dolor non ullamco aliqua nulla irure veniam do exercitation laboris sunt occaecat officia reprehenderit tempor quis irure exercitation labore est consequat dolore commodo sunt est cillum adipisicing elit nulla ex Lorem proident proident nisi culpa esse consectetur irure reprehenderit ipsum do qui esse et velit id do culpa reprehenderit elit nisi officia sit ea non enim occaecat quis excepteur fugiat aliquip sit elit ea veniam sunt labore cillum commodo in ipsum deserunt occaecat nisi pariatur minim eiusmod ipsum quis proident id cillum ullamco consectetur id duis est veniam velit.';
@@ -41,7 +41,7 @@ class TextSplitterOverlapTest extends UnitTestCase {
   /**
    * Test long string.
    */
-  public function testLongString() {
+  public function testLongString(): void {
     $text = 'Mollit quis sunt do dolore irure aliqua ea magna enim aliquip adipisicing esse culpa id elit labore irure ad tempor enim commodo nulla nisi magna fugiat aute exercitation ex sint quis magna incididunt ut proident ad qui commodo incididunt enim anim et pariatur duis labore amet id ipsum exercitation dolor culpa nulla reprehenderit id magna in do commodo pariatur excepteur amet eu ullamco proident labore et irure proident ad laborum aute laborum id ea ex culpa excepteur eu amet aliquip et sint in deserunt quis aliquip labore labore incididunt non quis aliquip proident laboris consequat pariatur non eu dolore deserunt.
 
     Dolore consectetur incididunt magna fugiat ut consequat mollit reprehenderit sit esse dolor non ullamco aliqua nulla irure veniam do exercitation laboris sunt occaecat officia reprehenderit tempor quis irure exercitation labore est consequat dolore commodo sunt est cillum adipisicing elit nulla ex Lorem proident proident nisi culpa esse consectetur irure reprehenderit ipsum do qui esse et velit id do culpa reprehenderit elit nisi officia sit ea non enim occaecat quis excepteur fugiat aliquip sit elit ea veniam sunt labore cillum commodo in ipsum deserunt occaecat nisi pariatur minim eiusmod ipsum quis proident id cillum ullamco consectetur id duis est veniam velit.
@@ -60,7 +60,7 @@ class TextSplitterOverlapTest extends UnitTestCase {
   /**
    * Test too long string.
    */
-  public function testTooLongString() {
+  public function testTooLongString(): void {
     $text = 'Et irure consectetur culpa irure duis reprehenderit nisi Lorem dolor consequat exercitation minim commodo tempor deserunt pariatur Lorem incididunt culpa occaecat laborum dolor ullamco nostrud adipisicing magna qui irure adipisicing est pariatur dolor ea labore ea ad ut eu pariatur ex eiusmod mollit labore duis fugiat anim cupidatat ad esse commodo veniam ad magna ipsum anim velit nostrud consequat anim duis in deserunt ea consectetur laborum nostrud sit veniam proident ex reprehenderit mollit excepteur laboris occaecat esse mollit aliquip nostrud eu occaecat labore pariatur velit aliquip ea sit dolor in non sint occaecat aliquip labore adipisicing enim duis anim nulla id eu laboris exercitation ipsum irure amet anim laboris mollit quis consectetur aliqua est labore incididunt id ullamco reprehenderit cupidatat nulla occaecat esse ut consequat ea Lorem adipisicing ut veniam duis elit irure laboris quis fugiat aliquip veniam tempor incididunt quis aliquip ea ut laborum cupidatat reprehenderit culpa mollit dolor laborum duis Lorem ut qui sunt officia eiusmod veniam dolore velit nisi sit aliqua ad dolor magna veniam excepteur culpa id occaecat anim sunt mollit eu ut esse ex do commodo excepteur esse exercitation eu excepteur eiusmod aliqua quis officia amet pariatur sunt consectetur incididunt officia laborum qui duis ut aute nisi aute est ipsum consequat et ut excepteur ea est mollit consectetur non anim excepteur adipisicing esse quis eiusmod non ea tempor labore non mollit magna mollit laboris eiusmod non aliquip tempor culpa reprehenderit aute consequat id aute sit eu est ut cillum mollit irure in minim dolore nostrud consectetur incididunt mollit minim pariatur esse aliqua proident laboris enim sit culpa nulla dolore adipisicing duis enim dolore aliqua nostrud ipsum cupidatat cillum est in duis duis ullamco dolor veniam nisi labore excepteur enim incididunt eiusmod qui tempor Lorem tempor eiusmod cillum culpa amet anim consequat quis amet.';
 
     $expected = [
@@ -75,7 +75,7 @@ class TextSplitterOverlapTest extends UnitTestCase {
   /**
    * Test both.
    */
-  public function testTooVeryLongString() {
+  public function testTooVeryLongString(): void {
     $text = 'Mollit quis sunt do dolore irure aliqua ea magna enim aliquip adipisicing esse culpa id elit labore irure ad tempor enim commodo nulla nisi magna fugiat aute exercitation ex sint quis magna incididunt ut proident ad qui commodo incididunt enim anim et pariatur duis labore amet id ipsum exercitation dolor culpa nulla reprehenderit id magna in do commodo pariatur excepteur amet eu ullamco proident labore et irure proident ad laborum aute laborum id ea ex culpa excepteur eu amet aliquip et sint in deserunt quis aliquip labore labore incididunt non quis aliquip proident laboris consequat pariatur non eu dolore deserunt.
 
     Dolore consectetur incididunt magna fugiat ut consequat mollit reprehenderit sit esse dolor non ullamco aliqua nulla irure veniam do exercitation laboris sunt occaecat officia reprehenderit tempor quis irure exercitation labore est consequat dolore commodo sunt est cillum adipisicing elit nulla ex Lorem proident proident nisi culpa esse consectetur irure reprehenderit ipsum do qui esse et velit id do culpa reprehenderit elit nisi officia sit ea non enim occaecat quis excepteur fugiat aliquip sit elit ea veniam sunt labore cillum commodo in ipsum deserunt occaecat nisi pariatur minim eiusmod ipsum quis proident id cillum ullamco consectetur id duis est veniam velit.
