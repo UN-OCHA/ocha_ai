@@ -16,7 +16,7 @@
         }
     ],
     "require": {
-        "php": ">=8.2",
+        "php": ">=8.3",
         "aws/aws-sdk-php": "^3.283",
         "drupal/honeypot": "^2",
         "openai-php/client": "^0.7",
@@ -33,7 +33,9 @@
     "config": {
         "sort-packages": true,
         "allow-plugins": {
-            "dealerdirect/phpcodesniffer-composer-installer": true
+            "dealerdirect/phpcodesniffer-composer-installer": true,
+            "drupal/core-composer-scaffold": true,
+            "php-http/discovery": true
         }
     },
     "scripts": {
