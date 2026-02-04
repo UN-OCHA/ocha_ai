@@ -1,5 +1,7 @@
-name: Test
+name: Run tests
+
 on: [pull_request]
+
 env:
   MYSQL_USER: root
   MYSQL_PASSWORD: root
@@ -19,15 +21,15 @@ jobs:
         php-versions: ['8.3']
     steps:
       - name: Checkout Drupal core
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           repository: drupal/drupal
           ref: ${{ matrix.drupal-core }}
 
       - name: Checkout module
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
-          path: modules/custom/ocha_ai
+          path: modules/contrib/ocha_ai
 
       - name: Setup PHP, with composer and extensions
         uses: shivammathur/setup-php@v2
@@ -37,7 +39,7 @@ jobs:
 
       - name: Get composer cache directory
         id: composercache
-        run: echo "::set-output name=dir::$(composer config cache-files-dir)"
+        run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
 
       - name: Cache composer dependencies
         uses: actions/cache@v4
@@ -46,27 +48,17 @@ jobs:
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
           restore-keys: ${{ runner.os }}-composer-
 
-      - name: Install Drupal core dependencies
-        run: |
-          composer --no-interaction --no-progress --prefer-dist --optimize-autoloader install
+      - name: Remove platform PHP config
+        run: composer config --unset platform.php
 
-      - name: Install module dependencies
+      - name: Install Drupal core and module dependencies
         run: |
-          composer --no-interaction --no-progress require \
-            drupal/datetime_range_timezone drupal/date_recur
-
-      - name: Patch Drupal - https://www.drupal.org/project/drupal/issues/3004425
-        run: |
-          curl https://www.drupal.org/files/issues/2021-12-25/3004425-41.patch | patch -p1
-
-      - name: Install Coder module
-        run: |
-          composer --dev --no-interaction --no-progress require \
-            drupal/coder:8.3.13 phpunit/phpunit
+          composer config repositories.module '{"type": "path", "url": "modules/contrib/ocha_ai", "options": {"symlink": false}}'
+          composer require unocha/ocha_ai:@dev --no-interaction --no-progress --prefer-dist --optimize-autoloader
 
       - name: Define DRUPAL_ROOT env variable
         run: |
-          echo "DRUPAL_ROOT=$HOME/drupal" >> $GITHUB_ENV
+          echo "DRUPAL_ROOT=$GITHUB_WORKSPACE" >> $GITHUB_ENV
 
       - name: Install drush
         run: composer require "drush/drush ^12.0"
@@ -79,15 +71,15 @@ jobs:
         run: |
           php -d sendmail_path=$(which true); vendor/bin/drush --yes -v \
             site-install minimal --db-url="$SIMPLETEST_DB"
-          vendor/bin/drush en $DRUPAL_MODULE_NAME -y
+          vendor/bin/drush en ocha_ai -y
 
-      - name: Run tests
+      - name: Run module tests
         run: |
-          vendor/bin/phpunit --bootstrap core/tests/bootstrap.php \
+          XDEBUG_MODE=coverage php -d zend_extension=xdebug ./vendor/bin/phpunit --bootstrap core/tests/bootstrap.php \
             --coverage-clover ./clover.xml \
-            -c modules/custom/ocha_ai/phpunit.xml modules/custom/ocha_ai
+            -c modules/contrib/ocha_ai/phpunit.xml modules/contrib/ocha_ai
 
-      - name: Monitor coverage for Drupal ${{ matrix.drupal-core }} - PHP ${{ matrix.php-versions }}
+      - name: Monitor coverage
         id: coveralls
         uses: slavcodev/coverage-monitor-action@v1
         with:

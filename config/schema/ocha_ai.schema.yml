@@ -265,6 +265,15 @@ ocha_ai.plugin.completion.aws_bedrock:
       type: string
       label: 'AWS role ARN'
 
+# AWS Bedrock Nova 2 completion plugin settings.
+ocha_ai.plugin.completion.aws_bedrock_nova_2_lite_v1:
+  type: ocha_ai.plugin.completion.aws_bedrock
+  label: 'AWS Bedrock Nova 2 Lite completion plugin settings.'
+  mapping:
+    thinking_mode:
+      type: string
+      label: 'Extended thinking mode (none, low, medium, high).'
+
 # AWS Bedrock embedding plugin settings.
 ocha_ai.plugin.embedding.aws_bedrock:
   type: ocha_ai.plugin.embedding
