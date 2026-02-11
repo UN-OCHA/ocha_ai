@@ -37,18 +37,18 @@ class ReliefwebAiChatCommands extends DrushCommands {
     $out = fopen($filename_out, 'w');
 
     $f = fopen($filename, 'r');
-    $header = fgetcsv($f, NULL, "\t");
+    $header = fgetcsv($f, NULL, "\t", escape: "\\");
     $header_lowercase = array_map('strtolower', $header);
     $header_lowercase[] = 'url';
     $header_lowercase[] = 'new answer';
     $header_lowercase[] = 'new status';
     $header_lowercase[] = 'original_answer';
 
-    fputcsv($out, $header_lowercase, "\t");
+    fputcsv($out, $header_lowercase, "\t", escape: "\\");
 
     // Get data.
     $count = 0;
-    while (($row = fgetcsv($f, NULL, "\t")) && $count < 1000) {
+    while (($row = fgetcsv($f, NULL, "\t", escape: "\\")) && $count < 1000) {
       $data = [];
       for ($i = 0; $i < count($row); $i++) {
         $data[$header_lowercase[$i]] = $row[$i];
@@ -72,7 +72,7 @@ class ReliefwebAiChatCommands extends DrushCommands {
       $data['new answer'] = $answer['answer'];
       $data['new status'] = $answer['status'];
       $data['new original_answer'] = $answer['original_answer'];
-      fputcsv($out, $data, "\t");
+      fputcsv($out, $data, "\t", escape: "\\");
     }
 
     fclose($f);
