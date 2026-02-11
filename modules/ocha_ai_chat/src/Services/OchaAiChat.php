@@ -28,6 +28,9 @@ use Drupal\ocha_ai\Plugin\TextSplitterPluginManagerInterface;
 use Drupal\ocha_ai\Plugin\VectorStorePluginInterface;
 use Drupal\ocha_ai\Plugin\VectorStorePluginManagerInterface;
 use GuzzleHttp\ClientInterface;
+use Nitotm\Eld\EldDataFile;
+use Nitotm\Eld\EldFormat;
+use Nitotm\Eld\LanguageDetector;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -1246,9 +1249,11 @@ class OchaAiChat {
     // Most models are English only and don't work well with other languages.
     // Also the text splitter plugins don't work well with languages like
     // Arabic or Chinese.
-    $language = (new \Text_LanguageDetect())->detectSimple($content);
+    $language_detector = new LanguageDetector(EldDataFile::SMALL, EldFormat::ISO639_1);
+    $language_detection = $language_detector->detect($content);
+    $language = $language_detection->isReliable() ? $language_detection->language : 'und';
     // @todo retrieve that from the config.
-    $allowed_languages = ['english'];
+    $allowed_languages = ['en'];
     if (!in_array($language, $allowed_languages)) {
       return [];
     }
