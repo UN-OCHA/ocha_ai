@@ -539,7 +539,7 @@ class OchaAiChatLogsForm extends FormBase {
           $headers[] = 'username';
           $headers[] = 'editor';
 
-          if (fputcsv($handle, array_keys(reset($results)), "\t") === FALSE) {
+          if (fputcsv($handle, array_keys(reset($results)), "\t", escape: "\\") === FALSE) {
             throw new \Exception('Unable to write headers to file for the log export');
           }
         }
@@ -557,7 +557,7 @@ class OchaAiChatLogsForm extends FormBase {
             };
           }
 
-          if (fputcsv($handle, $result, "\t") === FALSE) {
+          if (fputcsv($handle, $result, "\t", escape: "\\") === FALSE) {
             throw new \Exception('Unable to write rows to file for the log export');
           }
         }
