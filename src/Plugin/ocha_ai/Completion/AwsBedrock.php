@@ -201,7 +201,7 @@ class AwsBedrock extends CompletionPluginBase {
 
         $result = $stsClient->AssumeRole([
           'RoleArn' => $role_arn,
-          'RoleSessionName' => 'aws-bedrock-ocha-ai-chat',
+          'RoleSessionName' => 'aws-bedrock-ocha-ai',
         ]);
 
         $credentials = [

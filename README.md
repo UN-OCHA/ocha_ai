@@ -1,22 +1,29 @@
 # OCHA AI Module
 
-This module contains 2 additional modules
+Adds AI integration to UN OCHA Drupal sites. The module provides various **plugin types** (sources, text extraction, embeddings, vector store, completion, etc.) and configuration so that other modules or custom code can inject the plugin managers and orchestrate flows such as RAG. Configure plugins at **Administration → Configuration → OCHA AI** (`/admin/config/ocha-ai`).
 
-- OCHA AI Chat Module
-- OCHA AI Tag Module
+## Plugins
 
-## Migrate from ocha_ai_chat
+The module defines these [plugin types](src/Attribute), each with its own plugin manager:
 
-- Uninstall `ocha_ai_chat` and `reliefweb_openai`
-- Copy your `config/ocha_ai_chat.settings.yml` to a safe place
-- Run `druch cex -y`
-- Clone this repo and run `drush en ocha_ai_chat -y`
-- Run `druch cex -y`
-- Copy back your `config/ocha_ai_chat.settings.yml` to config
-- Run `druch cim -y`
-- Run `drush cr`
+- **Completion** — LLM answer generation (e.g. AWS Bedrock, Azure OpenAI)
+- **Embedding** — generate embeddings (e.g. AWS Bedrock, Azure OpenAI)
+- **Source** — document sources (e.g. ReliefWeb)
+- **Text extractor** — extract text from files (e.g. MuPDF for PDFs)
+- **Text splitter** — split text into passages (sentence, token, nlp_sentence)
+- **Vector store** — store and retrieve embeddings (Elasticsearch, Elasticsearch Flattened, Elasticsearch Job)
+- **Answer validator** — validate answers (similarity_embedding, similarity_ranker)
+- **Ranker** — rank passages (e.g. ocha_ai_helper_ranker)
 
-New settings in `settings/php`
+Default plugin set: ReliefWeb source, MuPDF extractor, token splitter, AWS Bedrock completion/embedding, Elasticsearch vector store.
+
+## Dependencies
+
+- **MuPDF** (for PDF extraction): `apt install mupdf-tools`
+
+## Configuration
+
+Optional overrides can be set in `settings.php` or via the config UI. Example:
 
 ```php
 $config['ocha_ai.settings']['plugins']['text_extractor']['mupdf']['mutool'] = '/usr/bin/mutool';
@@ -41,78 +48,3 @@ $config['ocha_ai.settings']['plugins']['embedding']['aws_bedrock']['batch_size']
 $config['ocha_ai.settings']['plugins']['embedding']['aws_bedrock']['dimensions'] = 1536;
 $config['ocha_ai.settings']['plugins']['embedding']['aws_bedrock']['max_tokens'] = 8192;
 ```
-
-## Plugins
-
-The module uses a system of [plugins](src/Attribute) to handle the different components of the
-functionality
-
-- Completion plugins: handle the answer generation from inference models
-- Embedding plugins: handle the generation of embeddings from embedding models
-- Source plugins: handle the source of documents
-- TextExtractor plugins: handle text extraction for files
-- TextSplitter plugins: handle splitting texts into smaller ones
-- VectorStore plugins: handle storage and retrieval of texts and embeddings
-
-## Dependencies
-
-- `apt install mupdf-tools`
-
-## TODO
-
-### Plugins
-
-- [ ] OpenSearch vector store plugin.
-
-## OCHA AI Chat Module
-
-This module provides a "chat" functionality to perform queries against ReliefWeb documents via AI (large language models).
-
-This implements a RAG (retrieval augmented generation) approach:
-
-1. Get ReliefWeb documents so that we have a limited scope for the question.
-2. Extract texts from the documents and their attachments
-3. Split the texts into passages (smaller texts)
-4. Generate embeddings for the passages
-5. Store the passages and their embeddings in a vector database
-6. Uppon query, generate the embedding for the question
-7. Retrieve relevant passages from the vector store using a cosine similarity between the question embedding and the passage embeddings.
-8. Generate a prompt with the relevant passages, asking the AI to only answer based on the information in those passages
-9. Pass the prompt to a Large Language Model to get an answer to the question
-
-### Service (Chat)
-
-The "chat" functionality is provided by the [OchaAiChat](modules/ocha_ai_chat/src/Services/OchaAiChat.php) service. This service glues the different plugins together.
-
-### User feedback on answers (Chat)
-
-There are three feedback modes that visitors might see:
-
-- **Default:** is an expandable area presenting a dropdown with values 1-5, plus an open textarea for comments.
-- **Simple mode:** presents a thumbs up/down. Set config `ocha_ai_chat.settings.feedback='simple'` to adopt this UI, which replaces the default feedback UI. The data is stored in a separate `thumbs` column in the logs table.
-- **Combined mode:** presents both widgets alongside each other.
-
-Additionally, the Copy to Clipboard button can now store whether it was clicked for each answer. This data is found in the `copied` column of the logs table.
-
-### TODO (Chat)
-
-#### Plugins for Chat
-
-- [ ] OpenSearch vector store plugin.
-- [ ] Cache RW search conversion separately.
-
-#### Improve answer
-
-- [ ] Filter on the length of the extract (ex: at least 4 words)?
-- [ ] Refine prompt, maybe separate each extract with some prefix like "Fact:" so that the AI understands they are separate pieces of information.
-
-#### Logging
-
-- [ ] Log requests (debug mode --> add setting to plugins).
-- [ ] Log number of pages, passages and estimated count of tokens.
-
-## OCHA AI Tag Module
-
-### Service (tag)
-
-The "tag" functionality is provided by the [OchaAiTagTagger](modules/ocha_ai_tag/src/Services/OchaAiTagTagger.php) service. This service glues the different plugins together.

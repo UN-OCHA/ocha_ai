@@ -1,6 +1,6 @@
 ocha_ai.settings:
   type: config_object
-  label: 'OCHA AI Chat settings'
+  label: 'OCHA AI modulesettings'
   mapping:
     plugins:
       type: mapping
