@@ -191,7 +191,7 @@ class ReliefWeb extends SourcePluginBase {
    */
   public function defaultConfiguration(): array {
     return [
-      'appname' => 'ocha-ai-chat',
+      'appname' => 'ocha-ai',
       'cache_enabled' => TRUE,
       'cache_lifetime' => 300,
     ];
@@ -244,7 +244,7 @@ class ReliefWeb extends SourcePluginBase {
       $form['source']['url'] = [
         '#type' => 'textfield',
         '#title' => $this->t('ReliefWeb river URL'),
-        '#description' => $this->t('Filtered list of ReliefWeb content from <a href="@site/updates?view=reports" target="_blank" rel="noreferrer noopener">@site/updates</a> to chat against.', [
+        '#description' => $this->t('Filtered list of ReliefWeb content from <a href="@site/updates?view=reports" target="_blank" rel="noreferrer noopener">@site/updates</a>.', [
           '@site' => $site_url,
         ]),
         '#default_value' => $source_url,
@@ -258,7 +258,7 @@ class ReliefWeb extends SourcePluginBase {
       $form['source']['limit'] = [
         '#type' => 'number',
         '#title' => $this->t('Document limit'),
-        '#description' => $this->t('Maximum number of documents to chat against.'),
+        '#description' => $this->t('Maximum number of documents to consider.'),
         '#default_value' => $source_limit,
         '#required' => TRUE,
         '#min' => 1,
@@ -507,7 +507,7 @@ class ReliefWeb extends SourcePluginBase {
 
       // @todo create a form element that can be transformed into the widget and
       // is otherwise a URL field.
-      $form['source']['url']['#attributes']['data-ocha-ai-chat-plugin-source-reliefweb'] = json_encode($settings);
+      $form['source']['url']['#attributes']['data-ocha-ai-plugin-source-reliefweb'] = json_encode($settings);
       $form['source']['url']['#attached']['library'][] = 'ocha_ai/plugin.source.reliefweb';
     }
 
@@ -912,7 +912,7 @@ class ReliefWeb extends SourcePluginBase {
    */
   protected function prepareRiverUrl(string $url): string {
     // Add a the "report_only" view parameter to exclude Maps, Infographics and
-    // interactive content since they don't really contain content to chat with.
+    // interactive content since they don't really contain textual content.
     $url = preg_replace('/([?&])view=[^?&]*/u', '$1view=reports', $url);
     if (strpos($url, 'view=reports') !== FALSE) {
       return $url;
@@ -1216,7 +1216,7 @@ class ReliefWeb extends SourcePluginBase {
    *   Appname.
    */
   protected function getAppName(): string {
-    return $this->getPluginSetting('appname', 'ocha-ai-chat');
+    return $this->getPluginSetting('appname', 'ocha-ai');
   }
 
   /**

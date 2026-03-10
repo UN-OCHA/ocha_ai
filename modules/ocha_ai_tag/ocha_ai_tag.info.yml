@@ -1,8 +1,0 @@
-type: module
-name: OCHA AI tag
-description: 'Classify and tag text.'
-package: ocha
-core_version_requirement: ^10 || ^11
-dependencies:
-  - unocha:ocha_ai
-  - unocha:ocha_ai_chat

@@ -483,7 +483,6 @@ class Elasticsearch extends VectorStorePluginBase {
         'id',
         // @todo that may not be needed if the entire document is already
         // available to the caller.
-        // @see \Drupal\ocha_ai\modules\ocha_ai_chat\Services\OchaAiChat::answer()
         'url',
         'title',
         'source',
