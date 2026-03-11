@@ -26,7 +26,7 @@ plugins:
       api_url: https://api.reliefweb.int/v1
       converter_url: https://reliefweb.int/search/converter/json
       site_url: https://reliefweb.int
-      appname: ocha-ai-chat
+      appname: ocha-ai
       cache_enabled: TRUE
       cache_lifetime: 600
   text_extractor:
