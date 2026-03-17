@@ -295,16 +295,6 @@ ocha_ai.plugin.embedding.aws_bedrock:
       type: string
       label: 'AWS role ARN'
 
-# Azure OpenAI completion plugin settings.
-ocha_ai.plugin.completion.azure_openai:
-  type: ocha_ai.plugin.completion
-  label: 'AWS Bedrock completion plugin settings.'
-
-# Azure OpenAI embedding plugin settings.
-ocha_ai.plugin.embedding.azure_openai:
-  type: ocha_ai.plugin.embedding
-  label: 'AWS Bedrock embedding plugin settings.'
-
 # OCHA AI Helper ranker plugin settings
 ocha_ai.plugin.ranker.ocha_ai_helper_ranker:
   type: ocha_ai.plugin.ranker
