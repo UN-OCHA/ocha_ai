@@ -274,6 +274,15 @@ ocha_ai.plugin.completion.aws_bedrock_nova_2_lite_v1:
       type: string
       label: 'Extended thinking mode (none, low, medium, high).'
 
+# AWS Bedrock Claude Opus 4.6 completion plugin settings.
+ocha_ai.plugin.completion.aws_bedrock_claude_opus_4_6_v1:
+  type: ocha_ai.plugin.completion.aws_bedrock
+  label: 'AWS Bedrock Claude Opus 4.6 completion plugin settings.'
+  mapping:
+    thinking_effort:
+      type: string
+      label: 'Adaptive thinking effort (none, low, medium, high, max).'
+
 # AWS Bedrock embedding plugin settings.
 ocha_ai.plugin.embedding.aws_bedrock:
   type: ocha_ai.plugin.embedding
@@ -285,16 +294,6 @@ ocha_ai.plugin.embedding.aws_bedrock:
     role_arn:
       type: string
       label: 'AWS role ARN'
-
-# Azure OpenAI completion plugin settings.
-ocha_ai.plugin.completion.azure_openai:
-  type: ocha_ai.plugin.completion
-  label: 'AWS Bedrock completion plugin settings.'
-
-# Azure OpenAI embedding plugin settings.
-ocha_ai.plugin.embedding.azure_openai:
-  type: ocha_ai.plugin.embedding
-  label: 'AWS Bedrock embedding plugin settings.'
 
 # OCHA AI Helper ranker plugin settings
 ocha_ai.plugin.ranker.ocha_ai_helper_ranker:
