@@ -15,7 +15,12 @@ use Drupal\ocha_ai\Attribute\OchaAiCompletion;
   label: new TranslatableMarkup('AWS Bedrock - Nova micro v1'),
   description: new TranslatableMarkup('Use AWS Bedrock - Nova micro v1 as completion generator.')
 )]
-class AwsBedrockNovaMicroV1 extends AwsBedrockNovaV1Base {
+class AwsBedrockNovaMicroV1 extends AwsBedrock {
+
+  /**
+   * {@inheritdoc}
+   */
+  protected bool $supportsFiles = FALSE;
 
   /**
    * {@inheritdoc}
@@ -34,14 +39,6 @@ class AwsBedrockNovaMicroV1 extends AwsBedrockNovaV1Base {
     return [
       'amazon.nova-micro-v1:0' => $this->t('Amazon - Nova micro v1'),
     ];
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getSupportedFileTypes(): array {
-    // Nova Micro doesn't support files.
-    return [];
   }
 
 }
