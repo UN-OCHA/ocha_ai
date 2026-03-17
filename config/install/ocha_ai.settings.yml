@@ -12,11 +12,6 @@ plugins:
         Based solely on the information above, please answer the following question. Please do not make things up and say you don't know if you cannot answer.
 
         {{ question }}
-    azure_openai:
-      prompt_template: |-
-        Based solely on the information below, please answer the user's question. Please do not make things up and say you don't know if you cannot answer.
-
-        {{ context }}
   ranker:
     ocha_ai_helper_ranker:
       endpoint: http://ocha-ai-helper/text/correlate/texts

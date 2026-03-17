@@ -20,7 +20,6 @@
         "aws/aws-sdk-php": "^3.283",
         "drupal/honeypot": "^2",
         "nitotm/efficient-language-detector": "^3.0",
-        "openai-php/client": "^0.7",
         "reliefweb/simple-autocomplete": "^v1.3",
         "reliefweb/simple-datepicker": "^v1.3",
         "symfony/uid": "^6.3"
