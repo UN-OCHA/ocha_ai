@@ -15,7 +15,12 @@ use Drupal\ocha_ai\Attribute\OchaAiCompletion;
   label: new TranslatableMarkup('AWS Bedrock - Nova pro v1'),
   description: new TranslatableMarkup('Use AWS Bedrock - Nova pro v1 as completion generator.')
 )]
-class AwsBedrockNovaProV1 extends AwsBedrockNovaV1Base {
+class AwsBedrockNovaProV1 extends AwsBedrock {
+
+  /**
+   * {@inheritdoc}
+   */
+  protected bool $supportsFiles = TRUE;
 
   /**
    * {@inheritdoc}
