@@ -4,6 +4,7 @@ namespace Drupal\ocha_ai\Plugin;
 
 use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
+use Drupal\ocha_ai\Plugin\ocha_ai\Completion\CompletionCapability;
 
 /**
  * Plugin manager for the completion plugins.
@@ -35,6 +36,19 @@ class CompletionPluginManager extends PluginManagerBase implements CompletionPlu
    */
   public function getPluginType(): string {
     return 'completion';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getAvailablePluginsByCapability(CompletionCapability $capability): array {
+    $plugins = [];
+    foreach ($this->getAvailablePlugins() as $plugin_id => $plugin) {
+      if ($plugin instanceof CompletionPluginInterface && $plugin->hasCapability($capability)) {
+        $plugins[$plugin_id] = $plugin;
+      }
+    }
+    return $plugins;
   }
 
 }
