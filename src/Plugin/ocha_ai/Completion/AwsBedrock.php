@@ -177,7 +177,9 @@ class AwsBedrock extends CompletionPluginBase {
     }
 
     // Add the prompt as text content.
-    $content[] = ['text' => $prompt];
+    if (!empty($prompt)) {
+      $content[] = ['text' => $prompt];
+    }
 
     // Add the user message with all content blocks.
     $payload['messages'][] = [

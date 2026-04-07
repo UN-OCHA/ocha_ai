@@ -31,11 +31,14 @@ class OchaAiCompletion extends Plugin {
    *   The label of the plugin.
    * @param \Drupal\Core\StringTranslation\TranslatableMarkup $description
    *   The description of the plugin.
+   * @param \Drupal\ocha_ai\Plugin\ocha_ai\Completion\CompletionCapability[] $capabilities
+   *   Optional completion capabilities supported by the plugin.
    */
   public function __construct(
     public readonly string $id,
     public readonly TranslatableMarkup $label,
     public readonly TranslatableMarkup $description,
+    public readonly array $capabilities = [],
   ) {}
 
 }

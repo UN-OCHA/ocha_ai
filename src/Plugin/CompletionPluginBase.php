@@ -3,6 +3,7 @@
 namespace Drupal\ocha_ai\Plugin;
 
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\ocha_ai\Plugin\ocha_ai\Completion\CompletionCapability;
 
 /**
  * Base completion plugin.
@@ -157,6 +158,41 @@ abstract class CompletionPluginBase extends PluginBase implements CompletionPlug
    */
   public function getSupportedFileTypes(): array {
     return [];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function queryStructured(string $prompt, array $json_schema, string $system_prompt = '', array $parameters = [], array $files = []): ?array {
+    return NULL;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getCapabilities(): array {
+    $definition = $this->getPluginDefinition();
+    $capabilities = $definition['capabilities'] ?? [];
+
+    if (!is_array($capabilities)) {
+      return [];
+    }
+
+    $supported = [];
+    foreach ($capabilities as $capability) {
+      if ($capability instanceof CompletionCapability) {
+        $supported[$capability->value] = $capability;
+      }
+    }
+
+    return array_values($supported);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function hasCapability(CompletionCapability $capability): bool {
+    return in_array($capability, $this->getCapabilities(), TRUE);
   }
 
 }

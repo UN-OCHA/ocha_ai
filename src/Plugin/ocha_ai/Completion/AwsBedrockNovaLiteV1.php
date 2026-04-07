@@ -13,7 +13,10 @@ use Drupal\ocha_ai\Attribute\OchaAiCompletion;
 #[OchaAiCompletion(
   id: 'aws_bedrock_nova_lite_v1',
   label: new TranslatableMarkup('AWS Bedrock - Nova lite v1'),
-  description: new TranslatableMarkup('Use AWS Bedrock - Nova lite v1 as completion generator.')
+  description: new TranslatableMarkup('Use AWS Bedrock - Nova lite v1 as completion generator.'),
+  capabilities: [
+    CompletionCapability::FileInput,
+  ],
 )]
 class AwsBedrockNovaLiteV1 extends AwsBedrock {
 

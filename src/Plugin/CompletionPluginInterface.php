@@ -2,6 +2,8 @@
 
 namespace Drupal\ocha_ai\Plugin;
 
+use Drupal\ocha_ai\Plugin\ocha_ai\Completion\CompletionCapability;
+
 /**
  * Interface for the completion plugins.
  */
@@ -49,6 +51,27 @@ interface CompletionPluginInterface {
    *   The model output text or NULL in case of error when querying the model.
    */
   public function query(string $prompt, string $system_prompt = '', array $parameters = [], bool $raw = TRUE, array $files = []): ?string;
+
+  /**
+   * Perform a structured completion query.
+   *
+   * Implementations that do not support structured output should return NULL.
+   *
+   * @param string $prompt
+   *   Prompt.
+   * @param array $json_schema
+   *   JSON schema as an associative array.
+   * @param string $system_prompt
+   *   Optional system prompt.
+   * @param array $parameters
+   *   Optional parameters for the payload.
+   * @param array $files
+   *   Optional list of files to pass to the model.
+   *
+   * @return array|null
+   *   Structured output data or NULL on failure/unsupported capability.
+   */
+  public function queryStructured(string $prompt, array $json_schema, string $system_prompt = '', array $parameters = [], array $files = []): ?array;
 
   /**
    * Query the model with the given payload and return the raw response data.
@@ -112,5 +135,24 @@ interface CompletionPluginInterface {
    *   as values.
    */
   public function getSupportedFileTypes(): array;
+
+  /**
+   * Get the completion plugin capabilities.
+   *
+   * @return \Drupal\ocha_ai\Plugin\ocha_ai\Completion\CompletionCapability[]
+   *   Capabilities keyed numerically.
+   */
+  public function getCapabilities(): array;
+
+  /**
+   * Check if the completion plugin has a specific capability.
+   *
+   * @param \Drupal\ocha_ai\Plugin\ocha_ai\Completion\CompletionCapability $capability
+   *   Capability enum case.
+   *
+   * @return bool
+   *   TRUE if the capability is available.
+   */
+  public function hasCapability(CompletionCapability $capability): bool;
 
 }
