@@ -23,7 +23,11 @@ use Drupal\ocha_ai\Attribute\OchaAiCompletion;
 #[OchaAiCompletion(
   id: 'aws_bedrock_claude_opus_4_6_v1',
   label: new TranslatableMarkup('AWS Bedrock - Claude Opus 4.6'),
-  description: new TranslatableMarkup('Use AWS Bedrock - Claude Opus 4.6 as completion generator.')
+  description: new TranslatableMarkup('Use AWS Bedrock - Claude Opus 4.6 as completion generator.'),
+  capabilities: [
+    CompletionCapability::FileInput,
+    CompletionCapability::ThinkingMode,
+  ],
 )]
 class AwsBedrockClaudeOpus46V1 extends AwsBedrock {
 
