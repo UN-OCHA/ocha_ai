@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Drupal\ocha_ai\Plugin\ocha_ai\Completion;
 
 /**
- * Trait for Nova 2 structured outputs on AWS Bedrock.
+ * Trait for Amazon Nova structured outputs on AWS Bedrock.
  */
-trait Nova2StructuredTrait {
+trait NovaStructuredTrait {
 
   /**
    * Perform a structured completion query.
