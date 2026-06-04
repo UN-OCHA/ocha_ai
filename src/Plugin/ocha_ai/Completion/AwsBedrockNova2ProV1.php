@@ -28,7 +28,7 @@ use Drupal\ocha_ai\Attribute\OchaAiCompletion;
 class AwsBedrockNova2ProV1 extends AwsBedrock {
 
   use Nova2ThinkingTrait;
-  use Nova2StructuredTrait;
+  use NovaStructuredTrait;
 
   /**
    * {@inheritdoc}
