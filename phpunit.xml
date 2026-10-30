@@ -12,15 +12,29 @@
     <env name="SYMFONY_DEPRECATIONS_HELPER" value="weak"/>
     <env name="BROWSERTEST_OUTPUT_BASE_URL" value=""/>
   </php>
-  <coverage includeUncoveredFiles="false"
-            processUncoveredFiles="false"
-            pathCoverage="false"
-            ignoreDeprecatedCodeUnits="true"
-            disableCodeCoverageIgnore="false">
+  <source>
     <include>
       <!-- Relative to this file! -->
       <directory suffix=".php">src</directory>
       <directory suffix=".module">.</directory>
     </include>
+    <exclude>
+      <!-- Relative to this file! -->
+      <directory suffix="Interface.php">src</directory>
+      <directory>tests</directory>
+    </exclude>
+  </source>
+  <coverage includeUncoveredFiles="false"
+            pathCoverage="false"
+            ignoreDeprecatedCodeUnits="true"
+            disableCodeCoverageIgnore="false">
+    <report>
+      <clover outputFile="clover.xml"/>
+    </report>
   </coverage>
+  <testsuites>
+    <testsuite name="unit">
+      <directory>tests/src/Unit</directory>
+    </testsuite>
+  </testsuites>
 </phpunit>
