@@ -48,7 +48,13 @@ interface CompletionPluginInterface {
    *     encoded.
    *
    * @return string|null
-   *   The model output text or NULL in case of error when querying the model.
+   *   The model output text, or NULL for empty/unusable output that is not a
+   *   provider transport failure.
+   *
+   * @throws \Drupal\ocha_ai\Exception\CompletionInputException
+   *   Permanent failure caused by invalid or unsuitable input.
+   * @throws \Drupal\ocha_ai\Exception\CompletionProviderException
+   *   Failure caused by the provider or transport layer.
    */
   public function query(string $prompt, string $system_prompt = '', array $parameters = [], bool $raw = TRUE, array $files = []): ?string;
 
@@ -69,7 +75,13 @@ interface CompletionPluginInterface {
    *   Optional list of files to pass to the model.
    *
    * @return array|null
-   *   Structured output data or NULL on failure/unsupported capability.
+   *   Structured output data, or NULL when unsupported, empty, or the response
+   *   shape cannot be parsed (not a provider transport failure).
+   *
+   * @throws \Drupal\ocha_ai\Exception\CompletionInputException
+   *   Permanent failure caused by invalid or unsuitable input.
+   * @throws \Drupal\ocha_ai\Exception\CompletionProviderException
+   *   Failure caused by the provider or transport layer.
    */
   public function queryStructured(string $prompt, array $json_schema, string $system_prompt = '', array $parameters = [], array $files = []): ?array;
 
@@ -81,6 +93,11 @@ interface CompletionPluginInterface {
    *
    * @return array
    *   Data as returned by the model.
+   *
+   * @throws \Drupal\ocha_ai\Exception\CompletionInputException
+   *   Permanent failure caused by invalid or unsuitable input.
+   * @throws \Drupal\ocha_ai\Exception\CompletionProviderException
+   *   Failure caused by the provider or transport layer.
    */
   public function queryModel(array $payload): array;
 
