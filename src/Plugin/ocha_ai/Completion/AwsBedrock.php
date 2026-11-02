@@ -5,10 +5,13 @@ declare(strict_types=1);
 namespace Drupal\ocha_ai\Plugin\ocha_ai\Completion;
 
 use Aws\BedrockRuntime\BedrockRuntimeClient;
+use Aws\Exception\AwsException;
 use Aws\Sts\StsClient;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\ocha_ai\Attribute\OchaAiCompletion;
+use Drupal\ocha_ai\Exception\CompletionInputException;
+use Drupal\ocha_ai\Exception\CompletionProviderException;
 use Drupal\ocha_ai\Plugin\CompletionPluginBase;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Exception\ProcessTimedOutException;
@@ -89,7 +92,7 @@ class AwsBedrock extends CompletionPluginBase {
       $this->getLogger()->error(strtr('Completion request failed with error: @error.', [
         '@error' => $exception->getMessage(),
       ]));
-      return [];
+      throw $this->mapCompletionException($exception);
     }
 
     try {
@@ -98,10 +101,27 @@ class AwsBedrock extends CompletionPluginBase {
     }
     catch (\Exception $exception) {
       $this->getLogger()->error('Unable to process converse response.');
-      return [];
+      throw new CompletionProviderException($exception->getMessage(), 0, $exception);
     }
 
     return $data;
+  }
+
+  /**
+   * Map a low-level completion failure to a typed completion exception.
+   *
+   * @param \Exception $exception
+   *   The original exception from the provider SDK or transport.
+   *
+   * @return \Drupal\ocha_ai\Exception\CompletionInputException|\Drupal\ocha_ai\Exception\CompletionProviderException
+   *   Typed exception to throw to callers.
+   */
+  protected function mapCompletionException(\Exception $exception): CompletionInputException|CompletionProviderException {
+    if ($exception instanceof AwsException && $exception->getAwsErrorCode() === 'ValidationException') {
+      return new CompletionInputException($exception->getMessage(), 0, $exception);
+    }
+
+    return new CompletionProviderException($exception->getMessage(), 0, $exception);
   }
 
   /**
