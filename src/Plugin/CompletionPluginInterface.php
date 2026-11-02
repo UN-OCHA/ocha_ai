@@ -53,6 +53,8 @@ interface CompletionPluginInterface {
    *
    * @throws \Drupal\ocha_ai\Exception\CompletionInputException
    *   Permanent failure caused by invalid or unsuitable input.
+   * @throws \Drupal\ocha_ai\Exception\CompletionRequestException
+   *   Per-request / model failure that may succeed on retry.
    * @throws \Drupal\ocha_ai\Exception\CompletionProviderException
    *   Failure caused by the provider or transport layer.
    */
@@ -80,6 +82,8 @@ interface CompletionPluginInterface {
    *
    * @throws \Drupal\ocha_ai\Exception\CompletionInputException
    *   Permanent failure caused by invalid or unsuitable input.
+   * @throws \Drupal\ocha_ai\Exception\CompletionRequestException
+   *   Per-request / model failure that may succeed on retry.
    * @throws \Drupal\ocha_ai\Exception\CompletionProviderException
    *   Failure caused by the provider or transport layer.
    */
@@ -96,6 +100,8 @@ interface CompletionPluginInterface {
    *
    * @throws \Drupal\ocha_ai\Exception\CompletionInputException
    *   Permanent failure caused by invalid or unsuitable input.
+   * @throws \Drupal\ocha_ai\Exception\CompletionRequestException
+   *   Per-request / model failure that may succeed on retry.
    * @throws \Drupal\ocha_ai\Exception\CompletionProviderException
    *   Failure caused by the provider or transport layer.
    */
