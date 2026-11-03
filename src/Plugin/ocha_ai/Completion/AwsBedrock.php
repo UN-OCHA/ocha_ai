@@ -12,6 +12,7 @@ use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\ocha_ai\Attribute\OchaAiCompletion;
 use Drupal\ocha_ai\Exception\CompletionInputException;
 use Drupal\ocha_ai\Exception\CompletionProviderException;
+use Drupal\ocha_ai\Exception\CompletionRequestException;
 use Drupal\ocha_ai\Plugin\CompletionPluginBase;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Exception\ProcessTimedOutException;
@@ -113,15 +114,37 @@ class AwsBedrock extends CompletionPluginBase {
    * @param \Exception $exception
    *   The original exception from the provider SDK or transport.
    *
-   * @return \Drupal\ocha_ai\Exception\CompletionInputException|\Drupal\ocha_ai\Exception\CompletionProviderException
+   * @return \Drupal\ocha_ai\Exception\CompletionInputException|\Drupal\ocha_ai\Exception\CompletionProviderException|\Drupal\ocha_ai\Exception\CompletionRequestException
    *   Typed exception to throw to callers.
    */
-  protected function mapCompletionException(\Exception $exception): CompletionInputException|CompletionProviderException {
-    if ($exception instanceof AwsException && $exception->getAwsErrorCode() === 'ValidationException') {
+  protected function mapCompletionException(\Exception $exception): CompletionInputException|CompletionProviderException|CompletionRequestException {
+    if (!$exception instanceof AwsException || $exception->isConnectionError()) {
+      return new CompletionProviderException($exception->getMessage(), 0, $exception);
+    }
+
+    $code = (string) $exception->getAwsErrorCode();
+
+    // Permanent bad/oversized input for this request payload.
+    if ($code === 'ValidationException') {
       return new CompletionInputException($exception->getMessage(), 0, $exception);
     }
 
-    return new CompletionProviderException($exception->getMessage(), 0, $exception);
+    // Systemic provider/capacity/config failures: callers should stop bulk
+    // work.
+    $provider_codes = [
+      'ThrottlingException',
+      'ModelNotReadyException',
+      'InternalServerException',
+      'ServiceUnavailableException',
+      'AccessDeniedException',
+      'ResourceNotFoundException',
+    ];
+    if (in_array($code, $provider_codes, TRUE)) {
+      return new CompletionProviderException($exception->getMessage(), 0, $exception);
+    }
+
+    // Per-request model failures (and unknown codes): safe to retry the item.
+    return new CompletionRequestException($exception->getMessage(), 0, $exception);
   }
 
   /**
